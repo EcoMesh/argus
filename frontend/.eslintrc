@@ -26,13 +26,10 @@
       "version": "detect"
     },
     "import/resolver": {
-      "alias": {
-        "map": [
-          [
-            "src",
-            "./src"
-          ]
-        ],
+      "eslint-import-resolver-custom-alias": {
+        "alias": {
+          "src": "./src"
+        },
         "extensions": [
           ".js",
           ".jsx",
