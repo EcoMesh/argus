@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "argus-backend"
+version = "0.1.0"
+description = ""
+authors = ["NoahCardoza <noahcardoza@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = { extras = ["all"], version = "^0.109.0" }
+rethinkdb = "^2.4.10.post1"
+typer = { extras = ["all"], version = "^0.9.0" }
+
+[tool.ruff.flake8-bugbear]
+extend-immutable-calls = [
+  "fastapi.Depends",
+  "fastapi.params.Depends",
+  "fastapi.Query",
+  "fastapi.params.Query",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

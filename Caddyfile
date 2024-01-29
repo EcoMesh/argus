@@ -1,0 +1,4 @@
+:8888
+
+reverse_proxy /api* localhost:8000
+reverse_proxy localhost:3030

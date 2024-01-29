@@ -1,6 +1,8 @@
+<!-- trunk-ignore-all(markdownlint/MD041) -->
+
 MIT License
 
-Copyright (c) 2023 EcoMesh
+Copyright (c) 2021 Minimal UI ([https://minimals.cc/](https://minimals.cc/))
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
