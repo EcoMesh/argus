@@ -42,14 +42,29 @@ def create_access_token(data: dict):
 
 
 async def get_current_user(
-    authentication: str = Header(...),
+    authorization: str = Header(...),
 ) -> schema.user.User:
     try:
+        header_parts = authorization.split(maxsplit=1)
+        if len(header_parts) != 2:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authorization header",
+            )
+        token_type, access_token = header_parts
+
+        if token_type.lower() != "bearer":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authorization header",
+            )
         payload = jwt.decode(
-            authentication, settings.jwt_secret, algorithms=[JWT_ALGORITHM]
+            access_token, settings.jwt_secret, algorithms=[JWT_ALGORITHM]
         )
-        return schema.user.User(**payload)
-    except JWTError:
+        del payload["exp"]
+        return schema.user.UserOut(**payload)
+    except JWTError as e:
+        print_exc(e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",

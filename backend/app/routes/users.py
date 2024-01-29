@@ -39,3 +39,8 @@ async def signup(payload: UserSignupIn, conn: Connection = Depends(get_database)
     return UserSignupOut(
         access_token=token, user=UserOut(**user.model_dump(exclude={"password"}))
     )
+
+
+@router.get("/me", response_model=UserOut)
+async def get_user(user: UserOut = Depends(security.get_current_user)):
+    return user
