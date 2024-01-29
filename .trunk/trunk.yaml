@@ -16,7 +16,14 @@ runtimes:
     - python@3.10.8
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
+  definitions:
+    - name: eslint
+      commands:
+        - name: lint
+          run_from: ${root_or_parent_with(.eslintrc)}
+          run: eslint --fix --output-file ${tmpfile} --format json ${target}
   enabled:
+    - eslint@8.56.0
     - bandit@1.7.7
     - black@24.1.0
     - checkov@3.1.70

@@ -1,2 +1,6 @@
-/data
+/rethinkdb
+/mosquitto/data
 .DS_Store
+
+frontend/.trunk
+backend/.trunk
