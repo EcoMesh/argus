@@ -6,13 +6,17 @@ from rethinkdb.errors import ReqlOpFailedError
 from ..utils import coro
 
 app = typer.Typer(help="A collation of commands to manage the database.")
+tables = [
+    "users",
+    "sensors",
+    "readings",
+]
 
 
 @app.command()
 @coro
 async def create_tables():
     """Create all tables in the database"""
-    tables = ["marvel", "dc"]
 
     conn = await _get_database()
     for table in tables:
