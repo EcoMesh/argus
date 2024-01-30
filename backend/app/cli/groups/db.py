@@ -9,7 +9,8 @@ app = typer.Typer(help="A collation of commands to manage the database.")
 tables = [
     "users",
     "sensors",
-    "readings",
+    "sensor_readings",
+    "sensor_telemetry",
 ]
 
 

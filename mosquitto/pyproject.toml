@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "argus-mosquitto"
+version = "0.1.0"
+description = ""
+authors = ["NoahCardoza <noahcardoza@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+rethinkdb = "^2.4.10.post1"
+aiomqtt = "^2.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "7.4.4"
+pytest-asyncio = "^0.23.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
