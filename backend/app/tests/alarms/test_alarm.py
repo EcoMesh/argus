@@ -65,10 +65,10 @@ SENSORS = [
 @patch("app.tasks.alarm_identification.set_alarm_event_end")
 @patch("app.tasks.alarm_identification.get_sensors_with_readings", return_value=SENSORS)
 @patch("app.tasks.alarm_identification.get_alarms", return_value=ALARMS)
-@patch("app.tasks.alarm_identification._get_database")
+@patch("app.tasks.alarm_identification._get_database_async")
 @pytest.mark.asyncio
 async def test_cronjob(
-    get_database,
+    get_database_async,
     get_alarms,
     get_sensors_with_readings,
     set_alarm_event_end,
@@ -79,15 +79,15 @@ async def test_cronjob(
 ):
     create_alarm_event.return_value = {"generated_keys": ["123"]}
     await cronjob()
-    get_database.assert_called_once()
-    send_notification.assert_called_once_with(ALARMS[0])
+    get_database_async.assert_called_once()
+    send_notification.assert_called_once_with(ALARMS[0], SENSORS)
     create_alarm_event.assert_called_once_with(
-        get_database.return_value,
+        get_database_async.return_value,
         ALARMS[0]["id"],
         SENSOR_READINGS[-1]["timestamp"],
     )
     create_alarm_event_record.assert_called_once_with(
-        get_database.return_value,
+        get_database_async.return_value,
         "123",
         SENSOR_READINGS[0]["node_id"],
         SENSOR_READINGS[-1]["timestamp"],

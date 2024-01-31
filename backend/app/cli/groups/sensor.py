@@ -1,95 +1,128 @@
 # trunk-ignore-all(bandit/B311)
-
 import csv
 import random
 import sys
-import time
+from datetime import datetime, timedelta
 
+import pytz
 import typer
 from app.constants import TimeDelta
+from app.database import _get_database_sync
+from app.schema.sensor import SensorReading
+
+from rethinkdb import query as r
 
 CSV_HEADER = (
-    "timestamp",
-    "ground_distance",
     "node_id",
+    "timestamp",
     "temperature",
     "humidity",
     "moisture",
+    "ground_distance",
 )
-# to fill in the missing column values for now
-COLUMN_CONSTANTS = ("!id", 0, 0, 0)
 
 
-def generate_steady_data(writer, start_time, delta):
-    rand = random.random()
-    if rand < 0.05:
-        ground_distance = random.randint(30, 40)
-    elif rand < 0.15:
-        ground_distance = random.randint(35, 40)
-    else:
-        ground_distance = random.randint(38, 40)
-    writer.writerow([start_time, ground_distance, *COLUMN_CONSTANTS])
-    return start_time + delta
+class RainfallDataGenerator:
+    def __init__(
+        self,
+        include_evaporation: bool,
+        node_id: str,
+        start_time: datetime,
+        delta: timedelta = timedelta(minutes=5),
+    ):
+        self.include_evaporation = include_evaporation
+        self.delta = delta
+        self.ground_distance_max = 40
+        self.ground_distance = 40
+        self.start_time = start_time
+        self.node_id = node_id
+
+    def generate_steady_data(self):
+        rand = random.random()
+        if rand < 0.05:
+            distance = random.randint(30, 40)
+        elif rand < 0.15:
+            distance = random.randint(35, 40)
+        else:
+            distance = random.randint(38, 40)
+        yield SensorReading(
+            self.node_id,
+            self.start_time,
+            0,
+            0,
+            0,
+            distance,
+        )
+        self.start_time += self.delta
+
+    def __iter__(self):
+        for _ in range(2 * TimeDelta.ONE_DAY // self.delta.seconds):
+            yield from self.generate_steady_data()
+
+        for _ in range(TimeDelta.TWELVE_HOURS // self.delta.seconds):
+            self.ground_distance += random.randint(0, 20) / 100
+            if random.random() > 0.8:
+                self.ground_distance -= random.randint(0, 200) / 100
+            self.ground_distance = min(self.ground_distance, self.ground_distance_max)
+            yield SensorReading(
+                self.node_id,
+                self.start_time,
+                0,
+                0,
+                0,
+                self.ground_distance,
+            )
+            self.start_time += self.delta
+
+        if not self.include_evaporation:
+            return
+
+        for _ in range(TimeDelta.TWELVE_HOURS // self.delta.seconds):
+            self.ground_distance += random.randint(0, 20) / 100
+            self.ground_distance = min(self.ground_distance, self.ground_distance_max)
+            SensorReading(self.node_id, self.start_time, 0, 0, 0, self.ground_distance)
+            self.start_time += self.delta
+
+        for _ in range(2 * TimeDelta.ONE_DAY // self.delta.seconds):
+            yield from self.generate_steady_data()
 
 
-def rainfall_data_generator(
-    write_obj, include_evaporation: bool, delta: int = TimeDelta.FIVE_MINUTES
-):
-    """
-    generating random rainfall data
-    ground_distance is measured in meters by a ultrasonic sensor
-    when it rains, the ground distance decreases
-
-    generates 5 and a half days of test data with one rain event in the middle
-    """
-    writer = csv.writer(write_obj)
+def generator_to_csv(file, generator):
+    writer = csv.writer(file)
     writer.writerow(CSV_HEADER)
-
-    ground_distance_max = 40
-    ground_distance = 40
-    start_time = int(time.time())
-
-    for _ in range(2 * TimeDelta.ONE_DAY // delta):
-        start_time = generate_steady_data(writer, start_time, delta)
-
-    for _ in range(TimeDelta.TWELVE_HOURS // delta):
-        start_time = generate_steady_data(writer, start_time, delta)
-
-    for _ in range(TimeDelta.TWELVE_HOURS // delta):
-        ground_distance += random.randint(0, 20) / 100
-        if random.random() > 0.5:
-            ground_distance -= random.randint(0, 50) / 100
-        ground_distance = min(ground_distance, ground_distance_max)
-        writer.writerow(
-            [start_time, ground_distance - random.randint(0, 10), *COLUMN_CONSTANTS]
-        )
-        start_time += delta
-
-    if not include_evaporation:
-        return
-
-    for _ in range(TimeDelta.TWELVE_HOURS // delta):
-        ground_distance += random.randint(0, 20) / 100
-        ground_distance = min(ground_distance, ground_distance_max)
-        writer.writerow(
-            [start_time, ground_distance - random.randint(0, 10), *COLUMN_CONSTANTS]
-        )
-        start_time += delta
-
-    for _ in range(2 * TimeDelta.ONE_DAY // delta):
-        start_time = generate_steady_data(writer, start_time, delta)
+    for reading in generator:
+        writer.writerow((reading[0], int(reading[1].timestamp()), *reading[2:]))
 
 
 app = typer.Typer(
     name="sensor", help="A collation of commands to manage and mock sensor data."
 )
 
+tz = pytz.timezone("America/Los_Angeles")
+
 
 @app.command()
-def generate_rainfall_data(file: str = None, evaporation: bool = False):
-    if file is None:
-        file = sys.stdout
+def generate_rainfall_data(
+    file: str = None,
+    evaporation: bool = False,
+    node_id: str = "!node-id",
+    to_db: bool = False,
+):
+    generator = RainfallDataGenerator(
+        include_evaporation=evaporation,
+        node_id=node_id,
+        start_time=datetime.now(tz=tz) - timedelta(days=2, hours=12),
+    )
+
+    if to_db:
+        with _get_database_sync() as conn:
+            r.table("sensor_readings").insert(
+                reading._asdict() for reading in generator
+            ).run(conn)
     else:
-        file = open(file, "w")
-    rainfall_data_generator(file, include_evaporation=evaporation)
-    file.close()
+        if file is None:
+            file = sys.stdout
+        else:
+            file = open(file, "w")
+        generator_to_csv(file, generator)
+        file.close()

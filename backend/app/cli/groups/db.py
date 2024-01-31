@@ -1,6 +1,6 @@
 import rethinkdb.query as r
 import typer
-from app.database import _get_database
+from app.database import _get_database_async, _get_database_sync
 from rethinkdb.errors import ReqlOpFailedError
 
 from ..utils import coro
@@ -22,7 +22,7 @@ tables = [
 async def create_tables():
     """Create all tables in the database"""
 
-    conn = await _get_database()
+    conn = await _get_database_async()
     conn.repl()
     for table in tables:
         try:
@@ -46,7 +46,7 @@ async def create_tables():
 @coro
 async def drop_tables():
     """Drop all tables in the database"""
-    conn = await _get_database()
+    conn = await _get_database_async()
     for table in await r.table_list().run(conn):
         await r.table_drop(table).run(conn)
         print(f"Dropped table {table}")
@@ -57,7 +57,7 @@ async def drop_tables():
 @coro
 async def populate_tables():
     """Populate all tables in the database"""
-    conn = await _get_database()
+    conn = await _get_database_async()
     alarms = [
         {
             "id": "c5b2b4c2-6d5a-4c4e-8d3b-5b4f4f4b4d4d",
@@ -108,3 +108,9 @@ async def populate_tables():
     await r.table("alarms_events").insert(alarm_events).run(conn)
     await r.table("alarms_event_records").insert(alarm_event_records).run(conn)
     await conn.close()
+
+
+@app.command()
+def dump_sensor_readings():
+    with _get_database_sync() as conn:
+        r.table("sensor_readings").delete().run(conn)

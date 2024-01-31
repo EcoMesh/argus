@@ -1,15 +1,18 @@
 import logging
+from pprint import pprint
 from typing import List
 
 import pandas as pd
 from app import schema
 from app.constants import TimeDelta
-from app.database import Connection, _get_database
+from app.database import Connection, _get_database_async
 from app.schema.alarm import ast, rules
 
 from rethinkdb import query as r
 
 logger = logging.getLogger(__name__)
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def test_ground_distance(df, config: rules.GroundDistanceRule):
@@ -64,7 +67,7 @@ async def get_sensors_with_readings(conn: Connection) -> List[dict]:
                     lambda reading: reading["timestamp"]
                     > r.now().sub(TimeDelta.ONE_DAY * 2)
                 )
-                .order_by(r.desc("timestamp"))
+                .order_by(r.asc("timestamp"))
                 .coerce_to("array")
             }
         )
@@ -73,7 +76,7 @@ async def get_sensors_with_readings(conn: Connection) -> List[dict]:
 
 
 async def get_alarms(conn: Connection) -> List[dict]:
-    return (
+    items = (
         await r.table("alarms")
         .merge(
             lambda alarm: {
@@ -86,6 +89,8 @@ async def get_alarms(conn: Connection) -> List[dict]:
                         .get_all(event["id"], index="alarm_event_id")
                         .filter(lambda record: record["end"].eq(None))
                         .group("node_id")
+                        .ungroup()
+                        .coerce_to("array")
                     }
                 )
                 .nth(0)
@@ -94,6 +99,15 @@ async def get_alarms(conn: Connection) -> List[dict]:
         )
         .run(conn)
     ).items
+
+    for item in items:
+        if item["event"]:
+            item["event"]["sensors"] = {
+                record["group"]: record["reduction"]
+                for record in item["event"]["sensors"]
+            }
+
+    return items
 
 
 async def create_alarm_event(conn: Connection, alarm_id: str, start: int):
@@ -135,8 +149,10 @@ async def set_alarm_event_end(conn: Connection, event_id: str, end: int):
     await r.table("alarms_events").get(event_id).update({"end": end}).run(conn)
 
 
-async def send_notification(alarm: schema.alarm.Alarm):
-    raise NotImplementedError
+async def send_notification(alarm: dict, sensors: List[dict]):
+    logger.warning(
+        "Alarm %s triggered by sensors %s", alarm["id"], [s["id"] for s in sensors]
+    )
 
 
 async def cronjob():
@@ -147,12 +163,19 @@ async def cronjob():
      - should alarm history be tied to the sensor or the alarm?
      - how do we relate multiple sensors to a single in the alarm state to a single weather event?
     """
-    conn = await _get_database()
+    conn = await _get_database_async()
     try:
         alarms = await get_alarms(conn)
         sensors = await get_sensors_with_readings(conn)
+        print(len(sensors))
         for alarm in alarms:
+            new_sensors_in_alarm = []
             for sensor in sensors:
+                logger.debug(
+                    "Evaluating sensor %s against alarm %s", sensor["id"], alarm["id"]
+                )
+                if not sensor["readings"]:
+                    continue
                 df = pd.DataFrame(sensor["readings"])
                 alarm_status = evaluate_alert_logic_ast(
                     df, schema.alarm.ast.Root(alarm["condition"]).root
@@ -167,18 +190,22 @@ async def cronjob():
                         alarm_event_id = res["generated_keys"][0]
                     else:
                         alarm_event_id = alarm["event"]["id"]
-
-                    if not alarm["event"] or sensor["id"] not in alarm["event"]:
+                    if (
+                        not alarm["event"]
+                        or sensor["node_id"] not in alarm["event"]["sensors"]
+                    ):
                         await create_alarm_event_record(
                             conn,
                             alarm_event_id,
                             sensor["node_id"],
                             sensor["readings"][-1]["timestamp"],
                         )
-
-                    await send_notification(alarm)
+                        new_sensors_in_alarm.append(sensor)
                 elif alarm_status is not None:
-                    if alarm["event"] and sensor["id"] in alarm["event"]:
+                    if (
+                        alarm["event"]
+                        and sensor["node_id"] in alarm["event"]["sensors"]
+                    ):
                         await set_alarm_event_record_end(
                             conn,
                             alarm["event"][sensor["id"]],
@@ -195,7 +222,10 @@ async def cronjob():
                     # unreachable unless we swap out all for different methods that
                     # return the first falsy value
                     logger.warning("Not enough data to evaluate alarm.")
-
+            if new_sensors_in_alarm:
+                await send_notification(alarm, new_sensors_in_alarm)
+    except Exception as e:
+        logger.exception(e)
     finally:
         await conn.close()
 
