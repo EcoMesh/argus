@@ -9,8 +9,7 @@ class Settings(BaseSettings):
     jwt_secret: str = "changeme-in-production"
     jwt_expire_minutes: int = 60
 
-    class Config:
-        env_file = ".env"
+    model_config = {"env_file": ".env"}
 
 
 settings = Settings()

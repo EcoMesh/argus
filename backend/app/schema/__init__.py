@@ -1,3 +1,3 @@
-from . import sensor, user
+from . import alarm, sensor, user
 
-__all__ = ["user", "sensor"]
+__all__ = ["user", "sensor", "alarm"]
