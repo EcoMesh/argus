@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import patch
 
 import pytest
@@ -16,11 +17,11 @@ async def test_sensor_reading_message():
     save_reading.assert_called_once_with(
         SensorReading(
             node_id="!833c2233",
-            timestamp=1705891140,
+            timestamp=datetime.fromtimestamp(1705891140),
             temperature=75.56,
             humidity=62.2,
             moisture=0.0,
-            water_level=4.27,
+            ground_distance=4.27,
         )
     )
 
@@ -36,7 +37,7 @@ async def test_telemetry_message():
     save_telemetry.assert_called_once_with(
         SensorTelemetry(
             node_id="!833c2233",
-            timestamp=1705891168,
+            timestamp=datetime.fromtimestamp(1705891168),
             battery_level=94,
             voltage=4.14499998092651,
         )
