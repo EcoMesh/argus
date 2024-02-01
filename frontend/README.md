@@ -4,8 +4,20 @@
 
 ### Requirements
 
-+ [Node.js v18.x](https://nodejs.org/en/download/)
-+ [Yarn](https://classic.yarnpkg.com/en/docs/install)
+- [Node.js v18.x](https://nodejs.org/en/download/)
+- [Yarn](https://classic.yarnpkg.com/en/docs/install)
+
+#### Issues
+
+##### Outdated Node.js
+
+If you have an older version of Node.js that you need for other projects,
+consider using [nvm](https://github.com/nvm-sh/nvm) to manage multiple
+versions of Node.js easily.
+
+##### EACCES Error
+
+If you run into an EACCES error, refer to the [npm documentation](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally).
 
 ### Installation
 

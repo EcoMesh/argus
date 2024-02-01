@@ -7,10 +7,11 @@ The monitoring system.
 ### Requirements
 
 - [Docker](https://docs.docker.com/install/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
 - [Caddy](https://caddyserver.com/docs/install)
 
 ### Development
+
+#### Running
 
 First run the following command to start the database and reverse proxy:
 
@@ -26,3 +27,52 @@ Then start the backend and frontend server following their respective READMEs:
 
 To record active sensor readings and telemetry data in the database, refer to the
 [README](mosquitto/README.md) in the `/mosquitto` directory.
+
+#### Working with RethinkDB
+
+To access the RethinkDB web interface, navigate to `localhost:8080` in your web
+browser.
+
+##### Chateau
+
+If you want an MyPHPAdmin-like interface to RethinkDB, install
+[chateau](https://github.com/neumino/chateau) with `npm install -g chateau`.
+
+If you run into an EACCES error, refer to the
+[npm documentation](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally).
+
+````bash
+
+Then run the following command to start the chateau server:
+
+```bash
+chateau
+````
+
+Navigate to [`localhost:3000`](http://localhost:3000) in your web browser
+to access the chateau interface.
+
+##### Python
+
+Unfortunately, the web interface only allows you to send queries via the
+JavaScript SDK. If you can use the Python REPL:
+
+```bash
+from rethinkdb import r
+
+conn = r.connect()
+conn.repl()
+```
+
+If you are pasting a multi-line query, type `(` before you paste the query
+and `)` after you paste the query. This will keep Python from complaining
+about indentation errors.
+
+#### Stopping
+
+To stop the docker container and Caddy reverse proxy, run the following commands:
+
+```bash
+docker-compose down
+caddy stop
+```

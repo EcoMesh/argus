@@ -1,18 +1,17 @@
 import logging
-from pprint import pprint
+from datetime import datetime
 from typing import List
 
 import pandas as pd
 from app import schema
 from app.constants import TimeDelta
-from app.database import Connection, _get_database_async
+from app.database import Connection, _get_database_async, r_now
 from app.schema.alarm import ast, rules
+from app.stubs.datetime import stubbed_datetime
 
 from rethinkdb import query as r
 
 logger = logging.getLogger(__name__)
-
-logging.basicConfig(level=logging.DEBUG)
 
 
 def test_ground_distance(df, config: rules.GroundDistanceRule):
@@ -65,7 +64,7 @@ async def get_sensors_with_readings(conn: Connection) -> List[dict]:
                 .get_all(sensor["node_id"], index="node_id")
                 .filter(
                     lambda reading: reading["timestamp"]
-                    > r.now().sub(TimeDelta.ONE_DAY * 2)
+                    > r_now(sub=TimeDelta.ONE_DAY * 2)
                 )
                 .order_by(r.asc("timestamp"))
                 .coerce_to("array")
@@ -103,7 +102,7 @@ async def get_alarms(conn: Connection) -> List[dict]:
     for item in items:
         if item["event"]:
             item["event"]["sensors"] = {
-                record["group"]: record["reduction"]
+                record["group"]: record["reduction"][0]
                 for record in item["event"]["sensors"]
             }
 
@@ -141,7 +140,7 @@ async def create_alarm_event_record(
     )
 
 
-async def set_alarm_event_record_end(conn: Connection, record_id: str, end: int):
+async def set_alarm_event_record_end(conn: Connection, record_id: str, end: datetime):
     await r.table("alarms_event_records").get(record_id).update({"end": end}).run(conn)
 
 
@@ -149,9 +148,14 @@ async def set_alarm_event_end(conn: Connection, event_id: str, end: int):
     await r.table("alarms_events").get(event_id).update({"end": end}).run(conn)
 
 
-async def send_notification(alarm: dict, sensors: List[dict]):
+async def send_notification_on_event_start(alarm: dict, sensors: List[dict]):
     logger.warning(
         "Alarm %s triggered by sensors %s", alarm["id"], [s["id"] for s in sensors]
+    )
+
+async def send_notification_on_event_end(alarm: dict):
+    logger.warning(
+        "Alarm %s ended", alarm["id"]
     )
 
 
@@ -163,11 +167,11 @@ async def cronjob():
      - should alarm history be tied to the sensor or the alarm?
      - how do we relate multiple sensors to a single in the alarm state to a single weather event?
     """
+    logger.info("Current time %s", stubbed_datetime.now().isoformat())
     conn = await _get_database_async()
     try:
         alarms = await get_alarms(conn)
         sensors = await get_sensors_with_readings(conn)
-        print(len(sensors))
         for alarm in alarms:
             new_sensors_in_alarm = []
             for sensor in sensors:
@@ -208,22 +212,25 @@ async def cronjob():
                     ):
                         await set_alarm_event_record_end(
                             conn,
-                            alarm["event"][sensor["id"]],
+                            alarm["event"]["sensors"][sensor["node_id"]]["id"],
                             sensor["readings"][-1]["timestamp"],
                         )
-                        del alarm["event"][sensor["id"]]
-                        if not alarm["event"]["records"]:
-                            await set_alarm_event_end(
-                                conn,
-                                alarm["event"]["id"],
-                                sensor["readings"][-1]["timestamp"],
-                            )
+                        del alarm["event"]["sensors"][sensor["node_id"]]
                 else:
                     # unreachable unless we swap out all for different methods that
                     # return the first falsy value
                     logger.warning("Not enough data to evaluate alarm.")
+
+            if alarm["event"] and not alarm["event"]["sensors"]:
+                await set_alarm_event_end(
+                    conn,
+                    alarm["event"]["id"],
+                    sensor["readings"][-1]["timestamp"],
+                )
+                await send_notification_on_event_end(alarm)
+
             if new_sensors_in_alarm:
-                await send_notification(alarm, new_sensors_in_alarm)
+                await send_notification_on_event_start(alarm, new_sensors_in_alarm)
     except Exception as e:
         logger.exception(e)
     finally:

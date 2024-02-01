@@ -3,7 +3,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 import pytest
-from app.tasks.alarm_identification import cronjob
+from app.worker.alarm_identification import cronjob
 
 ALARMS = [
     {

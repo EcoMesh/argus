@@ -37,8 +37,34 @@ poetry run python -m app db create-tables
 
 ### Run development server
 
+To start the HTTP development server, run the following command:
+
 ```sh
 poetry run uvicorn app:app --reload
+```
+
+To run recurring tasks, start the Celery worker:
+
+```sh
+poetry run celery --app=app.worker worker
+```
+
+**NOTE**: Set the logging level with `-l <LEVEL>`.
+
+To run the Celery beat scheduler:
+
+```sh
+celery --app=app.worker beat -S redisbeat.RedisScheduler --max-interval=4
+```
+
+**NOTE**: The `--max-interval` flag is set to 4 seconds during development to make sure
+when the schedule intervals are changed when a the system time is mocked, the changes
+are picked up in at most 4 seconds.
+
+To add the recurring celery worker schedule, run the following command:
+
+```sh
+python -m app.worker
 ```
 
 ### Run tests

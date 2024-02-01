@@ -4,3 +4,11 @@
 
 frontend/.trunk
 backend/.trunk
+
+.pytest_cache
+.venv
+__pycache__
+.env*
+!.env.example
+
+replay.csv
