@@ -6,6 +6,7 @@ import random
 import sys
 import time
 from datetime import datetime, timedelta
+from typing import Annotated
 
 import pytz
 import requests
@@ -13,6 +14,7 @@ import typer
 from app.constants import TZ, TimeDelta
 from app.database import _get_database_sync
 from app.schema.sensor import SensorReading
+from typer import Option
 
 from rethinkdb import query as r
 
@@ -124,13 +126,38 @@ class GeneratorTea:
 
 @app.command()
 def generate_rainfall_data(
-    file: str = None,
-    evaporation: bool = False,
-    node_id: str = "!node-id",
-    to_db: bool = False,
-    sync: bool = False,
-    speed: int = 1,
+    file: Annotated[
+        str,
+        Option(
+            help="A file to write the sensor data to. Can be used in combination with the --to-db flag."
+        ),
+    ] = None,
+    evaporation: Annotated[
+        bool,
+        Option(
+            help="Flag to include evaporation in the generated data. This will double the amount of data generated."
+        ),
+    ] = False,
+    node_id: Annotated[
+        str, Option(help="The node ID to generate data for.")
+    ] = "!node-id",
+    to_db: Annotated[
+        bool, Option(help="Flag to stream directly to the database.")
+    ] = False,
+    sync: Annotated[
+        bool,
+        Option(
+            help="Empties database of sensor records and syncs up database time to simulate live sensor data."
+        ),
+    ] = False,
+    speed: Annotated[
+        int,
+        Option(
+            help="Use in combination with --sync. This number is used as a multiplier to speed up the flow of simulated data. For example, setting this flag to 3600 will simulate an hours worth of events in one second."
+        ),
+    ] = 1,
 ):
+    """Generate rainfall data and optionally write it to a file or the database."""
     start_time = datetime.now(tz=TZ)  # - timedelta(days=2, hours=12)
     # simulation_run_time = (
     #     timedelta(days=5) if evaporation else timedelta(days=2, hours=12)
