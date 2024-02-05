@@ -10,12 +10,9 @@ from app.stubs.datetime import set_stubbed_time
 from celery import Celery
 from redisbeat.scheduler import RedisScheduler
 
-from .alarm_identification import cronjob as alarm_identification_cronjob
-
 os.environ["TZ"] = "America/Los_Angeles"
 
 __all__ = [
-    "upsert_alarm_identification_cronjob_task",
     "ALARM_IDENTIFICATION_CRONJOB_TASK_SCHEDULE",
 ]
 
@@ -67,10 +64,24 @@ def alarm_identification_cronjob_task(
     real_time_at_epoch: datetime = None,
 ):
     """Run the alarm identification cronjob."""
+    from app.worker.alarm_identification import (  # delay import so improve hot reload time
+        alarm_identification_cronjob,
+    )
+
     if epoch:
         set_stubbed_time(epoch, stubbed_time_speed, real_time_at_epoch)
     loop = asyncio.get_event_loop()
     return loop.run_until_complete(alarm_identification_cronjob())
+
+
+@app.task
+def delineate_watershed_task(region: dict):
+    """Delineate the watershed for a region."""
+    from .watershed_delineation import (  # delay import so improve hot reload time
+        process_sensors_polygon_by_region,
+    )
+
+    return process_sensors_polygon_by_region(region)
 
 
 scheduler = RedisScheduler(app=app)

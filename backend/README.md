@@ -6,14 +6,35 @@
 
 - [Poetry](https://python-poetry.org/docs)
 
-We recommend setting Poetry's `virtualenvs.in-project` to `true` which will
-place the virtual environment in the project's root directory. This will make it
-easier to use the virtual environments in this multi-root monorepo with
-VS Code.
+  We recommend setting Poetry's `virtualenvs.in-project` to `true` which will
 
-```sh
-poetry config virtualenvs.in-project true
-```
+  place the virtual environment in the project's root directory. This will make it
+  easier to use the virtual environments in this multi-root monorepo with
+  VS Code.
+
+  ```sh
+  poetry config virtualenvs.in-project true
+  ```
+
+- [GDAL](https://gdal.org/api/python_bindings.html)
+
+  The GDAL library is required for the `rasterio` and `elevation` packages.
+
+  To install on **Ubuntu**, read the instructions [here](https://mothergeo-py.readthedocs.io/en/latest/development/how-to/gdal-ubuntu-pkg.html).
+
+  On **macOS**, you can install the library with the following command:
+
+  ```sh
+  brew install gdal
+  ```
+
+  If you get errors when initializing a sensor, which will use this library to
+  calculate the watershed using the sensor's location as a pour point, you may
+  need to nuke the `elevation` cache with the following command:
+
+  ```sh
+  eio distclean
+  ```
 
 #### Issues
 

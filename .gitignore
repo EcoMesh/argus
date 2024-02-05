@@ -12,3 +12,6 @@ __pycache__
 !.env.example
 
 replay.csv
+.ipynb_checkpoints
+ranch.tif
+.cache

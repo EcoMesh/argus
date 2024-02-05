@@ -55,7 +55,13 @@ to access the chateau interface.
 ##### Python
 
 Unfortunately, the web interface only allows you to send queries via the
-JavaScript SDK. If you can use the Python REPL:
+JavaScript SDK.
+
+It's suggested to use the Juypter notebook in the `backend/notebooks`
+directory. Read the respective [README](backend/notebooks/README.md) for more
+information.
+
+Alternatively, you can use the Python REPL:
 
 ```bash
 from rethinkdb import r

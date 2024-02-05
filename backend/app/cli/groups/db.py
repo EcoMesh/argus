@@ -10,6 +10,7 @@ tables = [
     "users",
     "sensors",
     "alarms",
+    "regions",
     "alarms_events",
     "alarms_event_records",
     "sensor_readings",
@@ -33,6 +34,7 @@ async def create_tables():
                 raise e
             print(f"Table {table} already exists")
 
+    r.table("sensors").index_create("region_id").run()
     r.table("sensor_readings").index_create("node_id").run()
     r.table("sensor_telemetry").index_create("node_id").run()
     r.table("alarms_events").index_create("alarm_id").run()
@@ -107,6 +109,25 @@ async def populate_tables():
     await r.table("alarms").insert(alarms).run(conn)
     await r.table("alarms_events").insert(alarm_events).run(conn)
     await r.table("alarms_event_records").insert(alarm_event_records).run(conn)
+    await r.table("regions").insert(
+        {
+            "id": "57b2b4c2-6d5a-4c4e-8d3b-5b4f4f4b4d54",
+            "name": "The Ranch",
+            "bottom_left": r.point(
+                -103.31498383879455,
+                30.275977600526915,
+            ),
+            "top_right": r.point(-103.1300, 30.487701),
+        }
+    ).run(conn)
+    await r.table("sensors").insert(
+        {
+            "id": "4df86a94-dac5-499e-95b1-9ee7b8f65963",
+            "node_id": "!833c2233",
+            "uplink": False,
+            "region_id": "57b2b4c2-6d5a-4c4e-8d3b-5b4f4f4b4d54",
+        }
+    ).run(conn)
     await conn.close()
 
 
