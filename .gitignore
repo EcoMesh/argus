@@ -15,3 +15,6 @@ replay.csv
 .ipynb_checkpoints
 ranch.tif
 .cache
+
+caddy_config
+caddy_data
