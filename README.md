@@ -7,7 +7,6 @@ The monitoring system.
 ### Requirements
 
 - [Docker](https://docs.docker.com/install/)
-- [Caddy](https://caddyserver.com/docs/install)
 
 ### Development
 
@@ -17,7 +16,6 @@ First run the following command to start the database and reverse proxy:
 
 ```bash
 docker-compose up -d
-caddy start --config Caddyfile
 ```
 
 Then start the backend and frontend server following their respective READMEs:
@@ -80,5 +78,4 @@ To stop the docker container and Caddy reverse proxy, run the following commands
 
 ```bash
 docker-compose down
-caddy stop
 ```
