@@ -1,4 +1,5 @@
 from app.schema import SensorReading, SensorTelemetry
+from app.settings import RETHINKDB_DB, RETHINKED_HOST, RETHINKED_PORT
 
 from rethinkdb import RethinkDB
 from rethinkdb import query as r
@@ -6,10 +7,10 @@ from rethinkdb import query as r
 rethinkdb = RethinkDB()
 rethinkdb.set_loop_type("asyncio")
 
+
 async def get_database():
-    return await rethinkdb.connect(
-        "localhost",
-    )
+    return await rethinkdb.connect(RETHINKED_HOST, RETHINKED_PORT, RETHINKDB_DB)
+
 
 async def save_reading(reading: SensorReading):
     async with await get_database() as conn:
