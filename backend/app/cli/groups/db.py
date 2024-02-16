@@ -112,7 +112,7 @@ async def populate_tables():
     await r.table("regions").insert(
         {
             "id": "57b2b4c2-6d5a-4c4e-8d3b-5b4f4f4b4d54",
-            "name": "The Ranch",
+            "name": "Courand Family Ranch",
             "bottom_left": r.point(
                 -103.31498383879455,
                 30.275977600526915,

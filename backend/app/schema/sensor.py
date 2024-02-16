@@ -3,13 +3,15 @@ from typing import NamedTuple, Optional
 
 from pydantic import BaseModel
 
+from .base import BaseSchema
+
 
 class SensorCoordinates(BaseModel):
     lat: float
     lon: float
 
 
-class SensorIn(BaseModel):
+class SensorIn(BaseSchema):
     node_id: str
     uplink: bool
     coordinates: Optional[SensorCoordinates]

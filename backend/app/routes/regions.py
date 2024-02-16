@@ -1,3 +1,5 @@
+from typing import List
+
 import rethinkdb.query as r
 from app import schema
 from app.database import Connection, get_database
@@ -7,15 +9,12 @@ from fastapi import APIRouter, Depends, HTTPException
 router = APIRouter(prefix="/regions", tags=["regions"])
 
 
-@router.get("/")
+@router.get("/", response_model=List[schema.region.RegionOut])
 async def get_regions(conn: Connection = Depends(get_database)):
-    return {"regions": (await r.table("regions").run(conn)).items}
+    return (await r.table("regions").run(conn)).items
 
 
-@router.post(
-    "/",
-    #  response_model=schema.region.RegionOut
-)
+@router.post("/", response_model=schema.region.RegionOut)
 async def create_region(
     region_in: schema.region.RegionIn, conn: Connection = Depends(get_database)
 ):
@@ -30,6 +29,5 @@ async def create_region(
         )
         .run(conn, return_changes=True)
     )
-    return schema.region.RegionOut(**res["changes"][0]["new_val"])
 
-    # return region_out
+    return res["changes"][0]["new_val"]

@@ -1,14 +1,16 @@
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from ..base import BaseSchema
 
 
-class RollingWindow(BaseModel):
+class RollingWindow(BaseSchema):
     column: str
     timeframe: int
 
 
-class GroundDistanceRule(BaseModel):
+class GroundDistanceRule(BaseSchema):
     type: Literal["ground_distance"]
     resolution: int
     control_window: RollingWindow
@@ -16,7 +18,7 @@ class GroundDistanceRule(BaseModel):
     threshold: float
 
 
-class TestRule(BaseModel):
+class TestRule(BaseSchema):
     type: Literal["test"]
     value: int
 

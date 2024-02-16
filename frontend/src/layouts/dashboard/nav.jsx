@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { EditControl } from 'react-leaflet-draw';
 import { useRef, useState, useEffect } from 'react';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { TileLayer, FeatureGroup, MapContainer } from 'react-leaflet';
 
 import Box from '@mui/material/Box';
@@ -12,13 +13,14 @@ import { alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
 import { Select, MenuItem, TextField, InputLabel, FormControl } from '@mui/material';
+// import { createRegion } from 'src/api/regions';
 
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useResponsive } from 'src/hooks/use-responsive';
 
-import { createRegion } from 'src/api/regions';
+import { regionsAtom, useCreateRegion, selectedRegionIdAtom } from 'src/recoil/regions';
 
 import Logo from 'src/components/logo';
 import Scrollbar from 'src/components/scrollbar';
@@ -93,7 +95,6 @@ const NewRegionModal = ({ open, handleClose }) => {
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-              // url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <FeatureGroup ref={editableFeatureGroupRef}>
               <EditControl
@@ -117,19 +118,19 @@ const NewRegionModal = ({ open, handleClose }) => {
                   circlemarker: false,
                 }}
               />
-              {/* <Circle center={[51.51, -0.06]} radius={200} /> */}
             </FeatureGroup>
           </MapContainer>
           <Button
             variant="contained"
             disabled={!layerId || !regionName}
             onClick={async () => {
-              const res = await createRegion({
-                name: regionName,
-                ...getBounds(),
+              handleClose({
+                type: 'create',
+                region: {
+                  name: regionName,
+                  ...getBounds(),
+                },
               });
-              const data = await res.json();
-              console.log(data);
             }}
           >
             Create
@@ -143,6 +144,10 @@ export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
 
   const upLg = useResponsive('up', 'lg');
+  const regions = useRecoilValue(regionsAtom);
+  const createRegion = useCreateRegion();
+  const [selectedRegion, setSelectedRegion] = useRecoilState(selectedRegionIdAtom);
+  const [previousRegion, setPreviousRegion] = useState(null);
 
   useEffect(() => {
     if (openNav) {
@@ -151,41 +156,49 @@ export default function Nav({ openNav, onCloseNav }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  const [region, setRegion] = useState(10);
-  const onRegionChange = (event) => {
-    setRegion(event.target.value);
-    // const { value } = event.target;
-    // if (value === 'new') {
-    //   console.log('new');
-    // } else {
-
-    // }
-  };
-
   const renderAccount = (
     <Box
       sx={{
         my: 3,
         mx: 2.5,
-        py: 2,
-        px: 2.5,
+        // py: 2,
+        // px: 2.5,
         display: 'flex',
         borderRadius: 1.5,
         alignItems: 'center',
         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
       }}
     >
-      <NewRegionModal open={region === 'new'} handleClose={() => setRegion(10)} />
-      <FormControl>
+      <NewRegionModal
+        open={selectedRegion === 'new'}
+        handleClose={async (event) => {
+          if (event.type !== 'create') {
+            setSelectedRegion(previousRegion);
+
+            return;
+          }
+
+          createRegion(event.region);
+        }}
+      />
+      <FormControl sx={{ width: '100%' }}>
         <InputLabel>Region</InputLabel>
         <Select
-          value={region}
+          value={selectedRegion}
           label="Region"
           sx={{ width: '100%' }}
           size="small"
-          onChange={onRegionChange}
+          onChange={(event) => {
+            setPreviousRegion(selectedRegion);
+            setSelectedRegion(event.target.value);
+          }}
         >
-          <MenuItem value={10}>Courand Family Ranch</MenuItem>
+          {/* <MenuItem value={10}>Courand Family Ranch</MenuItem> */}
+          {regions.map((r) => (
+            <MenuItem key={r.id} value={r.id}>
+              {r.name}
+            </MenuItem>
+          ))}
           <MenuItem value="new">+ New</MenuItem>
         </Select>
       </FormControl>

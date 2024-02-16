@@ -1,5 +1,9 @@
-import { post } from './fetch.js';
+import { get, post } from './fetch';
 
-export function createRegion(data) {
+export async function createRegion(data) {
   return post('/regions/', data);
+}
+
+export function getRegions() {
+  return get('/regions/');
 }

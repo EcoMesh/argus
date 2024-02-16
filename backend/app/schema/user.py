@@ -1,37 +1,37 @@
-from pydantic import BaseModel
+from .base import BaseSchema
 
 
-class User(BaseModel):
+class User(BaseSchema):
     id: str
     email: str
     password: str
     name: str
 
 
-class UserOut(BaseModel):
+class UserOut(BaseSchema):
     id: str
     email: str
     name: str
 
 
-class UserLoginIn(BaseModel):
+class UserLoginIn(BaseSchema):
     email: str
     password: str
 
 
-class UserLoginOut(BaseModel):
+class UserLoginOut(BaseSchema):
     access_token: str
     token_type: str = "bearer"
     user: UserOut
 
 
-class UserSignupIn(BaseModel):
+class UserSignupIn(BaseSchema):
     email: str
     password: str
     name: str
 
 
-class UserSignupOut(BaseModel):
+class UserSignupOut(BaseSchema):
     access_token: str
     token_type: str = "bearer"
     user: UserOut

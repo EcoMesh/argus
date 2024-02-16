@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async'; // https://github.com/Leaflet/Leaflet.draw/issues/1026
+import { RecoilRoot } from 'recoil';
 
 import App from './app';
 
@@ -16,10 +17,12 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <HelmetProvider>
-    <BrowserRouter>
-      <Suspense>
-        <App />
-      </Suspense>
-    </BrowserRouter>
+    <RecoilRoot>
+      <BrowserRouter>
+        <Suspense>
+          <App />
+        </Suspense>
+      </BrowserRouter>
+    </RecoilRoot>
   </HelmetProvider>
 );

@@ -1,23 +1,24 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import EmailStr, Field
 
+from ..base import BaseSchema
 from . import ast
 
 
-class SensorAlarmHistory(BaseModel):
+class SensorAlarmHistory(BaseSchema):
     node_id: str
     start: int
     end: Optional[int] = None
 
 
-class AlarmHistory(BaseModel):
+class AlarmHistory(BaseSchema):
     start: int
     end: Optional[int] = None
     sensors: List[SensorAlarmHistory] = Field(default_factory=list)
 
 
-class Alarm(BaseModel):
+class Alarm(BaseSchema):
     id: str
     name: str
     condition: ast.Node
