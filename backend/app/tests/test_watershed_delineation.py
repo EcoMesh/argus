@@ -22,42 +22,42 @@ REGION = {
     "sensors": [
         {
             "id": str(uuid4()),
-            "coordinates": geojson_point(-103.17203634307978, 30.371161445827436),
+            "location": geojson_point(-103.17203634307978, 30.371161445827436),
             "watershed": None,
         },
         {
             "id": str(uuid4()),
-            "coordinates": geojson_point(-103.1396995909179, 30.469989267888447),
+            "location": geojson_point(-103.1396995909179, 30.469989267888447),
             "watershed": None,
         },
         {
             "id": str(uuid4()),
-            "coordinates": geojson_point(-103.1996995909179, 30.409989267888447),
+            "location": geojson_point(-103.1996995909179, 30.409989267888447),
             "watershed": None,
         },
         {
             "id": str(uuid4()),
-            "coordinates": geojson_point(-103.17163916371383, 30.371938753553273),
+            "location": geojson_point(-103.17163916371383, 30.371938753553273),
             "watershed": None,
         },
         {
             "id": str(uuid4()),
-            "coordinates": geojson_point(-103.26181172713814, 30.306030272281333),
+            "location": geojson_point(-103.26181172713814, 30.306030272281333),
             "watershed": None,
         },
         {
             "id": str(uuid4()),
-            "coordinates": geojson_point(-103.21443, 30.40298),
+            "location": geojson_point(-103.21443, 30.40298),
             "watershed": None,
         },
         {
             "id": str(uuid4()),
-            "coordinates": geojson_point(-103.19616199070633, 30.4102907999941),
+            "location": geojson_point(-103.19616199070633, 30.4102907999941),
             "watershed": None,
         },
         {
             "id": str(uuid4()),
-            "coordinates": geojson_point(-103.17292662393481, 30.378158873572204),
+            "location": geojson_point(-103.17292662393481, 30.378158873572204),
             "watershed": None,
         },
     ],

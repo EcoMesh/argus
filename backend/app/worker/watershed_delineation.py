@@ -202,7 +202,7 @@ def process_sensors_polygon_by_region(regions):
             )
             for sensor in region["sensors"]:
                 polygon = processor.get_polygon_from_coordinates(
-                    Point(*sensor["coordinates"]["coordinates"])
+                    Point(*sensor["location"]["coordinates"])
                 )
 
                 if not polygon:

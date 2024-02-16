@@ -35,11 +35,9 @@ export const useCreateRegion = () => {
   const [regions, setRegions] = useRecoilState(regionsAtom);
   const setSelectedRegion = useSetRecoilState(selectedRegionIdAtom);
   return async (region) => {
-    console.log('Creating region', region);
-    const data = await api.createRegion(region);
-    console.log(data);
-    setRegions([...regions, data]);
-    setSelectedRegion(data.id);
-    return data;
+    const newRegion = await api.createRegion(region);
+    setRegions([...regions, newRegion]);
+    setSelectedRegion(newRegion.id);
+    return newRegion;
   };
 };

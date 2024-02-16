@@ -4,6 +4,7 @@ from typing import NamedTuple, Optional
 from pydantic import BaseModel
 
 from .base import BaseSchema
+from .geojson import GeoJsonPoint, GeoJsonPolygon
 
 
 class SensorCoordinates(BaseModel):
@@ -14,17 +15,17 @@ class SensorCoordinates(BaseModel):
 class SensorIn(BaseSchema):
     node_id: str
     uplink: bool
+    region_id: str
     coordinates: Optional[SensorCoordinates]
 
 
-class SensorOut(SensorIn):
+class SensorOut(BaseSchema):
     id: str
-    ground_distance: Optional[float] = None
-
-
-class Sensor(SensorIn):
-    id: str
-    ground_distance: Optional[float] = None
+    node_id: str
+    region_id: str
+    uplink: bool
+    location: Optional[GeoJsonPoint]
+    watershed: Optional[GeoJsonPolygon]
 
 
 # remember to keep in sync with /backend/app/schema/sensor.py

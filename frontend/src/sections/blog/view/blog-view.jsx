@@ -1,14 +1,14 @@
 import { useRecoilValue } from 'recoil';
-import { useRef, useEffect } from 'react';
-import { TileLayer, Rectangle, MapContainer } from 'react-leaflet';
+import { useRef, Fragment, useEffect } from 'react';
+import { Marker, Polygon, TileLayer, Rectangle, MapContainer } from 'react-leaflet';
 
 import { selectedRegionAtom } from 'src/recoil/regions';
-
-// ----------------------------------------------------------------------
+import { selectedRegionSensorsAtom } from 'src/recoil/sensors';
 
 export default function BlogView() {
   const mapRef = useRef(null);
   const selectedRegion = useRecoilValue(selectedRegionAtom);
+  const selectedRegionSensors = useRecoilValue(selectedRegionSensorsAtom);
 
   const centerMapOnRegion = () => {
     mapRef.current?.fitBounds([
@@ -40,7 +40,15 @@ export default function BlogView() {
           ]}
         />
       )}
-      {/* render sensors */}
+      {selectedRegionSensors.map((sensor) => (
+        <Fragment key={sensor.id}>
+          <Marker position={[sensor.location.coordinates[1], sensor.location.coordinates[0]]} />
+          <Polygon
+            positions={sensor.watershed.coordinates[0].map((c) => [c[1], c[0]])}
+            smoothFactor={1}
+          />
+        </Fragment>
+      ))}
     </MapContainer>
   );
 }

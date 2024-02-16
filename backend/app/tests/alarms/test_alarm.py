@@ -49,7 +49,7 @@ with open("app/tests/fixtures/ground_level_sensor_readings.833c2233.csv") as f:
 
 SENSORS = [
     {
-        "coordinates": {"lat": 1, "lon": 2},
+        "location": {"lat": 1, "lon": 2},
         "id": "4df86a94-dac5-499e-95b1-9ee7b8f65963",
         "node_id": "!833c2233",
         "readings": SENSOR_READINGS,

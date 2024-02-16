@@ -1,3 +1,5 @@
+from typing import List
+
 import rethinkdb.query as r
 from app import schema
 from app.database import Connection, get_database
@@ -7,20 +9,19 @@ from fastapi import APIRouter, Depends, HTTPException
 router = APIRouter(prefix="/sensors", tags=["sensors"])
 
 
-@router.get("/")
+@router.get("/", response_model=List[schema.sensor.SensorOut])
 async def get_sensor(conn: Connection = Depends(get_database)):
-    return {"sensors": (await r.table("sensors").run(conn)).items}
+    return (await r.table("sensors").run(conn)).items
 
 
 @router.post("/", response_model=schema.sensor.SensorOut)
 async def create_sensor(
-    sensor_in: schema.sensor.SensorIn, conn: Connection = Depends(get_database)
+    sensor: schema.sensor.SensorIn, conn: Connection = Depends(get_database)
 ):
-    sensor_in_dict = sensor_in.model_dump()
-    res = await r.table("sensors").insert(sensor_in_dict).run(conn)
-    sensor_out = schema.sensor.SensorOut(id=res["generated_keys"][0], **sensor_in_dict)
+    sensor_dict = sensor.model_dump()
+    res = await r.table("sensors").insert(sensor_dict).run(conn, return_changes=True)
 
-    return sensor_out
+    return res["changes"][0]["new_val"]
 
 
 @router.post("/{sensor_id}/init")
@@ -35,11 +36,11 @@ async def init_sensor(
     if sensor is None:
         raise HTTPException(status_code=404, detail="Sensor not found")
 
-    if sensor.get("coordinates") is not None:
+    if sensor.get("location") is not None:
         raise HTTPException(status_code=400, detail="Sensor already initialized")
 
     match await r_sensor.update(
-        {"coordinates": r.point(coordinates.lon, coordinates.lat)},
+        {"location": r.point(coordinates.lon, coordinates.lat)},
         return_changes=True,
     ).run(conn):
         case {"changes": [{"new_val": sensor}]}:

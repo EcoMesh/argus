@@ -16,15 +16,15 @@ async def get_regions(conn: Connection = Depends(get_database)):
 
 @router.post("/", response_model=schema.region.RegionOut)
 async def create_region(
-    region_in: schema.region.RegionIn, conn: Connection = Depends(get_database)
+    region: schema.region.RegionIn, conn: Connection = Depends(get_database)
 ):
     res = (
         await r.table("regions")
         .insert(
             {
-                "name": region_in.name,
-                "bottom_left": r.point(*region_in.bottom_left),
-                "top_right": r.point(*region_in.top_right),
+                "name": region.name,
+                "bottom_left": r.point(*region.bottom_left),
+                "top_right": r.point(*region.top_right),
             }
         )
         .run(conn, return_changes=True)
