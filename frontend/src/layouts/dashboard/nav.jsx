@@ -18,6 +18,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { useResponsive } from 'src/hooks/use-responsive';
 
+import { createRegion } from 'src/api/regions';
+
 import Logo from 'src/components/logo';
 import Scrollbar from 'src/components/scrollbar';
 
@@ -55,20 +57,7 @@ const NewRegionModal = ({ open, handleClose }) => {
   };
 
   const onRegionCreated = (event) => {
-    console.log(event);
-    console.log(editableFeatureGroupRef.current);
     setLayerId(event.layer._leaflet_id);
-    // setBounds({
-    //   south_west: event.layer.getBounds().getSouthWest(),
-    //   north_east: event.layer.getBounds().getNorthEast(),
-    // });
-  };
-
-  const onRegionChange = (event) => {
-    // setBounds({
-    //   southWest: event.layer.getBounds().getSouthWest(),
-    //   northEast: event.layer.getBounds().getNorthEast(),
-    // });
   };
 
   const onRegionDeleted = () => {
@@ -109,7 +98,6 @@ const NewRegionModal = ({ open, handleClose }) => {
             <FeatureGroup ref={editableFeatureGroupRef}>
               <EditControl
                 position="topright"
-                onEdited={onRegionChange}
                 onCreated={onRegionCreated}
                 onDeleted={onRegionDeleted}
                 draw={{
@@ -136,15 +124,9 @@ const NewRegionModal = ({ open, handleClose }) => {
             variant="contained"
             disabled={!layerId || !regionName}
             onClick={async () => {
-              const res = await fetch('/api/regions/', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  name: regionName,
-                  ...getBounds(),
-                }),
+              const res = await createRegion({
+                name: regionName,
+                ...getBounds(),
               });
               const data = await res.json();
               console.log(data);
