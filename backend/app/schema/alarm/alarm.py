@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Annotated, List, Literal, Optional
 
 from pydantic import EmailStr, Field
 
@@ -18,13 +18,30 @@ class AlarmHistory(BaseSchema):
     sensors: List[SensorAlarmHistory] = Field(default_factory=list)
 
 
-class Alarm(BaseSchema):
-    id: str
+class AlarmSubscriberEmail(BaseSchema):
+    client_id: str
+    type: Literal["email"] = "email"
+    value: EmailStr
+
+
+class AlarmSubscriberWebhook(BaseSchema):
+    client_id: str
+    type: Literal["webhook"] = "webhook"
+    interaction_required: bool = False
+    value: str
+
+
+AlarmSubscriber = Annotated[
+    AlarmSubscriberEmail | AlarmSubscriberWebhook, Field(discriminator="type")
+]
+
+
+class AlarmIn(BaseSchema):
     name: str
     condition: ast.Node
-    interaction_required: bool = False  # to be used later when we have a UI
-    subscribers: List[EmailStr] = Field(default_factory=list)
+    subscribers: List[AlarmSubscriber] = Field(default_factory=list)
 
 
-class AlarmOut(Alarm):
+class AlarmOut(AlarmIn):
+    id: str
     history: List[AlarmHistory] = Field(default_factory=list)

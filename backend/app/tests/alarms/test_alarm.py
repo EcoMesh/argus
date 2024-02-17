@@ -15,10 +15,9 @@ ALARMS = [
                             "column": "ground_distance",
                             "timeframe": 86400,
                         },
-                        "resolution": 300,
                         "test_window": {"column": "ground_distance", "timeframe": 3600},
                         "threshold": 0.09,
-                        "type": "ground_distance",
+                        "type": "rolling_deviation",
                     },
                     "type": "rule",
                 }

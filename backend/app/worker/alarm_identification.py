@@ -13,8 +13,11 @@ from rethinkdb import query as r
 
 logger = logging.getLogger(__name__)
 
+# TODO: move to config and use same value in sensors, how do we make this configurable for demo?
+RESOLUTION = 300  # 5 minutes - the resolution of the sensor readings
 
-def test_ground_distance(df, config: rules.GroundDistanceRule):
+
+def test_rolling_deviation(df, config: rules.RollingDeviationRule):
     """
     Test if it's raining based on ground distance. This function uses a
     rolling window to compare the average ground distance over a control window
@@ -24,12 +27,12 @@ def test_ground_distance(df, config: rules.GroundDistanceRule):
     """
     control_avg = (
         df[config.control_window.column]
-        .rolling(window=config.control_window.timeframe // config.resolution)
+        .rolling(window=config.control_window.timeframe // RESOLUTION)
         .mean()
     )
     test_avg = (
         df[config.test_window.column]
-        .rolling(window=config.test_window.timeframe // config.resolution)
+        .rolling(window=config.test_window.timeframe // RESOLUTION)
         .mean()
     )
     deviation = (control_avg - test_avg) / control_avg
@@ -49,8 +52,8 @@ def evaluate_alert_logic_ast(df, node: ast.Node):
             return any(evaluate_alert_logic_ast(df, test) for test in tests)
         case ast.Rule(rule=rule):
             match rule:
-                case rules.GroundDistanceRule():
-                    return test_ground_distance(df, rule)
+                case rules.RollingDeviationRule():
+                    return test_rolling_deviation(df, rule)
                 case rules.TestRule():
                     return rule.value == 1
 
@@ -153,10 +156,9 @@ async def send_notification_on_event_start(alarm: dict, sensors: List[dict]):
         "Alarm %s triggered by sensors %s", alarm["id"], [s["id"] for s in sensors]
     )
 
+
 async def send_notification_on_event_end(alarm: dict):
-    logger.warning(
-        "Alarm %s ended", alarm["id"]
-    )
+    logger.warning("Alarm %s ended", alarm["id"])
 
 
 async def cronjob():

@@ -71,8 +71,7 @@ async def populate_tables():
                     {
                         "type": "rule",
                         "rule": {
-                            "type": "ground_distance",
-                            "resolution": 300,
+                            "type": "rolling_deviation",
                             "control_window": {
                                 "column": "ground_distance",
                                 "timeframe": 86400,

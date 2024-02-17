@@ -10,9 +10,8 @@ class RollingWindow(BaseSchema):
     timeframe: int
 
 
-class GroundDistanceRule(BaseSchema):
-    type: Literal["ground_distance"]
-    resolution: int
+class RollingDeviationRule(BaseSchema):
+    type: Literal["rolling_deviation"]
     control_window: RollingWindow
     test_window: RollingWindow
     threshold: float
@@ -23,4 +22,4 @@ class TestRule(BaseSchema):
     value: int
 
 
-Rules = Annotated[GroundDistanceRule | TestRule, Field(discriminator="type")]
+Rules = Annotated[RollingDeviationRule | TestRule, Field(discriminator="type")]
