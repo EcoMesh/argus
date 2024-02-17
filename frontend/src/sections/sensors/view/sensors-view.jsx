@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRecoilValue } from 'recoil';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -10,13 +11,14 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { users } from 'src/_mock/user';
+// import { users } from 'src/_mock/user';
+import { selectedRegionSensorsAtom } from 'src/recoil/sensors';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 import TableNoData from '../table-no-data';
-import UserTableRow from '../user-table-row';
+import SensorTableRow from '../user-table-row';
 import UserTableHead from '../user-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
@@ -25,6 +27,7 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 // ----------------------------------------------------------------------
 
 export default function SensorsPage() {
+  const sensors = useRecoilValue(selectedRegionSensorsAtom);
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -47,18 +50,18 @@ export default function SensorsPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.name);
-      setSelected(newSelecteds);
+      const newSelected = sensors.map((n) => n.id);
+      setSelected(newSelected);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, id) => {
+    const selectedIndex = selected.indexOf(id);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -87,7 +90,7 @@ export default function SensorsPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: users,
+    inputData: sensors,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -128,15 +131,15 @@ export default function SensorsPage() {
               <UserTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={users.length}
+                rowCount={sensors.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
+                  { id: 'nodeId', label: 'Node ID' },
+                  { id: 'lat', label: 'Latitude' },
+                  { id: 'lon', label: 'Longitude' },
+                  { id: 'uplink', label: 'Uplink', align: 'center' },
                   { id: 'status', label: 'Status' },
                   { id: '' },
                 ]}
@@ -145,22 +148,21 @@ export default function SensorsPage() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <UserTableRow
+                    <SensorTableRow
                       key={row.id}
-                      name={row.name}
-                      role={row.role}
-                      status={row.status}
-                      company={row.company}
-                      avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      nodeId={row.nodeId}
+                      lat={row?.position?.[1] || 'N/A'}
+                      status="Online"
+                      lon={row?.position?.[0] || 'N/A'}
+                      isUplink={row.uplink}
+                      selected={selected.indexOf(row.id) !== -1}
+                      handleClick={(event) => handleClick(event, row.id)}
                     />
                   ))}
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, users.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, sensors.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -172,7 +174,7 @@ export default function SensorsPage() {
         <TablePagination
           page={page}
           component="div"
-          count={users.length}
+          count={sensors.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

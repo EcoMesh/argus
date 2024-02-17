@@ -11,6 +11,7 @@ export default function BlogView() {
   const selectedRegionSensors = useRecoilValue(selectedRegionSensorsAtom);
 
   const centerMapOnRegion = () => {
+    if (!selectedRegion) return;
     mapRef.current?.fitBounds([
       [selectedRegion.bottomLeft.coordinates[1], selectedRegion.bottomLeft.coordinates[0]],
       [selectedRegion.topRight.coordinates[1], selectedRegion.topRight.coordinates[0]],

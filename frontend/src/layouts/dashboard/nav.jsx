@@ -13,7 +13,6 @@ import { alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
 import { Select, MenuItem, TextField, InputLabel, FormControl } from '@mui/material';
-// import { createRegion } from 'src/api/regions';
 
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
@@ -140,6 +139,12 @@ const NewRegionModal = ({ open, handleClose }) => {
     </Modal>
   );
 };
+
+NewRegionModal.propTypes = {
+  open: PropTypes.bool,
+  handleClose: PropTypes.func,
+};
+
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
 
@@ -147,7 +152,7 @@ export default function Nav({ openNav, onCloseNav }) {
   const regions = useRecoilValue(regionsAtom);
   const createRegion = useCreateRegion();
   const [selectedRegion, setSelectedRegion] = useRecoilState(selectedRegionIdAtom);
-  const [previousRegion, setPreviousRegion] = useState(null);
+  const [showNewSensorModal, setShowNewSensorModal] = useState(false);
 
   useEffect(() => {
     if (openNav) {
@@ -161,8 +166,6 @@ export default function Nav({ openNav, onCloseNav }) {
       sx={{
         my: 3,
         mx: 2.5,
-        // py: 2,
-        // px: 2.5,
         display: 'flex',
         borderRadius: 1.5,
         alignItems: 'center',
@@ -170,15 +173,14 @@ export default function Nav({ openNav, onCloseNav }) {
       }}
     >
       <NewRegionModal
-        open={selectedRegion === 'new'}
+        open={showNewSensorModal}
         handleClose={async (event) => {
+          console.log(event);
           if (event.type !== 'create') {
-            setSelectedRegion(previousRegion);
-
-            return;
+            setShowNewSensorModal(false);
+          } else {
+            createRegion(event.region);
           }
-
-          createRegion(event.region);
         }}
       />
       <FormControl sx={{ width: '100%' }}>
@@ -189,11 +191,13 @@ export default function Nav({ openNav, onCloseNav }) {
           sx={{ width: '100%' }}
           size="small"
           onChange={(event) => {
-            setPreviousRegion(selectedRegion);
-            setSelectedRegion(event.target.value);
+            if (event.target.value === 'new') {
+              setShowNewSensorModal(true);
+            } else {
+              setSelectedRegion(event.target.value);
+            }
           }}
         >
-          {/* <MenuItem value={10}>Courand Family Ranch</MenuItem> */}
           {regions.map((r) => (
             <MenuItem key={r.id} value={r.id}>
               {r.name}
@@ -202,15 +206,6 @@ export default function Nav({ openNav, onCloseNav }) {
           <MenuItem value="new">+ New</MenuItem>
         </Select>
       </FormControl>
-      {/* <Avatar src={account.photoURL} alt="photoURL" />
-
-      <Box sx={{ ml: 2 }}>
-        <Typography variant="subtitle2">{account.displayName}</Typography>
-
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {account.role}
-        </Typography>
-      </Box> */}
     </Box>
   );
 
