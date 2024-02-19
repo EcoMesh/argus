@@ -150,10 +150,9 @@ export default function SensorsPage() {
                   .map((row) => (
                     <SensorTableRow
                       key={row.id}
-                      nodeId={row.nodeId}
-                      lat={row?.position?.[1] || 'N/A'}
+                      lat={row?.location?.coordinates?.[1] || 'N/A'}
+                      lon={row?.location?.coordinates?.[0] || 'N/A'}
                       status="Online"
-                      lon={row?.position?.[0] || 'N/A'}
                       isUplink={row.uplink}
                       selected={selected.indexOf(row.id) !== -1}
                       handleClick={(event) => handleClick(event, row.id)}

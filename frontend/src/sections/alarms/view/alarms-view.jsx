@@ -22,97 +22,98 @@ import SensorTableRow from '../user-table-row';
 import UserTableHead from '../user-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
-import Box from '@mui/material/Box';
+// import Box from '@mui/material/Box';
 // import NewAlarmModal from '../modals/new-alarm-modal';
-import NestedForm from '../modals/NestedForm';
+// import NestedForm from '../modals/NestedForm';
+import NewAlarmModal from '../modals/new-alarm-modal';
 
 import { emptyRows, applyFilter, getComparator } from '../utils';
 // ----------------------------------------------------------------------
 
-export default function SensorsPage() {
-  // const sensors = useRecoilValue(selectedRegionSensorsAtom);
-  // const [page, setPage] = useState(0);
+export default function AlarmsPage() {
+  const sensors = useRecoilValue(selectedRegionSensorsAtom);
+  const [page, setPage] = useState(0);
 
-  // const [order, setOrder] = useState('asc');
+  const [order, setOrder] = useState('asc');
 
-  // const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState([]);
 
-  // const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState('name');
 
-  // const [filterName, setFilterName] = useState('');
+  const [filterName, setFilterName] = useState('');
 
-  // const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // const handleSort = (event, id) => {
-  //   const isAsc = orderBy === id && order === 'asc';
-  //   if (id !== '') {
-  //     setOrder(isAsc ? 'desc' : 'asc');
-  //     setOrderBy(id);
-  //   }
-  // };
+  const handleSort = (event, id) => {
+    const isAsc = orderBy === id && order === 'asc';
+    if (id !== '') {
+      setOrder(isAsc ? 'desc' : 'asc');
+      setOrderBy(id);
+    }
+  };
 
-  // const handleSelectAllClick = (event) => {
-  //   if (event.target.checked) {
-  //     const newSelected = sensors.map((n) => n.id);
-  //     setSelected(newSelected);
-  //     return;
-  //   }
-  //   setSelected([]);
-  // };
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelected = sensors.map((n) => n.id);
+      setSelected(newSelected);
+      return;
+    }
+    setSelected([]);
+  };
 
-  // const handleClick = (event, id) => {
-  //   const selectedIndex = selected.indexOf(id);
-  //   let newSelected = [];
-  //   if (selectedIndex === -1) {
-  //     newSelected = newSelected.concat(selected, id);
-  //   } else if (selectedIndex === 0) {
-  //     newSelected = newSelected.concat(selected.slice(1));
-  //   } else if (selectedIndex === selected.length - 1) {
-  //     newSelected = newSelected.concat(selected.slice(0, -1));
-  //   } else if (selectedIndex > 0) {
-  //     newSelected = newSelected.concat(
-  //       selected.slice(0, selectedIndex),
-  //       selected.slice(selectedIndex + 1)
-  //     );
-  //   }
-  //   setSelected(newSelected);
-  // };
+  const handleClick = (event, id) => {
+    const selectedIndex = selected.indexOf(id);
+    let newSelected = [];
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+    setSelected(newSelected);
+  };
 
-  // const handleChangePage = (event, newPage) => {
-  //   setPage(newPage);
-  // };
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
-  // const handleChangeRowsPerPage = (event) => {
-  //   setPage(0);
-  //   setRowsPerPage(parseInt(event.target.value, 10));
-  // };
+  const handleChangeRowsPerPage = (event) => {
+    setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
+  };
 
-  // const handleFilterByName = (event) => {
-  //   setPage(0);
-  //   setFilterName(event.target.value);
-  // };
+  const handleFilterByName = (event) => {
+    setPage(0);
+    setFilterName(event.target.value);
+  };
 
-  // const dataFiltered = applyFilter({
-  //   inputData: sensors,
-  //   comparator: getComparator(order, orderBy),
-  //   filterName,
-  // });
+  const dataFiltered = applyFilter({
+    inputData: sensors,
+    comparator: getComparator(order, orderBy),
+    filterName,
+  });
 
-  // const notFound = !dataFiltered.length && !!filterName;
+  const notFound = !dataFiltered.length && !!filterName;
 
-  // const [newSensorModalOpen, setNewSensorModalOpen] = useState(false);
-  // const handleNewSensorModalOpen = () => setNewSensorModalOpen(true);
-  // const handleNewSensorModalClose = () => setNewSensorModalOpen(false);
+  const [newSensorModalOpen, setNewSensorModalOpen] = useState(false);
+  const handleNewSensorModalOpen = () => setNewSensorModalOpen(true);
+  const handleNewSensorModalClose = () => setNewSensorModalOpen(false);
 
-  return (
-    <Box
-      sx={{
-        px: 3,
-      }}
-    >
-      <NestedForm />
-    </Box>
-  );
+  // return (
+  //   <Box
+  //     sx={{
+  //       px: 3,
+  //     }}
+  //   >
+  //     <NestedForm />
+  //   </Box>
+  // );
 
   return (
     <Container>

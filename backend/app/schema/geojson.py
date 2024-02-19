@@ -1,13 +1,13 @@
-from typing import List
+from typing import List, Literal
 
 from pydantic import BaseModel
 
 
 class GeoJsonPoint(BaseModel):
-    type: str = "Point"
+    type: Literal["Point"]
     coordinates: List[float]
 
 
 class GeoJsonPolygon(BaseModel):
-    type: str = "Polygon"
+    type: Literal["Polygon"]
     coordinates: List[List[List[float]]]

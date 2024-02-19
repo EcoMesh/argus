@@ -91,11 +91,11 @@ export default function SensorTableRow({
 }
 
 SensorTableRow.propTypes = {
-  lat: PropTypes.number,
   handleClick: PropTypes.func,
   isUplink: PropTypes.bool,
   nodeId: PropTypes.string,
-  lon: PropTypes.number,
+  lat: PropTypes.string,
+  lon: PropTypes.string,
   selected: PropTypes.any,
   status: PropTypes.string,
 };

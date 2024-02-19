@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import NamedTuple, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .base import BaseSchema
 from .geojson import GeoJsonPoint, GeoJsonPolygon
@@ -13,7 +13,9 @@ class SensorCoordinates(BaseModel):
 
 
 class SensorIn(BaseSchema):
-    node_id: str
+    node_id: str = Field(
+        ..., description="The node id of the sensor", examples=["!833c2233"]
+    )
     uplink: bool
     region_id: str
     coordinates: Optional[SensorCoordinates]
