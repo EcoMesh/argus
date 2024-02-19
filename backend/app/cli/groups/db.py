@@ -64,7 +64,6 @@ async def populate_tables():
         {
             "id": "c5b2b4c2-6d5a-4c4e-8d3b-5b4f4f4b4d4d",
             "name": "Test",
-            "interaction_required": False,
             "condition": {
                 "type": "and",
                 "tests": [
@@ -85,7 +84,14 @@ async def populate_tables():
                     }
                 ],
             },
-            "subscribers": ["noahcardoza@gmail.com"],
+            "subscribers": [
+                {"type": "email", "value": "noahcardoza@gmail.com"},
+                {
+                    "type": "webhook",
+                    "interaction_required": True,
+                    "value": "http://localhost:7000/alarms/triggered",
+                },
+            ],
         }
     ]
     alarm_events = [

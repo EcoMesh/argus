@@ -11,7 +11,24 @@ router = APIRouter(prefix="/alarms", tags=["alarms"])
 
 @router.get("/", response_model=List[schema.alarm.AlarmOut])
 async def get_all_alarms(conn: Connection = Depends(get_database)):
-    return (await r.table("alarms").run(conn)).items
+    return (
+        await r.table("alarms")
+        .merge(
+            lambda alarm: {
+                "history": r.table("alarms_events")
+                .get_all(alarm["id"], index="alarm_id")
+                .merge(
+                    lambda event: {
+                        "records": r.table("alarms_event_records")
+                        .get_all(event["id"], index="alarm_event_id")
+                        .coerce_to("array")
+                    }
+                )
+                .coerce_to("array")
+            }
+        )
+        .run(conn)
+    ).items
 
 
 @router.post("/", response_model=schema.alarm.AlarmOut)
