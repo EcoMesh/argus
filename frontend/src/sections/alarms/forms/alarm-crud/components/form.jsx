@@ -38,13 +38,13 @@ const AlertCrudForm = ({ formik }) => {
             <Typography variant="h6" component="h3" sx={{ mb: 3 }}>
               Conditions
             </Typography>
-            <FieldArray name="conditions.tests">
+            <FieldArray name="condition.tests">
               {(arrayTools) => (
                 <AstNode
                   arrayTools={arrayTools}
                   formik={formik}
-                  node={formik.values.conditions}
-                  path="conditions"
+                  node={formik.values.condition}
+                  path="condition"
                   root
                 />
               )}

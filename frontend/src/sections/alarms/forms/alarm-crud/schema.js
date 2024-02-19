@@ -36,7 +36,7 @@ export const conditionValidationSchema = Yup.lazy((value) => {
 
 export const validationSchema = Yup.object().shape({
   name: Yup.string().required('A name is required'),
-  conditions: conditionValidationSchema,
+  condition: conditionValidationSchema,
   subscribers: Yup.array().of(
     Yup.object()
       .shape({

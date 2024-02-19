@@ -32,7 +32,7 @@ export const getDefaultGroundDistanceRule = () => ({
 
 export const initialValues = {
   name: '',
-  conditions: {
+  condition: {
     type: 'and',
     tests: [],
   },

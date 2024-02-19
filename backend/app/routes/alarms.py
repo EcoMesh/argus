@@ -36,9 +36,7 @@ async def create_alarm(
     alarm: schema.alarm.AlarmIn, conn: Connection = Depends(get_database)
 ):
     alarm_dict = alarm.model_dump()
-    print(alarm_dict)
     res = await r.table("alarms").insert(alarm_dict).run(conn, return_changes=True)
-
     return res["changes"][0]["new_val"]
 
 

@@ -1,10 +1,10 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
-import DashboardLayout from 'src/layouts/dashboard';
+import { DashboardLayout, DashboardMapLayout } from 'src/layouts/dashboard';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
-export const BlogPage = lazy(() => import('src/pages/blog'));
+export const MapPage = lazy(() => import('src/pages/map'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const LoginPage = lazy(() => import('src/pages/login'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
@@ -29,9 +29,18 @@ export default function Router() {
         { path: 'users', element: <UserPage /> },
         { path: 'alarms', element: <AlarmsPage /> },
         { path: 'products', element: <ProductsPage /> },
-        { path: 'map', element: <BlogPage /> },
         { path: 'sensors', element: <SensorsPage /> },
       ],
+    },
+    {
+      element: (
+        <DashboardMapLayout>
+          <Suspense>
+            <Outlet />
+          </Suspense>
+        </DashboardMapLayout>
+      ),
+      children: [{ path: 'map', element: <MapPage /> }],
     },
     {
       path: 'login',

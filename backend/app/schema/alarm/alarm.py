@@ -37,11 +37,11 @@ AlarmSubscriber = Annotated[
 
 class AlarmIn(BaseSchema):
     name: str
+    region_id: str
     condition: ast.Node
     subscribers: List[AlarmSubscriber] = Field(default_factory=list)
 
 
 class AlarmOut(AlarmIn):
     id: str
-    region_id: str
     history: List[AlarmHistory] = Field(default_factory=list)

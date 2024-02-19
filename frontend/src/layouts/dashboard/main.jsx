@@ -10,7 +10,7 @@ import { NAV, HEADER } from './config-layout';
 
 const SPACING = 8;
 
-export default function Main({ children, sx, ...other }) {
+export default function Main({ children, sx, noPadding, ...other }) {
   const lgUp = useResponsive('up', 'lg');
 
   return (
@@ -23,10 +23,11 @@ export default function Main({ children, sx, ...other }) {
         flexDirection: 'column',
         py: `${HEADER.H_MOBILE + SPACING}px`,
         ...(lgUp && {
+          width: `calc(100% - ${NAV.WIDTH}px)`,
           px: 2,
           py: `${HEADER.H_DESKTOP + SPACING}px`,
-          width: `calc(100% - ${NAV.WIDTH}px)`,
         }),
+        ...(noPadding && { px: 0, pb: 0 }),
         ...sx,
       }}
       {...other}
@@ -38,5 +39,6 @@ export default function Main({ children, sx, ...other }) {
 
 Main.propTypes = {
   children: PropTypes.node,
+  noPadding: PropTypes.bool,
   sx: PropTypes.object,
 };

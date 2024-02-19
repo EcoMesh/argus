@@ -1,8 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useRecoilValue } from 'recoil';
 
-import { Box } from '@mui/material';
 import Slide from '@mui/material/Slide';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -12,8 +10,6 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { Close as CloseIcon } from '@mui/icons-material';
 
-import { selectedRegionAtom } from 'src/recoil/regions';
-
 import { useAlarmFormik, AlertCrudForm } from '../forms/alarm-crud';
 
 /* trunk-ignore(eslint/prefer-arrow-callback) */
@@ -22,15 +18,14 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 export default function NewAlarmModal({ open, handleClose }) {
-  const internalHandleClose = (e) => {
+  const internalHandleClose = (values = null) => {
     formik.resetForm();
-    handleClose();
+    handleClose(values);
   };
 
   const handleSubmit = () => {
-    if (formik.isValid) {
-      console.log(formik.dirty && formik.values);
-      internalHandleClose();
+    if (formik.dirty && formik.isValid) {
+      internalHandleClose(formik.values);
     }
   };
 
@@ -40,7 +35,7 @@ export default function NewAlarmModal({ open, handleClose }) {
 
   return (
     <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
-      <AppBar color="info" position="sticky">
+      <AppBar color="default" position="sticky">
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={internalHandleClose} aria-label="close">
             <CloseIcon />
@@ -48,7 +43,12 @@ export default function NewAlarmModal({ open, handleClose }) {
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             New Alarm
           </Typography>
-          <Button autoFocus color="inherit" onClick={handleSubmit}>
+          <Button
+            autoFocus
+            color="inherit"
+            onClick={handleSubmit}
+            disabled={!formik.dirty || !formik.isValid}
+          >
             Create
           </Button>
         </Toolbar>

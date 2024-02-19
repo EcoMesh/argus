@@ -10,28 +10,37 @@ import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
+import Label from 'src/components/label';
 
 // import { users } from 'src/_mock/user';
-import { selectedRegionSensorsAtom } from 'src/recoil/sensors';
+import { selectedRegionAlarmsAtom, useCreateAlarm } from 'src/recoil/alarms';
+import { selectedRegionIdAtom } from 'src/recoil/regions';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 import TableNoData from '../table-no-data';
-import SensorTableRow from '../user-table-row';
-import UserTableHead from '../user-table-head';
+import AlarmTableRow from '../alarm-table-row';
+import AlarmTableHead from '../alarm-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
-// import Box from '@mui/material/Box';
-// import NewAlarmModal from '../modals/new-alarm-modal';
-// import NestedForm from '../modals/NestedForm';
 import NewAlarmModal from '../modals/new-alarm-modal';
 
 import { emptyRows, applyFilter, getComparator } from '../utils';
 // ----------------------------------------------------------------------
 
+const countRulesFromConditionTree = (condition) => {
+  if (condition.type === 'rule') {
+    return 1;
+  }
+  return condition.tests.reduce((acc, child) => acc + countRulesFromConditionTree(child), 0);
+};
+
 export default function AlarmsPage() {
-  const sensors = useRecoilValue(selectedRegionSensorsAtom);
+  const alarms = useRecoilValue(selectedRegionAlarmsAtom);
+  const selectedRegionId = useRecoilValue(selectedRegionIdAtom);
+  const createAlarm = useCreateAlarm();
+
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -54,7 +63,7 @@ export default function AlarmsPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = sensors.map((n) => n.id);
+      const newSelected = alarms.map((n) => n.id);
       setSelected(newSelected);
       return;
     }
@@ -94,7 +103,7 @@ export default function AlarmsPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: sensors,
+    inputData: alarms,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -103,17 +112,16 @@ export default function AlarmsPage() {
 
   const [newSensorModalOpen, setNewSensorModalOpen] = useState(false);
   const handleNewSensorModalOpen = () => setNewSensorModalOpen(true);
-  const handleNewSensorModalClose = () => setNewSensorModalOpen(false);
+  const handleNewSensorModalClose = (values) => {
+    setNewSensorModalOpen(false);
 
-  // return (
-  //   <Box
-  //     sx={{
-  //       px: 3,
-  //     }}
-  //   >
-  //     <NestedForm />
-  //   </Box>
-  // );
+    if (values !== null) {
+      createAlarm({
+        regionId: selectedRegionId,
+        ...values,
+      });
+    }
+  };
 
   return (
     <Container>
@@ -142,18 +150,17 @@ export default function AlarmsPage() {
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <UserTableHead
+              <AlarmTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={sensors.length}
+                rowCount={alarms.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'nodeId', label: 'Node ID' },
-                  { id: 'lat', label: 'Latitude' },
-                  { id: 'lon', label: 'Longitude' },
-                  { id: 'uplink', label: 'Uplink', align: 'center' },
+                  { id: 'name', label: 'Name' },
+                  { id: 'rules', label: 'Rules' },
+                  { id: 'subscribers', label: 'Subscribers' },
                   { id: 'status', label: 'Status' },
                   { id: '' },
                 ]}
@@ -162,13 +169,18 @@ export default function AlarmsPage() {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <SensorTableRow
+                    <AlarmTableRow
                       key={row.id}
-                      nodeId={row.nodeId}
-                      lat={row?.position?.[1] || 'N/A'}
-                      status="Online"
-                      lon={row?.position?.[0] || 'N/A'}
-                      isUplink={row.uplink}
+                      name={row.name}
+                      rules={countRulesFromConditionTree(row.condition)}
+                      subscribers={row.subscribers.length}
+                      status={
+                        row.history.find((h) => !h.end) ? (
+                          <Label color="success">Active</Label>
+                        ) : (
+                          <Label color="info">Inactive</Label>
+                        )
+                      }
                       selected={selected.indexOf(row.id) !== -1}
                       handleClick={(event) => handleClick(event, row.id)}
                     />
@@ -176,7 +188,7 @@ export default function AlarmsPage() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, sensors.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, alarms.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -188,7 +200,7 @@ export default function AlarmsPage() {
         <TablePagination
           page={page}
           component="div"
-          count={sensors.length}
+          count={alarms.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

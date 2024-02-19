@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import { BlogView } from 'src/sections/blog/view';
+import { MapView } from 'src/sections/map/view';
 
 // ----------------------------------------------------------------------
 
-export default function BlogPage() {
+export default function MapPage() {
   return (
     <>
       <Helmet>
-        <title> Blog | Minimal UI </title>
+        <title> Map | EcoMesh </title>
       </Helmet>
 
-      <BlogView />
+      <MapView />
     </>
   );
 }

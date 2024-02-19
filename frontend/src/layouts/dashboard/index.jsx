@@ -9,7 +9,7 @@ import Header from './header';
 
 // ----------------------------------------------------------------------
 
-export default function DashboardLayout({ children }) {
+export function DashboardLayout({ children }) {
   const [openNav, setOpenNav] = useState(false);
 
   return (
@@ -32,5 +32,31 @@ export default function DashboardLayout({ children }) {
 }
 
 DashboardLayout.propTypes = {
+  children: PropTypes.node,
+};
+
+export function DashboardMapLayout({ children }) {
+  const [openNav, setOpenNav] = useState(false);
+
+  return (
+    <>
+      <Header onOpenNav={() => setOpenNav(true)} />
+
+      <Box
+        sx={{
+          minHeight: 1,
+          display: 'flex',
+          flexDirection: 'row',
+        }}
+      >
+        <Nav openNav={openNav} onCloseNav={() => setOpenNav(false)} />
+
+        <Main noPadding>{children}</Main>
+      </Box>
+    </>
+  );
+}
+
+DashboardMapLayout.propTypes = {
   children: PropTypes.node,
 };

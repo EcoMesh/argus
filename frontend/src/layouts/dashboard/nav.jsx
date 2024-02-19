@@ -175,7 +175,6 @@ export default function Nav({ openNav, onCloseNav }) {
       <NewRegionModal
         open={showNewSensorModal}
         handleClose={async (event) => {
-          console.log(event);
           if (event.type !== 'create') {
             setShowNewSensorModal(false);
           } else {
@@ -271,6 +270,7 @@ export default function Nav({ openNav, onCloseNav }) {
 
   return (
     <Box
+      key="navigation"
       sx={{
         flexShrink: { lg: 0 },
         width: { lg: NAV.WIDTH },

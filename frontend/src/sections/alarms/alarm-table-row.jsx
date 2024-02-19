@@ -10,20 +10,11 @@ import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function SensorTableRow({
-  selected,
-  nodeId,
-  lon,
-  lat,
-  isUplink,
-  status,
-  handleClick,
-}) {
+export default function AlarmTableRow({ selected, name, rules, subscribers, status, handleClick }) {
   const [open, setOpen] = useState(null);
 
   const handleOpenMenu = (event) => {
@@ -44,20 +35,16 @@ export default function SensorTableRow({
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
             <Typography variant="subtitle2" noWrap>
-              {nodeId}
+              {name}
             </Typography>
           </Stack>
         </TableCell>
 
-        <TableCell>{lon}</TableCell>
+        <TableCell>{rules}</TableCell>
 
-        <TableCell>{lat}</TableCell>
+        <TableCell>{subscribers}</TableCell>
 
-        <TableCell align="center">{isUplink ? 'Yes' : 'No'}</TableCell>
-
-        <TableCell>
-          <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
-        </TableCell>
+        <TableCell>{status}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -90,12 +77,11 @@ export default function SensorTableRow({
   );
 }
 
-SensorTableRow.propTypes = {
-  lat: PropTypes.number,
+AlarmTableRow.propTypes = {
+  name: PropTypes.string,
+  rules: PropTypes.number,
+  subscribers: PropTypes.number,
+  status: PropTypes.node,
   handleClick: PropTypes.func,
-  isUplink: PropTypes.bool,
-  nodeId: PropTypes.string,
-  lon: PropTypes.number,
   selected: PropTypes.any,
-  status: PropTypes.string,
 };

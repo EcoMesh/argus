@@ -5,7 +5,7 @@ import { Marker, Polygon, TileLayer, Rectangle, MapContainer } from 'react-leafl
 import { selectedRegionAtom } from 'src/recoil/regions';
 import { selectedRegionSensorsAtom } from 'src/recoil/sensors';
 
-export default function BlogView() {
+export default function MapView() {
   const mapRef = useRef(null);
   const selectedRegion = useRecoilValue(selectedRegionAtom);
   const selectedRegionSensors = useRecoilValue(selectedRegionSensorsAtom);
