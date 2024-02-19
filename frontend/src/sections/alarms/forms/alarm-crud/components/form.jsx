@@ -1,28 +1,26 @@
 import React from 'react';
-
 import PropTypes from 'prop-types';
-import { FieldArray, FormikProvider, Form } from 'formik';
-import { alpha } from '@mui/material/styles';
+import { Form, FieldArray, FormikProvider } from 'formik';
 
+import { alpha } from '@mui/material/styles';
 import {
   Grid,
-  Box,
+  Stack,
   Button,
+  Switch,
   MenuItem,
-  FormControl,
-  FormControlLabel,
   TextField,
   FormGroup,
   Typography,
-  Switch,
-  Stack,
+  FormControl,
+  FormControlLabel,
 } from '@mui/material';
 
-import AstNode from './ast-node';
 import { getFieldPropsWithHelpText } from 'src/utils/formik';
 
-const AlertCrudForm = ({ formik }) => {
-  return (
+import AstNode from './ast-node';
+
+const AlertCrudForm = ({ formik }) => (
     <FormikProvider value={formik}>
       <Form>
         <Grid container spacing={2} sx={{ p: 3 }}>
@@ -146,7 +144,6 @@ const AlertCrudForm = ({ formik }) => {
       </Form>
     </FormikProvider>
   );
-};
 
 AlertCrudForm.propTypes = {
   formik: PropTypes.object.isRequired,

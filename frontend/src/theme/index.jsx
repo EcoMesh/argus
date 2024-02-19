@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import { createTheme, ThemeProvider as MUIThemeProvider } from '@mui/material';
 /* trunk-ignore(eslint/perfectionist/sort-imports) */
 import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeProvider as MUIThemeProvider } from '@mui/material';
 
 import { palette } from './palette';
 import { shadows } from './shadows';

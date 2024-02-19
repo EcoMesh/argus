@@ -10,12 +10,10 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { Close as CloseIcon } from '@mui/icons-material';
 
-import { useAlarmFormik, AlertCrudForm } from '../forms/alarm-crud';
+import { AlertCrudForm, useAlarmFormik } from '../forms/alarm-crud';
 
 /* trunk-ignore(eslint/prefer-arrow-callback) */
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
+const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
 export default function NewAlarmModal({ open, handleClose }) {
   const internalHandleClose = (values = null) => {

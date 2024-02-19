@@ -1,14 +1,16 @@
 import PropTypes from 'prop-types';
+
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Stack, Button, MenuItem } from '@mui/material';
 
 import { getFieldPropsWithHelpText } from 'src/utils/formik';
-import { getDefaultGroundDistanceRule, sensorReadingColumns, timeIntervals } from '../constants';
 
-const RuleNode = ({ formik, node, path, replace, remove }) => {
+import { timeIntervals, sensorReadingColumns, getDefaultGroundDistanceRule } from '../constants';
+
+const RuleNode = ({ formik, node, path, replace, remove }) => 
   //
-  return (
+   (
     <Stack spacing={2}>
       <Stack direction="row" spacing={2}>
         <TextField
@@ -95,8 +97,8 @@ const RuleNode = ({ formik, node, path, replace, remove }) => {
         </>
       )}
     </Stack>
-  );
-};
+  )
+;
 
 RuleNode.propTypes = {
   formik: PropTypes.object.isRequired,

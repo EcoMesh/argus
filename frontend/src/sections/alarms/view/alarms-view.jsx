@@ -10,12 +10,12 @@ import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
-import Label from 'src/components/label';
 
-// import { users } from 'src/_mock/user';
-import { selectedRegionAlarmsAtom, useCreateAlarm } from 'src/recoil/alarms';
 import { selectedRegionIdAtom } from 'src/recoil/regions';
+// import { users } from 'src/_mock/user';
+import { useCreateAlarm, selectedRegionAlarmsAtom } from 'src/recoil/alarms';
 
+import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
@@ -25,7 +25,6 @@ import AlarmTableHead from '../alarm-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import NewAlarmModal from '../modals/new-alarm-modal';
-
 import { emptyRows, applyFilter, getComparator } from '../utils';
 // ----------------------------------------------------------------------
 

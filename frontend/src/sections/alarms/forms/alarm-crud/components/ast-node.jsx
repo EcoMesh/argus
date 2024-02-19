@@ -1,23 +1,8 @@
-import React, { Fragment } from 'react';
-import { Formik, Form } from 'formik';
-import {
-  Grid,
-  Modal,
-  FormGroup,
-  TextField,
-  Typography,
-  Box,
-  Switch,
-  Stack,
-  Button,
-  MenuItem,
-} from '@mui/material';
-
-import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { useRecoilValue } from 'recoil';
-import { useFormik, FieldArray, FormikProvider, getIn } from 'formik';
-import { alpha } from '@mui/material/styles';
+import { FieldArray } from 'formik';
+import React, { Fragment } from 'react';
+
+import { Stack, Button, MenuItem, FormGroup, TextField, Typography } from '@mui/material';
 
 import RuleNode from './rule-node';
 import { getDefaultGroundDistanceRule } from '../constants';
