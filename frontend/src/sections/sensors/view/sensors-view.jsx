@@ -11,23 +11,28 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
+import { selectedRegionAtom } from 'src/recoil/regions';
 // import { users } from 'src/_mock/user';
-import { selectedRegionSensorsAtom } from 'src/recoil/sensors';
+import { useCreateSensor, selectedRegionSensorsAtom } from 'src/recoil/sensors';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 import TableNoData from '../table-no-data';
-import SensorTableRow from '../user-table-row';
-import UserTableHead from '../user-table-head';
+import SensorTableRow from '../sensor-table-row';
+import UserTableHead from '../sensor-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
+import SensorQrModal from '../modals/sensor-qr-modal';
 import NewSensorModal from '../modals/new-sensor-modal';
+import { doMeshtasticWork } from '../modals/new-sensor-modal';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 // ----------------------------------------------------------------------
 
 export default function SensorsPage() {
   const sensors = useRecoilValue(selectedRegionSensorsAtom);
+  const region = useRecoilValue(selectedRegionAtom);
+  const createSensor = useCreateSensor();
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -39,6 +44,8 @@ export default function SensorsPage() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [recentlyCreatedSensor, setRecentlyCreatedSensor] = useState(null);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -99,8 +106,14 @@ export default function SensorsPage() {
 
   const [newSensorModalOpen, setNewSensorModalOpen] = useState(false);
   const handleNewSensorModalOpen = () => setNewSensorModalOpen(true);
-  const handleNewSensorModalClose = () => setNewSensorModalOpen(false);
+  const handleNewSensorModalClose = async (newSensorIn) => {
+    setNewSensorModalOpen(false);
 
+    if (!newSensorIn) return;
+
+    const newSensorOut = await createSensor(newSensorIn);
+    setRecentlyCreatedSensor(newSensorOut);
+  };
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -114,6 +127,11 @@ export default function SensorsPage() {
         >
           Register Sensor
         </Button>
+        <SensorQrModal
+          open={!!recentlyCreatedSensor}
+          handleClose={() => setRecentlyCreatedSensor(null)}
+          sensor={recentlyCreatedSensor}
+        />
       </Stack>
 
       <NewSensorModal open={newSensorModalOpen} handleClose={handleNewSensorModalClose} />
@@ -150,10 +168,7 @@ export default function SensorsPage() {
                   .map((row) => (
                     <SensorTableRow
                       key={row.id}
-                      lat={row?.location?.coordinates?.[1] || 'N/A'}
-                      lon={row?.location?.coordinates?.[0] || 'N/A'}
-                      status="Online"
-                      isUplink={row.uplink}
+                      sensor={row}
                       selected={selected.indexOf(row.id) !== -1}
                       handleClick={(event) => handleClick(event, row.id)}
                     />

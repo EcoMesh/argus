@@ -10,21 +10,20 @@ import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
+import { useDeleteSensor } from 'src/recoil/sensors';
+
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
+import SensorQrModal from './modals/sensor-qr-modal';
+
 // ----------------------------------------------------------------------
 
-export default function SensorTableRow({
-  selected,
-  nodeId,
-  lon,
-  lat,
-  isUplink,
-  status,
-  handleClick,
-}) {
+export default function SensorTableRow({ sensor, selected, handleClick }) {
   const [open, setOpen] = useState(null);
+  const deleteSensor = useDeleteSensor();
+
+  const [showQrModal, setShowQrModal] = useState(false);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -44,19 +43,22 @@ export default function SensorTableRow({
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
             <Typography variant="subtitle2" noWrap>
-              {nodeId}
+              {sensor.nodeId}
             </Typography>
           </Stack>
         </TableCell>
+        <TableCell>{sensor.location?.coordinates?.[0] || 'N/A'}</TableCell>
 
-        <TableCell>{lon}</TableCell>
+        <TableCell>{sensor.location?.coordinates?.[1] || 'N/A'}</TableCell>
 
-        <TableCell>{lat}</TableCell>
-
-        <TableCell align="center">{isUplink ? 'Yes' : 'No'}</TableCell>
+        <TableCell align="center">{sensor.uplink ? 'Yes' : 'No'}</TableCell>
 
         <TableCell>
-          <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
+          {sensor.location ? (
+            <Label color="success">Online</Label>
+          ) : (
+            <Label color="error">Offline</Label>
+          )}
         </TableCell>
 
         <TableCell align="right">
@@ -76,26 +78,36 @@ export default function SensorTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
-          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
+        <MenuItem
+          onClick={() => {
+            setShowQrModal(true);
+            handleCloseMenu();
+          }}
+        >
+          <Iconify icon="bx:qr" sx={{ mr: 2 }} />
+          See QR
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem
+          onClick={() => {
+            deleteSensor(sensor.id);
+            handleCloseMenu();
+          }}
+          sx={{ color: 'error.main' }}
+        >
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
         </MenuItem>
       </Popover>
+
+      <SensorQrModal open={showQrModal} handleClose={() => setShowQrModal(false)} sensor={sensor} />
     </>
   );
 }
 
 SensorTableRow.propTypes = {
   handleClick: PropTypes.func,
-  isUplink: PropTypes.bool,
-  nodeId: PropTypes.string,
-  lat: PropTypes.string,
-  lon: PropTypes.string,
+  id: PropTypes.string,
+  sensor: PropTypes.object,
   selected: PropTypes.any,
-  status: PropTypes.string,
 };

@@ -1,10 +1,10 @@
 from typing import List
+from uuid import uuid4
 
 import rethinkdb.query as r
 from app import schema
 from app.database import Connection, get_database
-from app.worker import delineate_watershed_task
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 router = APIRouter(prefix="/regions", tags=["regions"])
 
@@ -23,6 +23,7 @@ async def create_region(
         .insert(
             {
                 "name": region.name,
+                "channel_psk": str(uuid4()),
                 "bottom_left": r.point(*region.bottom_left),
                 "top_right": r.point(*region.top_right),
             }

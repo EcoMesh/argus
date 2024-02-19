@@ -13,5 +13,6 @@ class RegionIn(BaseSchema):
 class RegionOut(BaseSchema):
     id: str
     name: str
+    channel_psk: str
     bottom_left: GeoJsonPoint
     top_right: GeoJsonPoint

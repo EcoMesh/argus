@@ -33,3 +33,11 @@ export const useCreateSensor = () => {
     return newSensor;
   };
 };
+
+export const useDeleteSensor = () => {
+  const [sensors, setSensors] = useRecoilState(sensorsAtom);
+  return async (sensorId) => {
+    await api.deleteSensor(sensorId);
+    setSensors(sensors.filter((sensor) => sensor.id !== sensorId));
+  };
+};

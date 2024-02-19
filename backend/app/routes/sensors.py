@@ -1,8 +1,11 @@
 from typing import List
+from uuid import uuid4
 
 import rethinkdb.query as r
 from app import schema
 from app.database import Connection, get_database
+from app.security import encode_jwt
+from app.settings import settings
 from app.worker import delineate_watershed_task
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -16,11 +19,27 @@ async def get_all_sensors(conn: Connection = Depends(get_database)):
 
 @router.post("/", response_model=schema.sensor.SensorOut)
 async def create_sensor(
-    sensor: schema.sensor.SensorIn, conn: Connection = Depends(get_database)
+    sensor: schema.sensor.NewSensorIn, conn: Connection = Depends(get_database)
 ):
-    sensor_dict = sensor.model_dump()
-    res = await r.table("sensors").insert(sensor_dict).run(conn, return_changes=True)
-
+    sensor_id = str(uuid4())
+    initialization_payload = encode_jwt(
+        {
+            "id": sensor_id,
+            "node_id": sensor.node_id,
+        }
+    )
+    res = (
+        await r.table("sensors")
+        .insert(
+            {
+                **sensor.model_dump(),
+                "id": sensor_id,
+                "initialization_url": f"http://localhost/init/{initialization_payload}",
+            }
+        )
+        .run(conn, return_changes=True)
+    )
+    print(res["changes"][0]["new_val"])
     return res["changes"][0]["new_val"]
 
 
@@ -56,3 +75,22 @@ async def init_sensor(
     delineate_watershed_task.delay([region])
 
     return {"status": "success"}
+
+
+@router.delete("/{sensor_id}")
+async def delete_sensor(sensor_id: str, conn: Connection = Depends(get_database)):
+    res = await r.table("sensors").get(sensor_id).delete().run(conn)
+    if res["deleted"] == 0:
+        raise HTTPException(status_code=404, detail="Sensor not found")
+    return {"status": "success"}
+
+
+@router.get("/config/mqtt", response_model=schema.sensor.MqttConfig)
+async def get_mqtt_config():
+    return schema.sensor.MqttConfig(
+        host=settings.mqtt_host,
+        username=settings.mqtt_user,
+        password=settings.mqtt_pass,
+        use_tls=False,
+        use_encryption=False,
+    )

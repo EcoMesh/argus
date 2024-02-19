@@ -58,24 +58,26 @@ async function http(path, config) {
 }
 
 export function get(path, config) {
-  const init = { method: 'get', ...config };
-  return http(path, init);
+  return http(path, { method: 'get', ...config });
 }
 
 export function post(path, body, config) {
-  const init = {
+  return http(path, {
     method: 'post',
     body: JSON.stringify(body),
     ...config,
-  };
-  return http(path, init);
+  });
 }
 
 export function put(path, body, config) {
-  const init = {
+  return http(path, {
     method: 'put',
     body: JSON.stringify(body),
     ...config,
-  };
-  return http(path, init);
+  });
+}
+
+// delete is a reserved word in JavaScript
+export function remove(path, config) {
+  return http(path, { method: 'delete', ...config });
 }

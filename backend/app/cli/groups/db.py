@@ -35,6 +35,7 @@ async def create_tables():
             print(f"Table {table} already exists")
 
     r.table("sensors").index_create("region_id").run()
+    r.table("sensors").index_create("node_id").run()
     r.table("sensor_readings").index_create("node_id").run()
     r.table("sensor_telemetry").index_create("node_id").run()
     r.table("alarms_events").index_create("alarm_id").run()

@@ -12,22 +12,25 @@ class SensorCoordinates(BaseModel):
     lon: float
 
 
-class SensorIn(BaseSchema):
+class NewSensorIn(BaseSchema):
     node_id: str = Field(
         ..., description="The node id of the sensor", examples=["!833c2233"]
     )
     uplink: bool
+    mac_address: Optional[str] = None  # TODO: make required
     region_id: str
-    coordinates: Optional[SensorCoordinates]
 
 
-class SensorOut(BaseSchema):
+class InitSensorIn(BaseSchema):
     id: str
-    node_id: str
-    region_id: str
-    uplink: bool
-    location: Optional[GeoJsonPoint]
-    watershed: Optional[GeoJsonPolygon]
+    coordinates: SensorCoordinates
+
+
+class SensorOut(NewSensorIn):
+    id: str
+    initialization_url: str
+    location: Optional[GeoJsonPoint] = None
+    watershed: Optional[GeoJsonPolygon] = None
 
 
 # remember to keep in sync with /backend/app/schema/sensor.py
@@ -47,3 +50,11 @@ class SensorTelemetry(NamedTuple):
     timestamp: datetime
     battery_level: int
     voltage: float
+
+
+class MqttConfig(BaseSchema):
+    host: str
+    username: str
+    password: str
+    use_tls: bool = False
+    use_encryption: bool = False

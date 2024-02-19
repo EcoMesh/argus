@@ -31,14 +31,23 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     )
 
 
-def create_access_token(data: dict):
+def encode_jwt(data: dict, expires: datetime = None) -> str:
     to_encode = data.copy()
 
-    expire = datetime.utcnow() + timedelta(minutes=settings.jwt_expire_minutes)
+    if expires:
+        to_encode.update({"exp": expires})
 
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.jwt_secret, algorithm=JWT_ALGORITHM)
-    return encoded_jwt
+    return jwt.encode(to_encode, settings.jwt_secret, algorithm=JWT_ALGORITHM)
+
+
+def decode_jwt(token: str) -> dict:
+    return jwt.decode(token, settings.jwt_secret, algorithms=[JWT_ALGORITHM])
+
+
+def create_access_token(data: dict):
+    return encode_jwt(
+        data, datetime.utcnow() + timedelta(minutes=settings.jwt_expire_minutes)
+    )
 
 
 async def get_current_user(
@@ -58,9 +67,7 @@ async def get_current_user(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authorization header",
             )
-        payload = jwt.decode(
-            access_token, settings.jwt_secret, algorithms=[JWT_ALGORITHM]
-        )
+        payload = decode_jwt(access_token)
         del payload["exp"]
         return schema.user.UserOut(**payload)
     except JWTError as e:
