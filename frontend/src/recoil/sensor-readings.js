@@ -1,5 +1,6 @@
 import { produce } from 'immer';
-import { atom, selector, useRecoilState, selectorFamily, useSetRecoilState } from 'recoil';
+import { atom, selector, selectorFamily } from 'recoil';
+import { groupBy as _groupBy, mapValues as _mapValues } from 'lodash';
 
 import * as api from 'src/api/sensor-readings';
 import { currentRegionSensorsSelector } from 'src/recoil/sensors';
@@ -14,19 +15,121 @@ export const sensorReadingsAtom = atom({
   default: sensorReadingsDefault,
 });
 
-export const selectedRegionSensorReadingsSelector = selector({
+export const currentRegionSensorReadingsSelector = selector({
   key: 'selectedRegionSensorReadings',
   get: ({ get }) => {
     const sensorReadings = get(sensorReadingsAtom);
-    console.log('sensorReadings', sensorReadings);
     const currentRegionSensors = get(currentRegionSensorsSelector);
 
     if (currentRegionSensors.length === 0) return [];
 
     const sensorNodeIds = new Set(currentRegionSensors.map(({ nodeId }) => nodeId));
 
-    console.log('sensorNodeIds', sensorNodeIds);
-
     return sensorReadings.filter(({ nodeId }) => sensorNodeIds.has(nodeId));
   },
+});
+
+export const currentRegionSensorReadingsGroupedByNodeIdSelector = selector({
+  key: 'selectedRegionSensorReadingsGroupedByNodeId',
+  get: ({ get }) => {
+    const sensorReadings = get(currentRegionSensorReadingsSelector);
+    return _groupBy(sensorReadings, 'nodeId');
+  },
+});
+
+export const currentRegionSensorReadingsFilterSelector = selectorFamily({
+  key: 'currentRegionSensorReadingsFilter',
+  get:
+    ({ startTime, resolution }) =>
+    ({ get }) => {
+      let groups = get(currentRegionSensorReadingsGroupedByNodeIdSelector);
+
+      // filter out readings that are older than startTime
+      if (startTime) {
+        groups = produce(groups, (draft) => {
+          Object.keys(draft).forEach((nodeId) => {
+            draft[nodeId] = draft[nodeId].filter(
+              ({ timestamp }) => new Date(timestamp) >= startTime
+            );
+          });
+        });
+      }
+
+      // average the readings based on the resolution
+      if (resolution) {
+        groups = produce(groups, (draft) => {
+          Object.keys(draft).forEach((nodeId) => {
+            const resolutionGroups = _groupBy(
+              groups[nodeId],
+              (reading) =>
+                new Date(reading.timestamp).getTime() -
+                (new Date(reading.timestamp).getTime() % resolution)
+            );
+
+            draft[nodeId] = Object.entries(resolutionGroups).map(([timestamp, values]) => {
+              const averages = _mapValues(
+                values.reduce(
+                  (acc, reading) => ({
+                    temperature: acc.temperature + reading.temperature,
+                    humidity: acc.humidity + reading.humidity,
+                    moisture: acc.moisture + reading.moisture,
+                    groundDistance: acc.groundDistance + reading.groundDistance,
+                  }),
+                  {
+                    temperature: 0,
+                    humidity: 0,
+                    moisture: 0,
+                    groundDistance: 0,
+                  }
+                ),
+                (value) => Math.round((value / values.length) * 100) / 100
+              );
+
+              return {
+                timestamp: new Date(parseInt(timestamp, 10)).toISOString(),
+                nodeId,
+                ...averages,
+              };
+            });
+          });
+        });
+      }
+      return groups;
+    },
+});
+
+export const currentRegionSensorReadingsChartSelector = selectorFamily({
+  key: 'currentRegionSensorReadingsChart',
+  get:
+    ({ column, startTime, resolution }) =>
+    ({ get }) => {
+      const readingsGroupedBySensors = get(
+        currentRegionSensorReadingsFilterSelector({ startTime, resolution })
+      );
+      const sensors = Object.entries(readingsGroupedBySensors).map(([nodeId, values]) => ({
+        nodeId,
+        values,
+      }));
+
+      return {
+        labels: [],
+        series: sensors.map((reading) => ({
+          name: reading.nodeId,
+          fill: 'gradient',
+          type: 'area',
+          data: reading.values.map((r) => ({
+            x: r.timestamp,
+            y: r[column],
+          })),
+        })),
+        xaxis: {
+          type: 'datetime',
+        },
+        options: {
+          stroke: {
+            curve: 'monotoneCubic',
+          },
+        },
+      };
+    },
 });

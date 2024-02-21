@@ -13,7 +13,7 @@ export const alarmsAtom = atom({
   default: alarmsDefault,
 });
 
-export const selectedRegionAlarmsAtom = selector({
+export const currentRegionAlarmsAtom = selector({
   key: 'selectedRegionAlarms',
   get: ({ get }) => {
     const alarms = get(alarmsAtom);

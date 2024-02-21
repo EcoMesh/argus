@@ -11,8 +11,6 @@ import Chart, { useChart } from 'src/components/chart';
 export default function AppWebsiteVisits({ title, subheader, chart, ...other }) {
   const { labels, colors, series, options } = chart;
 
-  console.log(labels, series);
-
   const chartOptions = useChart({
     colors,
     plotOptions: {
@@ -33,7 +31,7 @@ export default function AppWebsiteVisits({ title, subheader, chart, ...other }) 
       y: {
         formatter: (value) => {
           if (typeof value !== 'undefined') {
-            return `${value.toFixed(0)} visits`;
+            return `${value.toFixed(0)} F`;
           }
           return value;
         },

@@ -1,8 +1,16 @@
 import { faker } from '@faker-js/faker';
+import { useRecoilValue } from 'recoil';
 
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
+
+import { currentRegionAlarmsAtom } from 'src/recoil/alarms';
+import { currentRegionSensorsSelector } from 'src/recoil/sensors';
+import {
+  currentRegionSensorReadingsSelector,
+  currentRegionSensorReadingsChartSelector,
+} from 'src/recoil/sensor-readings';
 
 import Iconify from 'src/components/iconify';
 
@@ -13,32 +21,20 @@ import AppCurrentVisits from '../app-current-visits';
 import AppWebsiteVisits from '../app-website-visits';
 import AppWidgetSummary from '../app-widget-summary';
 import AppTrafficBySite from '../app-traffic-by-site';
-import AppCurrentSubject from '../app-current-subject';
-import AppConversionRates from '../app-conversion-rates';
-
-import { selectedRegionSensorReadingsSelector } from 'src/recoil/sensor-readings';
-import { useRecoilValue } from 'recoil';
-import { useMemo } from 'react';
-import Chart from 'src/components/chart';
-import { groupBy as _groupBy } from 'lodash';
 
 // ----------------------------------------------------------------------
 
 export default function AppView() {
-  const sensorReadings = useRecoilValue(selectedRegionSensorReadingsSelector);
-  console.log('sensorReadings useRecoilValue', sensorReadings);
-  const todaysReadings = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const groups = _groupBy(
-      sensorReadings.filter((reading) => {
-        return new Date(reading.timestamp) >= today;
-      }),
-      'nodeId'
-    );
-
-    return Object.entries(groups).map(([nodeId, values]) => ({ nodeId, values }));
-  }, [sensorReadings]);
+  const currentRegionSensors = useRecoilValue(currentRegionSensorsSelector);
+  const currentRegionAlarms = useRecoilValue(currentRegionAlarmsAtom);
+  const sensorReadings = useRecoilValue(currentRegionSensorReadingsSelector);
+  const sensorsReadingsChart = useRecoilValue(
+    currentRegionSensorReadingsChartSelector({
+      column: 'temperature',
+      startTime: new Date(Date.now() - 1000 * 60 * 60 * 24),
+      resolution: 1000 * 60 * 15,
+    })
+  );
 
   return (
     <Container maxWidth="xl">
@@ -49,8 +45,8 @@ export default function AppView() {
       <Grid container spacing={3}>
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Weekly Sales"
-            total={714000}
+            title="Sensors"
+            total={currentRegionSensors.length}
             color="success"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
@@ -58,8 +54,8 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="New Users"
-            total={1352831}
+            title="Alarms"
+            total={currentRegionAlarms.length}
             color="info"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
           />
@@ -67,8 +63,8 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Item Orders"
-            total={1723315}
+            title="Readings"
+            total={sensorReadings.length}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
@@ -76,8 +72,8 @@ export default function AppView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Bug Reports"
-            total={234}
+            title="Alarm Events"
+            total={3}
             color="error"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
           />
@@ -86,82 +82,27 @@ export default function AppView() {
         <Grid xs={12} md={6} lg={8}>
           <AppWebsiteVisits
             title="Temperature"
-            subheader="(+43%) than last year"
-            chart={{
-              // labels: [
-              //   '01/01/2003',
-              //   '02/01/2003',
-              //   '03/01/2003',
-              //   '04/01/2003',
-              //   '05/01/2003',
-              //   '06/01/2003',
-              //   '07/01/2003',
-              //   '08/01/2003',
-              //   '09/01/2003',
-              //   '10/01/2003',
-              //   '11/01/2003',
-              // ],
-              labels: todaysReadings[0].values.map((reading) =>
-                new Date(reading.timestamp).toLocaleDateString()
-              ),
-              series: todaysReadings.map((reading) => ({
-                name: reading.nodeId,
-                type: 'line',
-                data: reading.values.map((reading) => ({
-                  x: new Date(reading.timestamp).getTime(),
-                  y: reading.temperature,
-                })),
-              })),
-              // {
-              //   // name: 'Temperature',
-              //   // type: 'line',
-              //   // fill: 'gradient',
-              //   data: todaysReadings.map((reading) => ({
-              //     x: new Date(reading.timestamp).getTime(),
-              //     y: reading.temperature,
-              //   })),
-              // },
-              // {
-              //   name: 'Team A',
-              //   type: 'column',
-              //   fill: 'solid',
-              //   data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
-              // },
-              // {
-              //   name: 'Team B',
-              //   type: 'area',
-              //   fill: 'gradient',
-              //   data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
-              // },
-              // {
-              //   name: 'Team C',
-              //   type: 'line',
-              //   fill: 'solid',
-              //   data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
-              // },
-              xaxis: {
-                type: 'datetime',
-              },
-            }}
+            subheader="Last 24 hours"
+            chart={sensorsReadingsChart}
           />
           {/* <Chart type="line" series={todaysReadings} /> */}
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentVisits
-            title="Current Visits"
+            title="Sensor Status"
             chart={{
               series: [
-                { label: 'America', value: 4344 },
-                { label: 'Asia', value: 5435 },
-                { label: 'Europe', value: 1443 },
-                { label: 'Africa', value: 4443 },
+                { label: 'Online', value: 5 },
+                { label: 'Offline', value: 1 },
+                { label: 'In Alarm', value: 2 },
+                // { label: 'Africa', value: 4443 },
               ],
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
+        {/* <Grid xs={12} md={6} lg={8}>
           <AppConversionRates
             title="Conversion Rates"
             subheader="(+43%) than last year"
@@ -194,7 +135,7 @@ export default function AppView() {
               ],
             }}
           />
-        </Grid>
+        </Grid> */}
 
         <Grid xs={12} md={6} lg={8}>
           <AppNewsUpdate
