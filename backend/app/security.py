@@ -2,46 +2,18 @@ from datetime import datetime, timedelta
 from traceback import print_exc
 from typing import Optional
 
-import bcrypt
 from app import schema
 from app.database import Connection
 from app.settings import settings
+from app.utils.security import decode_jwt, encode_jwt, hash_password, verify_password
 from fastapi import Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+from jose import JWTError
 from pydantic import ValidationError
 
 from rethinkdb import query as r
 
-JWT_ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-def hash_password(password: str) -> str:
-    pwd_bytes = password.encode("utf-8")
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password=pwd_bytes, salt=salt)
-    return hashed_password
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(
-        password=plain_password.encode("utf-8"),
-        hashed_password=hashed_password.encode("utf-8"),
-    )
-
-
-def encode_jwt(data: dict, expires: datetime = None) -> str:
-    to_encode = data.copy()
-
-    if expires:
-        to_encode.update({"exp": expires})
-
-    return jwt.encode(to_encode, settings.jwt_secret, algorithm=JWT_ALGORITHM)
-
-
-def decode_jwt(token: str) -> dict:
-    return jwt.decode(token, settings.jwt_secret, algorithms=[JWT_ALGORITHM])
 
 
 def create_access_token(data: dict):

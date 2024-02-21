@@ -30,7 +30,7 @@ services:
   caddy:
     image: caddy:2.7.6-alpine
     ports:
-      - 80:80
+      - "0.0.0.0:80:80"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./caddy_data:/data

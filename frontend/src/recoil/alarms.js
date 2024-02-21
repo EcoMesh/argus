@@ -1,7 +1,7 @@
 import { atom, selector, useRecoilState } from 'recoil';
 
 import * as api from 'src/api/alarms';
-import { selectedRegionIdAtom } from 'src/recoil/regions';
+import { currentRegionIdAtom } from 'src/recoil/regions';
 
 export const alarmsDefault = selector({
   key: 'alarms/default',
@@ -17,7 +17,7 @@ export const selectedRegionAlarmsAtom = selector({
   key: 'selectedRegionAlarms',
   get: ({ get }) => {
     const alarms = get(alarmsAtom);
-    const selectedRegionId = get(selectedRegionIdAtom);
+    const selectedRegionId = get(currentRegionIdAtom);
 
     if (!selectedRegionId) return [];
 

@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import NamedTuple, Optional
 
-from pydantic import BaseModel, Field
+from app.settings import settings
+from app.utils.security import encode_jwt
+from pydantic import BaseModel, Field, computed_field
 
 from .base import BaseSchema
 from .geojson import GeoJsonPoint, GeoJsonPolygon
@@ -28,9 +30,21 @@ class InitSensorIn(BaseSchema):
 
 class SensorOut(NewSensorIn):
     id: str
-    initialization_url: str
+    # initialization_url: str
     location: Optional[GeoJsonPoint] = None
     watershed: Optional[GeoJsonPolygon] = None
+
+    @computed_field
+    @property
+    def initialization_url(self) -> str:
+        param = encode_jwt(
+            {
+                "id": self.id,
+                "nodeId": self.node_id,
+                "regionId": self.region_id,
+            }
+        )
+        return f"{settings.base_url}/init?sensor={param}"
 
 
 # remember to keep in sync with /backend/app/schema/sensor.py

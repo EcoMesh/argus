@@ -1,11 +1,10 @@
 from typing import List
-from uuid import uuid4
 
 import rethinkdb.query as r
 from app import schema
 from app.database import Connection, get_database
-from app.security import encode_jwt
 from app.settings import settings
+from app.utils.security import decode_jwt
 from app.worker import delineate_watershed_task
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -21,34 +20,22 @@ async def get_all_sensors(conn: Connection = Depends(get_database)):
 async def create_sensor(
     sensor: schema.sensor.NewSensorIn, conn: Connection = Depends(get_database)
 ):
-    sensor_id = str(uuid4())
-    initialization_payload = encode_jwt(
-        {
-            "id": sensor_id,
-            "node_id": sensor.node_id,
-        }
-    )
     res = (
         await r.table("sensors")
-        .insert(
-            {
-                **sensor.model_dump(),
-                "id": sensor_id,
-                "initialization_url": f"http://localhost/init/{initialization_payload}",
-            }
-        )
+        .insert(sensor.model_dump())
         .run(conn, return_changes=True)
     )
-    print(res["changes"][0]["new_val"])
+
     return res["changes"][0]["new_val"]
 
 
-@router.post("/{sensor_id}/init")
+@router.post("/{jwt_sensor_identifier}/init", response_model=schema.sensor.SensorOut)
 async def init_sensor(
-    sensor_id: str,
+    jwt_sensor_identifier: str,
     coordinates: schema.sensor.SensorCoordinates,
     conn: Connection = Depends(get_database),
 ):
+    sensor_id = decode_jwt(jwt_sensor_identifier)["id"]
     r_sensor = r.table("sensors").get(sensor_id)
     sensor = await r_sensor.run(conn)
 
@@ -74,7 +61,7 @@ async def init_sensor(
 
     delineate_watershed_task.delay([region])
 
-    return {"status": "success"}
+    return sensor
 
 
 @router.delete("/{sensor_id}")

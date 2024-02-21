@@ -1,6 +1,8 @@
-from app.utils import get_lan_ip
+from app.utils.networking import get_lan_ip
 from pydantic import RedisDsn
 from pydantic_settings import BaseSettings
+
+lan_ip = get_lan_ip()
 
 
 class Settings(BaseSettings):
@@ -8,9 +10,11 @@ class Settings(BaseSettings):
     rethinkdb_port: int = 28015
     rethinkdb_database: str = "test"
 
-    mqtt_host: str = get_lan_ip()
+    mqtt_host: str = lan_ip
     mqtt_user: str = ""
     mqtt_pass: str = ""
+
+    base_url: str = f"http://{lan_ip}"
 
     redis_dsn: RedisDsn = RedisDsn("redis://localhost:6379/0")
 

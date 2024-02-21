@@ -1,50 +1,44 @@
 import PropTypes from 'prop-types';
+import { FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import { useRef, useState, useEffect } from 'react';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import { TileLayer, FeatureGroup, MapContainer } from 'react-leaflet';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import Modal from '@mui/material/Modal';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import { alpha } from '@mui/material/styles';
-import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
-import { Select, MenuItem, TextField, InputLabel, FormControl } from '@mui/material';
+import {
+  Select,
+  MenuItem,
+  TextField,
+  InputLabel,
+  FormControl,
+  DialogContent,
+  DialogContentText,
+} from '@mui/material';
 
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useResponsive } from 'src/hooks/use-responsive';
 
-import { regionsAtom, useCreateRegion, selectedRegionIdAtom } from 'src/recoil/regions';
+import { regionsAtom, useCreateRegion, currentRegionIdAtom } from 'src/recoil/regions';
 
 import Logo from 'src/components/logo';
 import Scrollbar from 'src/components/scrollbar';
+import { OpenTopoMapContainer } from 'src/components/map';
+import { DialogAppBar, DialogFullscreen } from 'src/components/dialog';
 
 import { NAV } from './config-layout';
 import navConfig from './config-navigation';
 
-// ----------------------------------------------------------------------
-const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '100%',
-  height: '100%',
-  maxWidth: 1200,
-  maxHeight: 800,
-  bgcolor: 'background.paper',
-  p: 4,
-};
-
 const NewRegionModal = ({ open, handleClose }) => {
   const editableFeatureGroupRef = useRef(null);
   const [layerId, setLayerId] = useState(null);
-  const [regionName, setRegionName] = useState(null);
+  const [regionName, setRegionName] = useState('');
 
   const getBounds = () => {
     const layer = editableFeatureGroupRef.current._layers[layerId];
@@ -66,35 +60,45 @@ const NewRegionModal = ({ open, handleClose }) => {
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
-    >
-      <Box sx={modalStyle}>
+    <DialogFullscreen open={open} onClose={handleClose}>
+      <DialogAppBar
+        onClose={handleClose}
+        title="New Region"
+        actionButton={
+          <Button
+            autoFocus
+            color="inherit"
+            disabled={!layerId || !regionName}
+            onClick={async () => {
+              handleClose({
+                type: 'create',
+                region: {
+                  name: regionName,
+                  ...getBounds(),
+                },
+              });
+            }}
+          >
+            Create
+          </Button>
+        }
+      />
+      <DialogContent>
         <Stack spacing={2} sx={{ height: '100%' }}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            New Region
-          </Typography>
           <TextField
             label="Region Name"
             value={regionName}
             onChange={(e) => setRegionName(e.target.value)}
           />
-          <Typography id="modal-modal-description" variant="body1" component="p">
+          <DialogContentText>
             Use the map below to draw the region. Once you&apos;ve closed the polygon, click the
             &quot;Create&quot;.
-          </Typography>
-          <MapContainer
+          </DialogContentText>
+          <OpenTopoMapContainer
             center={[30.3781, -103.17292662393481]}
             zoom={5}
             style={{ width: '100%', height: '100%' }}
           >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-            />
             <FeatureGroup ref={editableFeatureGroupRef}>
               <EditControl
                 position="topright"
@@ -118,25 +122,10 @@ const NewRegionModal = ({ open, handleClose }) => {
                 }}
               />
             </FeatureGroup>
-          </MapContainer>
-          <Button
-            variant="contained"
-            disabled={!layerId || !regionName}
-            onClick={async () => {
-              handleClose({
-                type: 'create',
-                region: {
-                  name: regionName,
-                  ...getBounds(),
-                },
-              });
-            }}
-          >
-            Create
-          </Button>
+          </OpenTopoMapContainer>
         </Stack>
-      </Box>
-    </Modal>
+      </DialogContent>
+    </DialogFullscreen>
   );
 };
 
@@ -151,7 +140,7 @@ export default function Nav({ openNav, onCloseNav }) {
   const upLg = useResponsive('up', 'lg');
   const regions = useRecoilValue(regionsAtom);
   const createRegion = useCreateRegion();
-  const [selectedRegion, setSelectedRegion] = useRecoilState(selectedRegionIdAtom);
+  const [selectedRegion, setSelectedRegion] = useRecoilState(currentRegionIdAtom);
   const [showNewSensorModal, setShowNewSensorModal] = useState(false);
 
   useEffect(() => {
@@ -172,16 +161,6 @@ export default function Nav({ openNav, onCloseNav }) {
         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
       }}
     >
-      <NewRegionModal
-        open={showNewSensorModal}
-        handleClose={async (event) => {
-          if (event.type !== 'create') {
-            setShowNewSensorModal(false);
-          } else {
-            createRegion(event.region);
-          }
-        }}
-      />
       <FormControl sx={{ width: '100%' }}>
         <InputLabel>Region</InputLabel>
         <Select
@@ -216,35 +195,6 @@ export default function Nav({ openNav, onCloseNav }) {
     </Stack>
   );
 
-  const renderUpgrade = (
-    <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>
-      <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-        <Box
-          component="img"
-          src="/assets/illustrations/illustration_avatar.png"
-          sx={{ width: 100, position: 'absolute', top: -50 }}
-        />
-
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="h6">Get more?</Typography>
-
-          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
-            From only $69
-          </Typography>
-        </Box>
-
-        <Button
-          href="https://material-ui.com/store/items/minimal-dashboard/"
-          target="_blank"
-          variant="contained"
-          color="inherit"
-        >
-          Upgrade to Pro
-        </Button>
-      </Stack>
-    </Box>
-  );
-
   const renderContent = (
     <Scrollbar
       sx={{
@@ -263,8 +213,6 @@ export default function Nav({ openNav, onCloseNav }) {
       {renderMenu}
 
       <Box sx={{ flexGrow: 1 }} />
-
-      {renderUpgrade}
     </Scrollbar>
   );
 
@@ -300,6 +248,16 @@ export default function Nav({ openNav, onCloseNav }) {
           {renderContent}
         </Drawer>
       )}
+      <NewRegionModal
+        open={showNewSensorModal}
+        handleClose={async (event) => {
+          if (event.type !== 'create') {
+            setShowNewSensorModal(false);
+          } else {
+            createRegion(event.region);
+          }
+        }}
+      />
     </Box>
   );
 }

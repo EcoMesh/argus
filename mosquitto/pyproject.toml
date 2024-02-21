@@ -9,6 +9,9 @@ readme = "README.md"
 python = "^3.11"
 rethinkdb = "^2.4.10.post1"
 aiomqtt = "^2.0.0"
+pytz = "^2024.1"
+cachetools = "^5.3.2"
+asyncache = "^0.3.1"
 
 
 [tool.poetry.group.dev.dependencies]

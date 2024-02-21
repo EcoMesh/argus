@@ -11,8 +11,6 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { selectedRegionAtom } from 'src/recoil/regions';
-// import { users } from 'src/_mock/user';
 import { useCreateSensor, selectedRegionSensorsAtom } from 'src/recoil/sensors';
 
 import Iconify from 'src/components/iconify';
@@ -25,13 +23,10 @@ import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import SensorQrModal from '../modals/sensor-qr-modal';
 import NewSensorModal from '../modals/new-sensor-modal';
-import { doMeshtasticWork } from '../modals/new-sensor-modal';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-// ----------------------------------------------------------------------
 
 export default function SensorsPage() {
   const sensors = useRecoilValue(selectedRegionSensorsAtom);
-  const region = useRecoilValue(selectedRegionAtom);
   const createSensor = useCreateSensor();
   const [page, setPage] = useState(0);
 

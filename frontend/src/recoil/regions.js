@@ -1,5 +1,5 @@
 import { recoilPersist } from 'recoil-persist';
-import { atom, selector, useRecoilState, useSetRecoilState } from 'recoil';
+import { atom, selector, selectorFamily, useRecoilState, useSetRecoilState } from 'recoil';
 
 import * as api from 'src/api/regions';
 
@@ -15,25 +15,34 @@ export const regionsAtom = atom({
   default: regionsDefault,
 });
 
-export const selectedRegionIdAtom = atom({
+export const regionByIdSelector = selectorFamily({
+  key: 'selectRegionById',
+  get:
+    (id) =>
+    ({ get }) => {
+      const regions = get(regionsAtom);
+      return regions.find((region) => region.id === id);
+    },
+});
+
+export const currentRegionIdAtom = atom({
   key: 'selectedRegionId',
   default: null,
   effects_UNSTABLE: [persistAtom],
 });
 
-export const selectedRegionAtom = selector({
+export const currentRegionSelector = selector({
   key: 'selectedRegion',
   get: ({ get }) => {
-    const regions = get(regionsAtom);
-    const selectedRegionId = get(selectedRegionIdAtom);
+    const selectedRegionId = get(currentRegionIdAtom);
     if (!selectedRegionId) return null;
-    return regions.find((region) => region.id === selectedRegionId);
+    return get(regionByIdSelector(selectedRegionId));
   },
 });
 
 export const useCreateRegion = () => {
   const [regions, setRegions] = useRecoilState(regionsAtom);
-  const setSelectedRegion = useSetRecoilState(selectedRegionIdAtom);
+  const setSelectedRegion = useSetRecoilState(currentRegionIdAtom);
   return async (region) => {
     const newRegion = await api.createRegion(region);
     setRegions([...regions, newRegion]);

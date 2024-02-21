@@ -4,26 +4,26 @@ import PropTypes from 'prop-types';
 import { useRecoilValue } from 'recoil';
 import { Client, Protobuf } from '@meshtastic/js';
 
-import Modal from '@mui/material/Modal';
 import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import {
   Stack,
   Button,
-  FormControl,
   Dialog,
+  FormControl,
   DialogTitle,
   DialogActions,
   DialogContent,
   DialogContentText,
 } from '@mui/material';
-import FormControlLabel from '@mui/material/FormControlLabel';
+
+import { getFieldPropsWithHelpText } from 'src/utils/formik';
 
 import { getSensorConfigMqtt } from 'src/api/sensors';
-import { selectedRegionAtom } from 'src/recoil/regions';
-import { getFieldPropsWithHelpText } from 'src/utils/formik';
+import { currentRegionSelector } from 'src/recoil/regions';
 
 const meshtasticClient = new Client();
 
@@ -267,7 +267,7 @@ export default function NewSensorModal({ open, handleClose }) {
     },
   });
 
-  const region = useRecoilValue(selectedRegionAtom);
+  const region = useRecoilValue(currentRegionSelector);
   const innerHandleClose = (values) => {
     formik.resetForm();
     handleClose(values);

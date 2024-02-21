@@ -34,7 +34,7 @@ const navConfig = [
   },
   {
     title: 'map',
-    path: '/Map',
+    path: '/map',
     icon: icon('ic_blog'),
   },
   {

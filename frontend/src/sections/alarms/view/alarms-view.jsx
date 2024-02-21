@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { selectedRegionIdAtom } from 'src/recoil/regions';
+import { currentRegionIdAtom } from 'src/recoil/regions';
 // import { users } from 'src/_mock/user';
 import { useCreateAlarm, selectedRegionAlarmsAtom } from 'src/recoil/alarms';
 
@@ -37,7 +37,7 @@ const countRulesFromConditionTree = (condition) => {
 
 export default function AlarmsPage() {
   const alarms = useRecoilValue(selectedRegionAlarmsAtom);
-  const selectedRegionId = useRecoilValue(selectedRegionIdAtom);
+  const selectedRegionId = useRecoilValue(currentRegionIdAtom);
   const createAlarm = useCreateAlarm();
 
   const [page, setPage] = useState(0);

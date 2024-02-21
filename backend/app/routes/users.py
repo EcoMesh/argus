@@ -7,6 +7,7 @@ from app.schema.user import (
     UserSignupIn,
     UserSignupOut,
 )
+from app.utils.security import verify_password
 from fastapi import APIRouter, Depends, HTTPException
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -18,7 +19,7 @@ async def login(payload: UserLoginIn, conn: Connection = Depends(get_database)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if not security.verify_password(payload.password, user.password):
+    if not verify_password(payload.password, user.password):
         raise HTTPException(status_code=400, detail="Invalid password")
 
     token = security.create_access_token(user.model_dump(exclude={"password"}))

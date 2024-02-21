@@ -10,6 +10,7 @@ export const LoginPage = lazy(() => import('src/pages/login'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const SensorsPage = lazy(() => import('src/pages/sensors'));
+export const SensorInitPage = lazy(() => import('src/pages/sensor-init'));
 export const AlarmsPage = lazy(() => import('src/pages/alarms'));
 
 // ----------------------------------------------------------------------
@@ -41,6 +42,10 @@ export default function Router() {
         </DashboardMapLayout>
       ),
       children: [{ path: 'map', element: <MapPage /> }],
+    },
+    {
+      path: 'init',
+      element: <SensorInitPage />,
     },
     {
       path: 'login',

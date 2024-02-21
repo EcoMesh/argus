@@ -15,7 +15,7 @@ class SensorReading(NamedTuple):
     @staticmethod
     def from_text_message(message: dict):
         return SensorReading(
-            message["sender"],
+            "!" + hex(message["from"])[2:],
             datetime.fromtimestamp(int(message["timestamp"])),
             *map(float, message["payload"]["text"].split("|"))
         )
