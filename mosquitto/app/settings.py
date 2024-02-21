@@ -1,7 +1,5 @@
 from os import environ
 
-print(environ)
-
 RETHINKDB_HOST = environ.get("RETHINKDB_HOST", "localhost")
 RETHINKDB_PORT = int(environ.get("RETHINKDB_PORT", 28015))
 RETHINKDB_DB = environ.get("RETHINKDB_DB", "test")

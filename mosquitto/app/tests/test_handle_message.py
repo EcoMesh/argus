@@ -15,6 +15,7 @@ async def test_sensor_reading_message():
         )
 
     save_reading.assert_called_once_with(
+        603466231,
         SensorReading(
             node_id="!833c2233",
             timestamp=datetime.fromtimestamp(1705891140),
@@ -22,7 +23,7 @@ async def test_sensor_reading_message():
             humidity=62.2,
             moisture=0.0,
             ground_distance=4.27,
-        )
+        ),
     )
 
 

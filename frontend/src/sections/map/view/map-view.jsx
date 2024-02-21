@@ -3,13 +3,13 @@ import { useRecoilValue } from 'recoil';
 import { Marker, Polygon, Rectangle } from 'react-leaflet';
 
 import { currentRegionSelector } from 'src/recoil/regions';
-import { selectedRegionSensorsAtom } from 'src/recoil/sensors';
+import { currentRegionSensorsSelector } from 'src/recoil/sensors';
 
 import { OpenTopoMapCurrentRegionContainer } from 'src/components/map';
 
 export function MapContainerContent() {
   const selectedRegion = useRecoilValue(currentRegionSelector);
-  const selectedRegionSensors = useRecoilValue(selectedRegionSensorsAtom);
+  const selectedRegionSensors = useRecoilValue(currentRegionSensorsSelector);
   console.log(selectedRegionSensors);
 
   return (

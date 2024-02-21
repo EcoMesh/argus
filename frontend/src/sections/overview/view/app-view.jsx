@@ -16,9 +16,30 @@ import AppTrafficBySite from '../app-traffic-by-site';
 import AppCurrentSubject from '../app-current-subject';
 import AppConversionRates from '../app-conversion-rates';
 
+import { selectedRegionSensorReadingsSelector } from 'src/recoil/sensor-readings';
+import { useRecoilValue } from 'recoil';
+import { useMemo } from 'react';
+import Chart from 'src/components/chart';
+import { groupBy as _groupBy } from 'lodash';
+
 // ----------------------------------------------------------------------
 
 export default function AppView() {
+  const sensorReadings = useRecoilValue(selectedRegionSensorReadingsSelector);
+  console.log('sensorReadings useRecoilValue', sensorReadings);
+  const todaysReadings = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const groups = _groupBy(
+      sensorReadings.filter((reading) => {
+        return new Date(reading.timestamp) >= today;
+      }),
+      'nodeId'
+    );
+
+    return Object.entries(groups).map(([nodeId, values]) => ({ nodeId, values }));
+  }, [sensorReadings]);
+
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>
@@ -64,44 +85,66 @@ export default function AppView() {
 
         <Grid xs={12} md={6} lg={8}>
           <AppWebsiteVisits
-            title="Website Visits"
+            title="Temperature"
             subheader="(+43%) than last year"
             chart={{
-              labels: [
-                '01/01/2003',
-                '02/01/2003',
-                '03/01/2003',
-                '04/01/2003',
-                '05/01/2003',
-                '06/01/2003',
-                '07/01/2003',
-                '08/01/2003',
-                '09/01/2003',
-                '10/01/2003',
-                '11/01/2003',
-              ],
-              series: [
-                {
-                  name: 'Team A',
-                  type: 'column',
-                  fill: 'solid',
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
-                },
-                {
-                  name: 'Team B',
-                  type: 'area',
-                  fill: 'gradient',
-                  data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
-                },
-                {
-                  name: 'Team C',
-                  type: 'line',
-                  fill: 'solid',
-                  data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
-                },
-              ],
+              // labels: [
+              //   '01/01/2003',
+              //   '02/01/2003',
+              //   '03/01/2003',
+              //   '04/01/2003',
+              //   '05/01/2003',
+              //   '06/01/2003',
+              //   '07/01/2003',
+              //   '08/01/2003',
+              //   '09/01/2003',
+              //   '10/01/2003',
+              //   '11/01/2003',
+              // ],
+              labels: todaysReadings[0].values.map((reading) =>
+                new Date(reading.timestamp).toLocaleDateString()
+              ),
+              series: todaysReadings.map((reading) => ({
+                name: reading.nodeId,
+                type: 'line',
+                data: reading.values.map((reading) => ({
+                  x: new Date(reading.timestamp).getTime(),
+                  y: reading.temperature,
+                })),
+              })),
+              // {
+              //   // name: 'Temperature',
+              //   // type: 'line',
+              //   // fill: 'gradient',
+              //   data: todaysReadings.map((reading) => ({
+              //     x: new Date(reading.timestamp).getTime(),
+              //     y: reading.temperature,
+              //   })),
+              // },
+              // {
+              //   name: 'Team A',
+              //   type: 'column',
+              //   fill: 'solid',
+              //   data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
+              // },
+              // {
+              //   name: 'Team B',
+              //   type: 'area',
+              //   fill: 'gradient',
+              //   data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
+              // },
+              // {
+              //   name: 'Team C',
+              //   type: 'line',
+              //   fill: 'solid',
+              //   data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
+              // },
+              xaxis: {
+                type: 'datetime',
+              },
             }}
           />
+          {/* <Chart type="line" series={todaysReadings} /> */}
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>

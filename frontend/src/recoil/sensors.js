@@ -24,7 +24,7 @@ export const sensorByIdSelector = selectorFamily({
     },
 });
 
-export const selectedRegionSensorsAtom = selector({
+export const currentRegionSensorsSelector = selector({
   key: 'selectedRegionSensors',
   get: ({ get }) => {
     const sensors = get(sensorsAtom);

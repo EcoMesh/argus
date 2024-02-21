@@ -72,3 +72,13 @@ class MqttConfig(BaseSchema):
     password: str
     use_tls: bool = False
     use_encryption: bool = False
+
+
+class SensorReadingOut(BaseSchema):
+    id: str
+    node_id: str
+    timestamp: datetime
+    temperature: float
+    humidity: float
+    moisture: float
+    ground_distance: float

@@ -11,6 +11,8 @@ import Chart, { useChart } from 'src/components/chart';
 export default function AppWebsiteVisits({ title, subheader, chart, ...other }) {
   const { labels, colors, series, options } = chart;
 
+  console.log(labels, series);
+
   const chartOptions = useChart({
     colors,
     plotOptions: {
