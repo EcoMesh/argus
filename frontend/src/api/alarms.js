@@ -1,17 +1,17 @@
 import { get, put, post, remove } from './fetch';
 
-export function getAlarms() {
-  return get('/alarms/');
+export function getAlarms(headers = {}) {
+  return get('/alarms/', { headers });
 }
 
-export async function createAlarm(data) {
-  return post('/alarms/', data);
+export async function createAlarm(data, headers = {}) {
+  return post('/alarms/', data, { headers });
 }
 
-export async function deleteAlarm(id) {
-  return remove(`/alarms/${id}`);
+export async function deleteAlarm(id, headers = {}) {
+  return remove(`/alarms/${id}`, { headers });
 }
 
-export async function updateAlarm(data) {
-  return put(`/alarms/${data.id}`, data);
+export async function updateAlarm(data, headers = {}) {
+  return put(`/alarms/${data.id}`, data, { headers });
 }

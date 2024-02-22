@@ -2,20 +2,20 @@ import * as Yup from 'yup';
 
 import { get, post, remove } from './fetch';
 
-export async function createSensor(data) {
-  return post('/sensors/', data);
+export async function createSensor(data, headers = {}) {
+  return post('/sensors/', data, { headers });
 }
 
-export async function initSensor(sensorId, { lat, lon }) {
-  return post(`/sensors/${sensorId}/init`, { lat, lon });
+export async function initSensor(sensorId, { lat, lon }, headers) {
+  return post(`/sensors/${sensorId}/init`, { lat, lon }, { headers });
 }
 
-export function getSensors() {
-  return get('/sensors/');
+export function getSensors(headers = {}) {
+  return get('/sensors/', { headers });
 }
 
-export function deleteSensor(id) {
-  return remove(`/sensors/${id}`);
+export function deleteSensor(id, headers = {}) {
+  return remove(`/sensors/${id}`, { headers });
 }
 
 const sensorConfigMqttSchema = Yup.object().shape({
@@ -28,8 +28,4 @@ const sensorConfigMqttSchema = Yup.object().shape({
 
 export async function getSensorConfigMqtt() {
   return sensorConfigMqttSchema.validate(await get('/sensors/config/mqtt'));
-}
-
-export async function setSensorInitializationUrl(data) {
-  return post('/sensors/', data);
 }

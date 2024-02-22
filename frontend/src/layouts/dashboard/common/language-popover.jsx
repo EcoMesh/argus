@@ -1,33 +1,29 @@
 import { useState } from 'react';
+import { useRecoilState } from 'recoil';
 
-import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Popover from '@mui/material/Popover';
 import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
+
+import { databaseAtom } from 'src/recoil/database';
 
 // ----------------------------------------------------------------------
 
-const LANGS = [
+const DATABASES = [
   {
-    value: 'en',
-    label: 'English',
-    icon: '/assets/icons/ic_flag_en.svg',
+    value: 'test',
+    label: 'Test',
   },
   {
-    value: 'de',
-    label: 'German',
-    icon: '/assets/icons/ic_flag_de.svg',
-  },
-  {
-    value: 'fr',
-    label: 'French',
-    icon: '/assets/icons/ic_flag_fr.svg',
+    value: 'prod',
+    label: 'Production',
   },
 ];
 
 // ----------------------------------------------------------------------
 
 export default function LanguagePopover() {
+  const [database, setDatabase] = useRecoilState(databaseAtom);
   const [open, setOpen] = useState(null);
 
   const handleOpen = (event) => {
@@ -40,7 +36,7 @@ export default function LanguagePopover() {
 
   return (
     <>
-      <IconButton
+      {/* <IconButton
         onClick={handleOpen}
         sx={{
           width: 40,
@@ -50,9 +46,15 @@ export default function LanguagePopover() {
           }),
         }}
       >
-        <img src={LANGS[0].icon} alt={LANGS[0].label} />
-      </IconButton>
-
+        
+      </IconButton> */}
+      <Button
+        onClick={handleOpen}
+        variant="text"
+        sx={{ typography: 'body2', color: 'text.primary' }}
+      >
+        {DATABASES.find((db) => db.value === database).label}
+      </Button>
       <Popover
         open={!!open}
         anchorEl={open}
@@ -68,16 +70,17 @@ export default function LanguagePopover() {
           },
         }}
       >
-        {LANGS.map((option) => (
+        {DATABASES.map((db) => (
           <MenuItem
-            key={option.value}
-            selected={option.value === LANGS[0].value}
-            onClick={() => handleClose()}
+            key={db.value}
+            selected={db.value === database}
+            onClick={() => {
+              setDatabase(db.value);
+              handleClose();
+            }}
             sx={{ typography: 'body2', py: 1 }}
           >
-            <Box component="img" alt={option.label} src={option.icon} sx={{ width: 28, mr: 2 }} />
-
-            {option.label}
+            {db.label}
           </MenuItem>
         ))}
       </Popover>

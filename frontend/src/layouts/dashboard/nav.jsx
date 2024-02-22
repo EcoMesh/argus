@@ -254,7 +254,9 @@ export default function Nav({ openNav, onCloseNav }) {
           if (event.type !== 'create') {
             setShowNewSensorModal(false);
           } else {
-            createRegion(event.region);
+            const newRegion = await createRegion(event.region);
+            setShowNewSensorModal(false);
+            setSelectedRegion(newRegion.id);
           }
         }}
       />

@@ -1,11 +1,15 @@
-import { atom, selector, useRecoilState } from 'recoil';
+import { atom, selector, useRecoilCallback } from 'recoil';
 
 import * as api from 'src/api/alarms';
 import { currentRegionIdAtom } from 'src/recoil/regions';
+import { requestHeadersSelector } from 'src/recoil/current-user';
 
 export const alarmsDefault = selector({
   key: 'alarms/default',
-  get: () => api.getAlarms(),
+  get: ({ get }) => {
+    const headers = get(requestHeadersSelector);
+    return api.getAlarms(headers);
+  },
 });
 
 export const alarmsAtom = atom({
@@ -25,28 +29,27 @@ export const currentRegionAlarmsAtom = selector({
   },
 });
 
-export const useCreateAlarm = () => {
-  const [alarms, setAlarms] = useRecoilState(alarmsAtom);
-  return async (alarm) => {
-    const newAlarm = await api.createAlarm(alarm);
-    setAlarms([...alarms, newAlarm]);
+export const useCreateAlarm = () =>
+  useRecoilCallback(({ set, snapshot }) => async (alarm) => {
+    const headers = await snapshot.getPromise(requestHeadersSelector);
+    const newAlarm = await api.createAlarm(alarm, headers);
+    set(alarmsAtom, (oldAlarms) => [...oldAlarms, newAlarm]);
     return newAlarm;
-  };
-};
+  });
 
-export const useDeleteAlarm = () => {
-  const [alarms, setAlarms] = useRecoilState(alarmsAtom);
-  return async (alarmId) => {
-    await api.deleteAlarm(alarmId);
-    setAlarms(alarms.filter((alarm) => alarm.id !== alarmId));
-  };
-};
+export const useDeleteAlarm = () =>
+  useRecoilCallback(({ set, snapshot }) => async (alarmId) => {
+    const headers = await snapshot.getPromise(requestHeadersSelector);
+    await api.deleteAlarm(alarmId, headers);
+    set(alarmsAtom, (oldAlarms) => oldAlarms.filter((alarm) => alarm.id !== alarmId));
+  });
 
-export const useUpdateAlarm = () => {
-  const [alarms, setAlarms] = useRecoilState(alarmsAtom);
-  return async (alarm) => {
-    const updatedAlarm = await api.updateAlarm(alarm);
-    setAlarms(alarms.map((a) => (a.id === updatedAlarm.id ? updatedAlarm : a)));
+export const useUpdateAlarm = () =>
+  useRecoilCallback(({ set, snapshot }) => async (alarm) => {
+    const headers = await snapshot.getPromise(requestHeadersSelector);
+    const updatedAlarm = await api.updateAlarm(alarm, headers);
+    set(alarmsAtom, (oldAlarms) =>
+      oldAlarms.map((a) => (a.id === updatedAlarm.id ? updatedAlarm : a))
+    );
     return updatedAlarm;
-  };
-};
+  });

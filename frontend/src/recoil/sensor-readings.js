@@ -5,9 +5,16 @@ import { groupBy as _groupBy, mapValues as _mapValues } from 'lodash';
 import * as api from 'src/api/sensor-readings';
 import { currentRegionSensorsSelector } from 'src/recoil/sensors';
 
+import { requestHeadersSelector } from './current-user';
+
 export const sensorReadingsDefault = selector({
   key: 'sensorReadings/default',
-  get: () => api.getSensorReadings(),
+  get: ({ get }) => {
+    const headers = get(requestHeadersSelector);
+    console.log('headers', headers);
+
+    return api.getSensorReadings(headers);
+  },
 });
 
 export const sensorReadingsAtom = atom({

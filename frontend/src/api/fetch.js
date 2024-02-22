@@ -24,6 +24,7 @@ const getApiBaseUrl = (url) => {
 const API_BASE_URL = getApiBaseUrl(import.meta.env.API_BASE_URL);
 
 async function http(path, config) {
+  console.log('config', config);
   const prefixedPath = path.startsWith('http')
     ? path
     : `${API_BASE_URL}/api${path}`.replace(/\/+/g, '/');
@@ -60,6 +61,7 @@ async function http(path, config) {
 }
 
 export function get(path, config) {
+  console.log('get path', path, config);
   return http(path, { method: 'get', ...config });
 }
 

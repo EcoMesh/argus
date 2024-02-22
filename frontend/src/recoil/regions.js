@@ -1,13 +1,19 @@
 import { recoilPersist } from 'recoil-persist';
-import { atom, selector, selectorFamily, useRecoilState, useSetRecoilState } from 'recoil';
+import { atom, selector, selectorFamily, useRecoilCallback } from 'recoil';
 
 import * as api from 'src/api/regions';
+
+import { requestHeadersSelector } from './current-user';
 
 const { persistAtom } = recoilPersist();
 
 export const regionsDefault = selector({
   key: 'regions/default',
-  get: () => api.getRegions(),
+  get: ({ get }) => {
+    const headers = get(requestHeadersSelector);
+
+    return api.getRegions(headers);
+  },
 });
 
 export const regionsAtom = atom({
@@ -40,13 +46,9 @@ export const currentRegionSelector = selector({
   },
 });
 
-export const useCreateRegion = () => {
-  const [regions, setRegions] = useRecoilState(regionsAtom);
-  const setSelectedRegion = useSetRecoilState(currentRegionIdAtom);
-  return async (region) => {
-    const newRegion = await api.createRegion(region);
-    setRegions([...regions, newRegion]);
-    setSelectedRegion(newRegion.id);
+export const useCreateRegion = () => useRecoilCallback(({ set, snapshot }) => async (region) => {
+    const headers = await snapshot.getPromise(requestHeadersSelector);
+    const newRegion = await api.createRegion(region, headers);
+    set(regionsAtom, (oldRegions) => [...oldRegions, newRegion]);
     return newRegion;
-  };
-};
+  });
