@@ -1,3 +1,5 @@
+from typing import List
+
 from app import security
 from app.database import Connection, get_database
 from app.schema.user import (
@@ -8,7 +10,9 @@ from app.schema.user import (
     UserSignupOut,
 )
 from app.utils.security import verify_password
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
+
+from rethinkdb import query as r
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -42,6 +46,24 @@ async def signup(payload: UserSignupIn, conn: Connection = Depends(get_database)
     )
 
 
-@router.get("/me", response_model=UserOut)
-async def get_user(user: UserOut = Depends(security.get_current_user)):
-    return user
+@router.get("/{user_id}", response_model=UserOut)
+async def get_user(
+    user_id: str = Path(
+        ...,
+        description='The UUID of a user or "me" to return the currently logged in user.',
+        examples=["me"],
+    ),
+    user: UserOut = Depends(security.get_current_user),
+):
+    """Retrieve a user by id."""
+    if user_id == "me":
+        return user
+
+    raise HTTPException(
+        status_code=400, detail="Arbitrary user lookups have not been implemented yet."
+    )
+
+
+@router.get("/", response_model=List[UserOut])
+async def get_users(conn: Connection = Depends(get_database)):
+    return (await r.table("users").without("password").run(conn)).items
