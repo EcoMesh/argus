@@ -4,7 +4,7 @@ import rethinkdb.query as r
 from app import schema
 from app.database import Connection, get_database
 from app.worker import delineate_watershed_task
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 
 router = APIRouter(prefix="/alarms", tags=["alarms"])
 
@@ -40,35 +40,19 @@ async def create_alarm(
     return res["changes"][0]["new_val"]
 
 
-@router.post("/{sensor_id}/init")
-async def init_sensor(
-    sensor_id: str,
-    coordinates: schema.sensor.SensorCoordinates,
-    conn: Connection = Depends(get_database),
+@router.delete("/{alarm_id}")
+async def delete_alarm(alarm_id: str, conn: Connection = Depends(get_database)):
+    res = await r.table("alarms").get(alarm_id).delete().run(conn)
+    if res["deleted"] == 0:
+        raise HTTPException(status_code=404, detail="Alarm not found")
+    return Response(status_code=204)
+
+
+@router.put("/{alarm_id}", response_model=schema.alarm.AlarmOut)
+async def update_alarm(
+    alarm_id: str, alarm: schema.alarm.AlarmIn, conn: Connection = Depends(get_database)
 ):
-    r_sensor = r.table("sensors").get(sensor_id)
-    sensor = await r_sensor.run(conn)
-
-    if sensor is None:
-        raise HTTPException(status_code=404, detail="Sensor not found")
-
-    if sensor.get("location") is not None:
-        raise HTTPException(status_code=400, detail="Sensor already initialized")
-
-    match await r_sensor.update(
-        {"location": r.point(coordinates.lon, coordinates.lat)},
-        return_changes=True,
-    ).run(conn):
-        case {"changes": [{"new_val": sensor}]}:
-            pass
-        case _:
-            raise HTTPException(
-                status_code=500, detail="Failed to update sensor coordinates"
-            )
-
-    region = await r.table("regions").get(sensor["region_id"]).run(conn)
-    region["sensors"] = [sensor]
-
-    delineate_watershed_task.delay([region])
-
-    return {"status": "success"}
+    res = await r.table("alarms").get(alarm_id).update(alarm.model_dump()).run(conn)
+    if res["replaced"] == 0:
+        raise HTTPException(status_code=404, detail="Alarm not found")
+    return await r.table("alarms").get(alarm_id).run(conn)

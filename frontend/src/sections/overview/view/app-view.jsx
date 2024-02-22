@@ -85,7 +85,6 @@ export default function AppView() {
             subheader="Last 24 hours"
             chart={sensorsReadingsChart}
           />
-          {/* <Chart type="line" series={todaysReadings} /> */}
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
@@ -96,7 +95,6 @@ export default function AppView() {
                 { label: 'Online', value: 5 },
                 { label: 'Offline', value: 1 },
                 { label: 'In Alarm', value: 2 },
-                // { label: 'Africa', value: 4443 },
               ],
             }}
           />

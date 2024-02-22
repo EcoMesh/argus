@@ -35,7 +35,8 @@ async function http(path, config) {
     },
   });
   const response = await fetch(request);
-  const data = await response.json();
+
+  const data = response.status !== 204 ? await response.json() : null;
   if (!response.ok) {
     // if (response.status === 403) {
     //   // TODO: Show a login dialog
@@ -54,6 +55,7 @@ async function http(path, config) {
     });
     throw error;
   }
+
   return data;
 }
 

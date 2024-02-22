@@ -6,7 +6,7 @@ from app.database import Connection, get_database
 from app.settings import settings
 from app.utils.security import decode_jwt
 from app.worker import delineate_watershed_task
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 
 router = APIRouter(prefix="/sensors", tags=["sensors"])
 
@@ -69,7 +69,7 @@ async def delete_sensor(sensor_id: str, conn: Connection = Depends(get_database)
     res = await r.table("sensors").get(sensor_id).delete().run(conn)
     if res["deleted"] == 0:
         raise HTTPException(status_code=404, detail="Sensor not found")
-    return {"status": "success"}
+    return Response(status_code=204)
 
 
 @router.get("/config/mqtt", response_model=schema.sensor.MqttConfig)

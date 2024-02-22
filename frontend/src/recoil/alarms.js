@@ -33,3 +33,20 @@ export const useCreateAlarm = () => {
     return newAlarm;
   };
 };
+
+export const useDeleteAlarm = () => {
+  const [alarms, setAlarms] = useRecoilState(alarmsAtom);
+  return async (alarmId) => {
+    await api.deleteAlarm(alarmId);
+    setAlarms(alarms.filter((alarm) => alarm.id !== alarmId));
+  };
+};
+
+export const useUpdateAlarm = () => {
+  const [alarms, setAlarms] = useRecoilState(alarmsAtom);
+  return async (alarm) => {
+    const updatedAlarm = await api.updateAlarm(alarm);
+    setAlarms(alarms.map((a) => (a.id === updatedAlarm.id ? updatedAlarm : a)));
+    return updatedAlarm;
+  };
+};

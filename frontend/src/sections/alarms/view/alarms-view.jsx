@@ -28,13 +28,6 @@ import NewAlarmModal from '../modals/new-alarm-modal';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 // ----------------------------------------------------------------------
 
-const countRulesFromConditionTree = (condition) => {
-  if (condition.type === 'rule') {
-    return 1;
-  }
-  return condition.tests.reduce((acc, child) => acc + countRulesFromConditionTree(child), 0);
-};
-
 export default function AlarmsPage() {
   const alarms = useRecoilValue(currentRegionAlarmsAtom);
   const selectedRegionId = useRecoilValue(currentRegionIdAtom);
@@ -170,16 +163,7 @@ export default function AlarmsPage() {
                   .map((row) => (
                     <AlarmTableRow
                       key={row.id}
-                      name={row.name}
-                      rules={countRulesFromConditionTree(row.condition)}
-                      subscribers={row.subscribers.length}
-                      status={
-                        row.history.find((h) => !h.end) ? (
-                          <Label color="success">Active</Label>
-                        ) : (
-                          <Label color="info">Inactive</Label>
-                        )
-                      }
+                      alarm={row}
                       selected={selected.indexOf(row.id) !== -1}
                       handleClick={(event) => handleClick(event, row.id)}
                     />
