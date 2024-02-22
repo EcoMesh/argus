@@ -1,9 +1,9 @@
 import { useFormik } from 'formik';
 
-import { initialValues } from './constants';
 import { validationSchema } from './schema';
+import { initialValues as defaultInitialValues } from './constants';
 
-const useAlarmFormik = (options) => {
+const useAlarmFormik = ({ initialValues = defaultInitialValues, ...options }) => {
   const formik = useFormik({
     initialValues,
     validationSchema,

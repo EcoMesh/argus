@@ -1,19 +1,22 @@
-import { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
+import { omit as _omit } from 'lodash';
+import { useMemo, useState } from 'react';
 
-import Label from 'src/components/label';
 import Stack from '@mui/material/Stack';
-import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 
+import { useDeleteAlarm, useUpdateAlarm } from 'src/recoil/alarms';
+
+import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { ButtonPopover } from 'src/components/button';
-import { useDeleteAlarm } from 'src/recoil/alarms';
+
+import { useAlarmFormik } from './forms/alarm-crud';
+import AlarmCrudModal from './modals/new-alarm-modal';
 
 const countRulesFromConditionTree = (condition) => {
   if (condition.type === 'rule') {
@@ -24,6 +27,7 @@ const countRulesFromConditionTree = (condition) => {
 
 export default function AlarmTableRow({ selected, alarm, handleClick }) {
   const deleteAlarm = useDeleteAlarm();
+  const editAlarm = useUpdateAlarm();
   const [open, setOpen] = useState(null);
 
   const handleOpenMenu = (event) => {
@@ -40,42 +44,72 @@ export default function AlarmTableRow({ selected, alarm, handleClick }) {
 
   const isInAlarm = useMemo(() => alarm.history.find((h) => !h.end), [alarm.history]);
 
+  const [editAlarmModalOpen, setEditAlarmModalOpen] = useState(false);
+  const handleEdit = () => {
+    setEditAlarmModalOpen(true);
+    setOpen(null);
+  };
+  const handleEditSensorModalClose = () => {
+    setEditAlarmModalOpen(false);
+    formik.resetForm();
+  };
+
+  const formik = useAlarmFormik({
+    initialValues: _omit(alarm, ['history']),
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      if (formik.dirty && formik.isValid) {
+        await editAlarm(values);
+        setEditAlarmModalOpen(false);
+        formik.resetForm();
+      }
+    },
+  });
   return (
-    <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-      <TableCell padding="checkbox">
-        <Checkbox disableRipple checked={selected} onChange={handleClick} />
-      </TableCell>
+    <>
+      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+        <TableCell padding="checkbox">
+          <Checkbox disableRipple checked={selected} onChange={handleClick} />
+        </TableCell>
 
-      <TableCell component="th" scope="row" padding="none">
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <Typography variant="subtitle2" noWrap>
-            {alarm.name}
-          </Typography>
-        </Stack>
-      </TableCell>
+        <TableCell component="th" scope="row" padding="none">
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Typography variant="subtitle2" noWrap>
+              {alarm.name}
+            </Typography>
+          </Stack>
+        </TableCell>
 
-      <TableCell>{countRulesFromConditionTree(alarm.condition)}</TableCell>
+        <TableCell>{countRulesFromConditionTree(alarm.condition)}</TableCell>
 
-      <TableCell>{alarm.subscribers.length}</TableCell>
+        <TableCell>{alarm.subscribers.length}</TableCell>
 
-      <TableCell>
-        {isInAlarm ? <Label color="success">Active</Label> : <Label color="info">Inactive</Label>}
-      </TableCell>
+        <TableCell>
+          {isInAlarm ? <Label color="success">Active</Label> : <Label color="info">Inactive</Label>}
+        </TableCell>
 
-      <TableCell align="right">
-        <ButtonPopover open={open} onClick={handleOpenMenu} onClose={handleCloseMenu}>
-          <MenuItem onClick={handleCloseMenu}>
-            <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-            Edit
-          </MenuItem>
+        <TableCell align="right">
+          <ButtonPopover open={open} onClick={handleOpenMenu} onClose={handleCloseMenu}>
+            <MenuItem onClick={handleEdit}>
+              <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+              Edit
+            </MenuItem>
 
-          <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-            <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-            Delete
-          </MenuItem>
-        </ButtonPopover>
-      </TableCell>
-    </TableRow>
+            <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+              <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
+              Delete
+            </MenuItem>
+          </ButtonPopover>
+        </TableCell>
+      </TableRow>
+      <AlarmCrudModal
+        title="Edit Alarm"
+        buttonText="Save"
+        open={editAlarmModalOpen}
+        onClose={handleEditSensorModalClose}
+        formik={formik}
+      />
+    </>
   );
 }
 

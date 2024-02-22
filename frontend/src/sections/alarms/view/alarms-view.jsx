@@ -15,7 +15,6 @@ import { currentRegionIdAtom } from 'src/recoil/regions';
 // import { users } from 'src/_mock/user';
 import { useCreateAlarm, currentRegionAlarmsAtom } from 'src/recoil/alarms';
 
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
@@ -24,7 +23,8 @@ import AlarmTableRow from '../alarm-table-row';
 import AlarmTableHead from '../alarm-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
-import NewAlarmModal from '../modals/new-alarm-modal';
+import { useAlarmFormik } from '../forms/alarm-crud';
+import AlarmCrudModal from '../modals/new-alarm-modal';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 // ----------------------------------------------------------------------
 
@@ -104,16 +104,24 @@ export default function AlarmsPage() {
 
   const [newSensorModalOpen, setNewSensorModalOpen] = useState(false);
   const handleNewSensorModalOpen = () => setNewSensorModalOpen(true);
-  const handleNewSensorModalClose = (values) => {
+  const handleNewSensorModalClose = () => {
     setNewSensorModalOpen(false);
-
-    if (values !== null) {
-      createAlarm({
-        regionId: selectedRegionId,
-        ...values,
-      });
-    }
+    formik.resetForm();
   };
+  // new alarm formik
+
+  const formik = useAlarmFormik({
+    onSubmit: async (values) => {
+      if (formik.dirty && formik.isValid) {
+        await createAlarm({
+          regionId: selectedRegionId,
+          ...values,
+        });
+        setNewSensorModalOpen(false);
+        formik.resetForm();
+      }
+    },
+  });
 
   return (
     <Container>
@@ -130,7 +138,13 @@ export default function AlarmsPage() {
         </Button>
       </Stack>
 
-      <NewAlarmModal open={newSensorModalOpen} handleClose={handleNewSensorModalClose} />
+      <AlarmCrudModal
+        title="New Alarm"
+        buttonText="Create"
+        open={newSensorModalOpen}
+        onClose={handleNewSensorModalClose}
+        formik={formik}
+      />
 
       <Card>
         <UserTableToolbar

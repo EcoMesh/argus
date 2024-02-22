@@ -1,4 +1,4 @@
-import { get, post, remove, put } from './fetch';
+import { get, put, post, remove } from './fetch';
 
 export function getAlarms() {
   return get('/alarms/');

@@ -1,4 +1,3 @@
-import { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import Popover from '@mui/material/Popover';
@@ -31,7 +30,7 @@ export default function ButtonPopover({ children, open, onClick, onClose }) {
 
 ButtonPopover.propTypes = {
   children: PropTypes.node,
-  open: PropTypes.node,
+  open: PropTypes.instanceOf(Element),
   onClick: PropTypes.func,
   onClose: PropTypes.func,
 };

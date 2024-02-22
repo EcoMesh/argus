@@ -5,37 +5,22 @@ import Button from '@mui/material/Button';
 
 import { DialogAppBar, DialogFullscreen } from 'src/components/dialog';
 
-import { AlertCrudForm, useAlarmFormik } from '../forms/alarm-crud';
+import { AlertCrudForm } from '../forms/alarm-crud';
 
-export default function NewAlarmModal({ open, handleClose }) {
-  const internalHandleClose = (values = null) => {
-    formik.resetForm();
-    handleClose(values);
-  };
-
-  const handleSubmit = () => {
-    if (formik.dirty && formik.isValid) {
-      internalHandleClose(formik.values);
-    }
-  };
-
-  const formik = useAlarmFormik({
-    onSubmit: handleSubmit,
-  });
-
+export default function AlarmCrudModal({ title, buttonText, open, onClose, formik }) {
   return (
-    <DialogFullscreen open={open} onClose={handleClose}>
+    <DialogFullscreen open={open} onClose={onClose}>
       <DialogAppBar
-        title="New Alarm"
-        onClose={internalHandleClose}
+        title={title}
+        onClose={onClose}
         actionButton={
           <Button
             autoFocus
             color="inherit"
-            onClick={handleSubmit}
+            onClick={() => formik.submitForm()}
             disabled={!formik.dirty || !formik.isValid}
           >
-            Create
+            {buttonText}
           </Button>
         }
       />
@@ -44,7 +29,10 @@ export default function NewAlarmModal({ open, handleClose }) {
   );
 }
 
-NewAlarmModal.propTypes = {
-  open: PropTypes.bool,
-  handleClose: PropTypes.func,
+AlarmCrudModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  buttonText: PropTypes.string.isRequired,
+  formik: PropTypes.object.isRequired,
 };
