@@ -1,18 +1,17 @@
-import PropTypes from 'prop-types';
-
 import { useState } from 'react';
+import PropTypes from 'prop-types';
+import { useRecoilValue } from 'recoil';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
+import { MenuItem, TextField } from '@mui/material';
 
-import Chart, { useChart } from 'src/components/chart';
 import {
-  currentRegionSensorReadingsSelector,
   currentRegionSensorReadingsChartSelector,
 } from 'src/recoil/sensor-readings';
-import { useRecoilValue } from 'recoil';
-import { MenuItem, TextField } from '@mui/material';
+
+import Chart, { useChart } from 'src/components/chart';
 // ----------------------------------------------------------------------
 
 const COLUMNS = [

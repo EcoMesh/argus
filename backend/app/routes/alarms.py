@@ -1,5 +1,6 @@
 from typing import List
 
+import aiostream
 import rethinkdb.query as r
 from app import schema
 from app.database import Connection, get_database
@@ -77,3 +78,12 @@ async def update_alarm(
     if res["replaced"] == 0:
         raise HTTPException(status_code=404, detail="Alarm not found")
     return await r.table("alarms").get(alarm_id).run(conn)
+
+
+@router.get("/notifications", response_model=List[schema.alarm.AlarmNotificationRecord])
+async def get_all_notifications(conn: Connection = Depends(get_database)):
+    return (
+        await r.table("alarm_notification_history")
+        .order_by(r.desc("timestamp"))
+        .run(conn)
+    )

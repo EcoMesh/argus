@@ -9,18 +9,18 @@ import {
   Button,
   Switch,
   MenuItem,
+  Checkbox,
   TextField,
   FormGroup,
   Typography,
   FormControl,
   FormControlLabel,
-  Checkbox,
 } from '@mui/material';
 
 import { getFieldPropsWithHelpText } from 'src/utils/formik';
-import { getDefaultEmailNotificationForm, getDefaultWebhookNotificationForm } from '../constants';
 
 import AstNode from './ast-node';
+import { getDefaultEmailNotificationForm, getDefaultWebhookNotificationForm } from '../constants';
 
 const AlertCrudForm = ({ formik }) => (
   <FormikProvider value={formik}>
@@ -115,7 +115,7 @@ const AlertCrudForm = ({ formik }) => (
                         <Typography variant="caption" sx={{ mb: 1 }}>
                           Notify on
                         </Typography>
-                        <Stack direction="row" justifyContent={'center'}>
+                        <Stack direction="row" justifyContent="center">
                           <FormControlLabel
                             labelPlacement="before"
                             componentsProps={{

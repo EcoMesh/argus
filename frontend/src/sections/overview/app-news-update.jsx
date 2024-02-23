@@ -1,27 +1,28 @@
-import PropTypes from 'prop-types';
 import { useMemo } from 'react';
+import PropTypes from 'prop-types';
+import { useRecoilValue } from 'recoil';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import Timeline from '@mui/lab/Timeline';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import TimelineDot from '@mui/lab/TimelineDot';
 import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
-
-import { fToNow } from 'src/utils/format-time';
-
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
-import { useRecoilValue } from 'recoil';
-import { currentRegionRecentAlarmEventsSelector } from 'src/recoil/alarms';
-import Timeline, { timelineClasses } from '@mui/lab/Timeline';
-import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
-import { fDateTime } from 'src/utils/format-time';
+
+import { fToNow , fDateTime } from 'src/utils/format-time';
+
+import { currentRegionRecentAlarmEventsSelector } from 'src/recoil/alarms';
+
+import Iconify from 'src/components/iconify';
+import Scrollbar from 'src/components/scrollbar';
 // ----------------------------------------------------------------------
 
 export default function AppRecentAlarmEvents() {
@@ -30,8 +31,8 @@ export default function AppRecentAlarmEvents() {
   return (
     <Card>
       <CardHeader
-        title={'Recent Alarm Events'}
-        subheader={'Last 24 Hours'}
+        title="Recent Alarm Events"
+        subheader="Last 24 Hours"
         action={
           <Button
             size="small"
@@ -74,14 +75,14 @@ function NewsItem({ event }) {
     const events = [];
     event.records.forEach((record) => {
       events.push({
-        id: record.id + '-start',
+        id: `${record.id  }-start`,
         color: 'error',
         nodeId: record.nodeId,
         timestamp: new Date(record.start),
       });
       if (record.end) {
         events.push({
-          id: record.id + '-end',
+          id: `${record.id  }-end`,
           color: 'success',
           nodeId: record.nodeId,
           timestamp: new Date(record.end),
@@ -93,7 +94,7 @@ function NewsItem({ event }) {
   }, [event.records]);
   return (
     <>
-      <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Box sx={{ minWidth: 240, flexGrow: 1 }}>
           <Link color="inherit" variant="subtitle2" underline="hover" noWrap>
             {event.alarmName} ({event.records.length})

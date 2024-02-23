@@ -1,6 +1,7 @@
 import { atom, selector } from 'recoil';
 
 import * as api from 'src/api/users';
+
 import { requestHeadersSelector } from './current-user';
 
 const usersDefaultSelector = selector({

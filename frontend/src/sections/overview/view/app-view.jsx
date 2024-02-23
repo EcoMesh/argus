@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker';
 import { useRecoilValue } from 'recoil';
 
 import Container from '@mui/material/Container';
@@ -9,15 +8,11 @@ import { currentRegionAlarmsAtom } from 'src/recoil/alarms';
 import { currentRegionSensorsSelector } from 'src/recoil/sensors';
 import { currentRegionSensorReadingsSelector } from 'src/recoil/sensor-readings';
 
-import Iconify from 'src/components/iconify';
-
 import AppTasks from '../app-tasks';
-import AppRecentAlarmEvents from '../app-news-update';
-import AppOrderTimeline from '../app-order-timeline';
 import AppCurrentVisits from '../app-current-visits';
-import AppRecentSensorReadings from '../app-website-visits';
 import AppWidgetSummary from '../app-widget-summary';
-import AppTrafficBySite from '../app-traffic-by-site';
+import AppRecentAlarmEvents from '../app-news-update';
+import AppRecentSensorReadings from '../app-website-visits';
 
 // ----------------------------------------------------------------------
 
@@ -69,12 +64,16 @@ export default function AppView() {
           />
         </Grid>
 
-        <Grid xs={12}>
+        <Grid xs={12} md={6} lg={8}>
           <AppRecentSensorReadings />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
+        <Grid xs={12} md={6} lg={4}>
           <AppRecentAlarmEvents />
+        </Grid>
+
+        <Grid xs={12} md={6} lg={8}>
+          <AppTasks />
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
@@ -87,47 +86,6 @@ export default function AppView() {
                 { label: 'In Alarm', value: 2 },
               ],
             }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppTrafficBySite
-            title="Traffic by Site"
-            list={[
-              {
-                name: 'FaceBook',
-                value: 323234,
-                icon: <Iconify icon="eva:facebook-fill" color="#1877F2" width={32} />,
-              },
-              {
-                name: 'Google',
-                value: 341212,
-                icon: <Iconify icon="eva:google-fill" color="#DF3E30" width={32} />,
-              },
-              {
-                name: 'Linkedin',
-                value: 411213,
-                icon: <Iconify icon="eva:linkedin-fill" color="#006097" width={32} />,
-              },
-              {
-                name: 'Twitter',
-                value: 443232,
-                icon: <Iconify icon="eva:twitter-fill" color="#1C9CEA" width={32} />,
-              },
-            ]}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
-          <AppTasks
-            title="Tasks"
-            list={[
-              { id: '1', name: 'Create FireStone Logo' },
-              { id: '2', name: 'Add SCSS and JS files if required' },
-              { id: '3', name: 'Stakeholder Meeting' },
-              { id: '4', name: 'Scoping & Estimations' },
-              { id: '5', name: 'Sprint Showcase' },
-            ]}
           />
         </Grid>
       </Grid>

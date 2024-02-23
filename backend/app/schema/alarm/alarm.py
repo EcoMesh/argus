@@ -71,3 +71,30 @@ class AlarmIn(BaseSchema):
 class AlarmOut(AlarmIn):
     id: str
     history: List[AlarmHistory] = Field(default_factory=list)
+
+
+class AlarmNotificationEmailRecord(BaseSchema):
+    id: str
+    type: Literal["email"] = "email"
+    alarm_id: str
+    reason: Literal["event_start", "event_end", "sensor_state_change"]
+    value: EmailStr
+    timestamp: datetime
+
+
+class AlarmNotificationWebhookRecord(BaseSchema):
+    id: str
+    type: Literal["webhook"] = "webhook"
+    alarm_id: str
+    reason: Literal["event_start", "event_end", "sensor_state_change"]
+    value: str
+    timestamp: datetime
+    sent: bool
+    awaiting_interaction: bool
+    payload: dict
+
+
+AlarmNotificationRecord = Annotated[
+    AlarmNotificationEmailRecord | AlarmNotificationWebhookRecord,
+    Field(discriminator="type"),
+]

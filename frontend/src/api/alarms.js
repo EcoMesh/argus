@@ -4,6 +4,10 @@ export function getAlarms(headers = {}) {
   return get('/alarms/', { headers });
 }
 
+export function getAlarmNotificationHistory(headers = {}) {
+  return get('/alarms/notifications', { headers });
+}
+
 export async function createAlarm(data, headers = {}) {
   return post('/alarms/', data, { headers });
 }

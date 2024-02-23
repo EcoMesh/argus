@@ -17,6 +17,19 @@ export const alarmsAtom = atom({
   default: alarmsDefault,
 });
 
+export const alarmNotificationHistoryDefault = selector({
+  key: 'alarmNotificationHistoryDefault/default',
+  get: ({ get }) => {
+    const headers = get(requestHeadersSelector);
+    return api.getAlarmNotificationHistory(headers);
+  },
+});
+
+export const alarmNotificationHistoryAtom = atom({
+  key: 'alarmNotificationHistory',
+  default: alarmNotificationHistoryDefault,
+});
+
 export const currentRegionAlarmsAtom = selector({
   key: 'selectedRegionAlarms',
   get: ({ get }) => {
@@ -29,11 +42,22 @@ export const currentRegionAlarmsAtom = selector({
   },
 });
 
+export const currentRegionNotificationHistorySelector = selector({
+  key: 'selectedRegionNotificationHistory',
+  get: ({ get }) => {
+    const notifications = get(alarmNotificationHistoryAtom);
+    const regionalAlarms = get(currentRegionAlarmsAtom);
+
+    const regionalAlarmIds = new Set(regionalAlarms.map(({ id }) => id));
+
+    return notifications.filter(({ alarmId }) => regionalAlarmIds.has(alarmId));
+  },
+});
+
 export const currentRegionRecentAlarmEventsSelector = selector({
   key: 'selectedRegionRecentAlarmEvents',
   get: ({ get }) => {
     const alarms = get(currentRegionAlarmsAtom);
-    console.log('alarms', alarms);
     return alarms.flatMap(({ name, history }) =>
       history.map((event) => ({ ...event, alarmName: name }))
     );
