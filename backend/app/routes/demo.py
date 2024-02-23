@@ -30,3 +30,9 @@ async def set_time(payload: SetTimePayload):
     datetime_stub.set_stubbed_time(payload.epoch, payload.speed)
 
     return Response(status_code=status.HTTP_201_CREATED)
+
+
+@router.post("/webhook")
+async def demo_webhook(payload: dict):
+    print("webhook", payload)
+    return {"success": True}

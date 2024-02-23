@@ -8,26 +8,52 @@ from . import ast
 
 
 class AlarmHistoryRecord(BaseSchema):
+    id: str
+    alarm_event_id: str
     node_id: str
     start: datetime
     end: Optional[datetime] = None
 
 
 class AlarmHistory(BaseSchema):
+    id: str
+    alarm_id: str
     start: datetime
     end: Optional[datetime] = None
     records: List[AlarmHistoryRecord] = Field(default_factory=list)
 
 
+class NotificationOptions(BaseSchema):
+    event_start: bool = Field(
+        ..., description="Send a notification when the alarm state begins"
+    )
+    event_end: bool = Field(
+        ..., description="Send a notification when the alarm state ends"
+    )
+    sensor_state_change: bool = Field(
+        ..., description="Send a notification when the state of a sensor changes"
+    )
+
+
 class AlarmSubscriberEmail(BaseSchema):
     type: Literal["email"] = "email"
-    value: EmailStr
+    value: EmailStr = Field(
+        ..., description="The email address to send notifications to"
+    )
+    notify_on: NotificationOptions
 
 
 class AlarmSubscriberWebhook(BaseSchema):
     type: Literal["webhook"] = "webhook"
-    interaction_required: bool = False
-    value: str
+    interaction_required: bool = Field(
+        False,
+        description="Whether the webhook requires user interaction before being sent",
+    )
+    value: str = Field(
+        ...,
+        description="The URL to send a POST request to when an alarm event occurs",
+    )
+    notify_on: NotificationOptions
 
 
 AlarmSubscriber = Annotated[

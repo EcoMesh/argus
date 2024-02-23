@@ -1,11 +1,8 @@
 import { useState } from 'react';
-import { useRecoilState } from 'recoil';
 
 import Button from '@mui/material/Button';
 import Popover from '@mui/material/Popover';
 import MenuItem from '@mui/material/MenuItem';
-
-import { databaseAtom } from 'src/recoil/database';
 
 // ----------------------------------------------------------------------
 
@@ -23,7 +20,7 @@ const DATABASES = [
 // ----------------------------------------------------------------------
 
 export default function LanguagePopover() {
-  const [database, setDatabase] = useRecoilState(databaseAtom);
+  const [database, setDatabase] = useState('test');
   const [open, setOpen] = useState(null);
 
   const handleOpen = (event) => {
@@ -36,18 +33,6 @@ export default function LanguagePopover() {
 
   return (
     <>
-      {/* <IconButton
-        onClick={handleOpen}
-        sx={{
-          width: 40,
-          height: 40,
-          ...(open && {
-            bgcolor: 'action.selected',
-          }),
-        }}
-      >
-        
-      </IconButton> */}
       <Button
         onClick={handleOpen}
         variant="text"
@@ -75,8 +60,8 @@ export default function LanguagePopover() {
             key={db.value}
             selected={db.value === database}
             onClick={() => {
+              setOpen(null);
               setDatabase(db.value);
-              handleClose();
             }}
             sx={{ typography: 'body2', py: 1 }}
           >

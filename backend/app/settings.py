@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     mqtt_user: str = ""
     mqtt_pass: str = ""
 
+    brevo_api_key: str
+
     base_url: str = f"http://{lan_ip}"
 
     redis_dsn: RedisDsn = RedisDsn("redis://localhost:6379/0")

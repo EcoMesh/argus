@@ -15,6 +15,7 @@ tables = [
     "alarms_event_records",
     "sensor_readings",
     "sensor_telemetry",
+    "alarm_notification_history",
 ]
 
 

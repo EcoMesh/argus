@@ -29,6 +29,17 @@ export const currentRegionAlarmsAtom = selector({
   },
 });
 
+export const currentRegionRecentAlarmEventsSelector = selector({
+  key: 'selectedRegionRecentAlarmEvents',
+  get: ({ get }) => {
+    const alarms = get(currentRegionAlarmsAtom);
+    console.log('alarms', alarms);
+    return alarms.flatMap(({ name, history }) =>
+      history.map((event) => ({ ...event, alarmName: name }))
+    );
+  },
+});
+
 export const useCreateAlarm = () =>
   useRecoilCallback(({ set, snapshot }) => async (alarm) => {
     const headers = await snapshot.getPromise(requestHeadersSelector);

@@ -1,7 +1,6 @@
 import { atom, selector, useRecoilTransaction_UNSTABLE } from 'recoil';
 
 import * as api from 'src/api/users';
-import { databaseAtom } from 'src/recoil/database';
 
 const isAccessTokenValid = (accessToken) => {
   if (!accessToken) return false;
@@ -13,7 +12,6 @@ export const currentUserAtom = atom({
   key: 'currentUser',
   default: null,
   effects_UNSTABLE: [
-    // persistAtom,
     ({ onSet, setSelf }) => {
       const existingCurrentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
@@ -32,18 +30,14 @@ export const requestHeadersSelector = selector({
   key: 'requestHeaders',
   get: ({ get }) => {
     const user = get(currentUserAtom);
-    const database = get(databaseAtom);
-    const headers = {};
 
     if (user) {
-      headers.Authorization = `Bearer ${user.accessToken}`;
+      return {
+        Authorization: `Bearer ${user.accessToken}`,
+      };
     }
 
-    if (database) {
-      headers['X-Database'] = database;
-    }
-
-    return headers;
+    return {};
   },
 });
 

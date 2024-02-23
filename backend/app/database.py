@@ -1,11 +1,9 @@
 from datetime import timedelta
 from typing import AsyncIterator
-from warnings import warn
 
 from app.settings import settings
 from app.stubs import datetime as datetime_stub
 from app.stubs.datetime import is_time_stubbed
-from fastapi import Header
 from rethinkdb.asyncio_net.net_asyncio import Connection
 
 from rethinkdb import RethinkDB
@@ -18,15 +16,8 @@ rethinkdb_async = RethinkDB()
 rethinkdb_async.set_loop_type("asyncio")
 
 
-def _get_database_sync(database: str = None):
+def _get_database_sync():
     """Internal function to get a database session. Use get_database() instead."""
-
-    if database is None:
-        warn(
-            f'No database specified, using default "{settings.rethinkdb_database}" database'
-        )
-        database = settings.rethinkdb_database
-
     return rethinkdb.connect(
         db=settings.rethinkdb_database,
         host=settings.rethinkdb_host,
@@ -34,27 +25,18 @@ def _get_database_sync(database: str = None):
     )
 
 
-async def _get_database_async(database: str = None) -> Connection:
+async def _get_database_async():
     """Internal function to get a database session. Use get_database() instead."""
-
-    if database is None:
-        warn(
-            f'No database specified, using default "{settings.rethinkdb_database}" database'
-        )
-        database = settings.rethinkdb_database
-
     return await rethinkdb_async.connect(
-        db=database,
+        db=settings.rethinkdb_database,
         host=settings.rethinkdb_host,
         port=settings.rethinkdb_port,
     )
 
 
-async def get_database(
-    database=Header(..., alias="X-Database")
-) -> AsyncIterator[Connection]:
+async def get_database() -> AsyncIterator[Connection]:
     """Get a database session to be used with FastAPI's Depends()"""
-    async with await _get_database_async(database) as conn:
+    async with await _get_database_async() as conn:
         yield conn
 
 

@@ -13,6 +13,8 @@ rethinkdb.set_loop_type("asyncio")
 ONE_HOUR = 60 * 60
 message_cache = TTLCache(maxsize=1024, ttl=ONE_HOUR)
 
+local_tz = pytz.timezone("America/Los_Angeles")
+
 
 async def get_database():
     return await rethinkdb.connect(RETHINKDB_HOST, RETHINKDB_PORT, RETHINKDB_DB)
@@ -41,7 +43,9 @@ async def save_reading(reading_id: int, reading: SensorReading):
             {
                 **reading._asdict(),
                 "timestamp": reading.timestamp.astimezone(
-                    await get_sensor_timezone(conn, reading.node_id)
+                    local_tz
+                    # TODO: replace with the following line in production
+                    # await get_sensor_timezone(conn, reading.node_id)
                 ),
             }
         ).run(conn)

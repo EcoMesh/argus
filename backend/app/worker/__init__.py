@@ -65,13 +65,13 @@ def alarm_identification_cronjob_task(
 ):
     """Run the alarm identification cronjob."""
     from app.worker.alarm_identification import (  # delay import so improve hot reload time
-        alarm_identification_cronjob,
+        cronjob,
     )
 
     if epoch:
         set_stubbed_time(epoch, stubbed_time_speed, real_time_at_epoch)
     loop = asyncio.get_event_loop()
-    return loop.run_until_complete(alarm_identification_cronjob())
+    return loop.run_until_complete(cronjob())
 
 
 @app.task

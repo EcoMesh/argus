@@ -43,8 +43,29 @@ async def create_alarm(
 @router.delete("/{alarm_id}")
 async def delete_alarm(alarm_id: str, conn: Connection = Depends(get_database)):
     res = await r.table("alarms").get(alarm_id).delete().run(conn)
+
     if res["deleted"] == 0:
         raise HTTPException(status_code=404, detail="Alarm not found")
+
+    alarm_events = (
+        await r.table("alarms_events")
+        .get_all(alarm_id, index="alarm_id")
+        .delete()
+        .run(conn, return_changes=True)
+    )
+
+    alarm_event_ids = [
+        event["old_val"]["id"] for event in alarm_events.get("changes", [])
+    ]
+
+    if alarm_event_ids:
+        await (
+            r.table("alarms_event_records")
+            .get_all(r.args(alarm_event_ids), index="alarm_event_id")
+            .delete()
+            .run(conn)
+        )
+
     return Response(status_code=204)
 
 

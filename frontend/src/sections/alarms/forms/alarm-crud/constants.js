@@ -30,16 +30,32 @@ export const getDefaultGroundDistanceRule = () => ({
   threshold: 0,
 });
 
+export const getDefaultEmailNotificationForm = () => ({
+  type: 'email',
+  value: '',
+  notifyOn: {
+    eventStart: false,
+    eventEnd: false,
+    sensorStateChange: true,
+  },
+});
+
+export const getDefaultWebhookNotificationForm = () => ({
+  type: 'webhook',
+  value: '',
+  interactionRequired: false,
+  notifyOn: {
+    eventStart: false,
+    eventEnd: true,
+    sensorStateChange: false,
+  },
+});
+
 export const initialValues = {
   name: '',
   condition: {
     type: 'and',
     tests: [],
   },
-  subscribers: [
-    {
-      type: 'email',
-      value: '',
-    },
-  ],
+  subscribers: [getDefaultEmailNotificationForm()],
 };
