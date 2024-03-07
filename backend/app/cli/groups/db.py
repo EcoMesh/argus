@@ -35,14 +35,14 @@ async def create_tables():
                 raise e
             print(f"Table {table} already exists")
 
-    r.table("sensors").index_create("region_id").run()
-    r.table("sensors").index_create("node_id").run()
-    r.table("sensor_readings").index_create("timestamp").run()
-    r.table("sensor_readings").index_create("node_id").run()
-    r.table("sensor_telemetry").index_create("node_id").run()
-    r.table("alarms_events").index_create("alarm_id").run()
-    r.table("alarms_event_records").index_create("alarm_event_id").run()
-    r.table("alarms_event_records").index_create("node_id").run()
+    await r.table("sensors").index_create("region_id").run(conn)
+    await r.table("sensors").index_create("node_id").run(conn)
+    await r.table("sensor_readings").index_create("timestamp").run(conn)
+    await r.table("sensor_readings").index_create("node_id").run(conn)
+    await r.table("sensor_telemetry").index_create("node_id").run(conn)
+    await r.table("alarms_events").index_create("alarm_id").run(conn)
+    await r.table("alarms_event_records").index_create("alarm_event_id").run(conn)
+    await r.table("alarms_event_records").index_create("node_id").run(conn)
 
     await conn.close()
 
