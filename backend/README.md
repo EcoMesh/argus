@@ -61,7 +61,7 @@ poetry run python -m app db create-tables
 To start the HTTP development server, run the following command:
 
 ```sh
-poetry run uvicorn app:app --reload
+poetry run uvicorn app.fastapi:app --reload
 ```
 
 To run recurring tasks, start the Celery worker:
