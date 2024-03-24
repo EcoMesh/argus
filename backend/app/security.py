@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from traceback import print_exc
 from typing import Optional
 
@@ -16,9 +16,14 @@ from rethinkdb import query as r
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-def create_access_token(data: dict):
+def sanitize_user(user: schema.user.User):
+    return user.model_dump(exclude={"password"})
+
+
+def create_access_token(user: schema.user.User):
     return encode_jwt(
-        data, datetime.utcnow() + timedelta(minutes=settings.jwt_expire_minutes)
+        sanitize_user(user),
+        datetime.now(UTC) + timedelta(minutes=settings.jwt_expire_minutes),
     )
 
 

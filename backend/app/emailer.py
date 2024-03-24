@@ -1,13 +1,17 @@
 import json
+import logging
 
 import aiohttp
 from app.settings import settings
 
+logger = logging.getLogger(__name__)
 
-# TODO: make async
+
 async def send_email(payload):
-    if payload["to"][0]["email"].endswith("@testing.com"):
-        print("sendEmail: " + json.dumps(payload))
+    if payload["to"][0]["email"].endswith("@testing.com"):  # pragma: no cover
+        logger.warning(
+            "Not sending email to test email address: %s", json.dumps(payload)
+        )
         return
 
     headers = {
@@ -37,7 +41,7 @@ async def send_html_email(to, subject, html):
     return await send_email(payload)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     import asyncio
 
     async def main():

@@ -118,13 +118,13 @@ class WatershedFinder:
 
         polygon = Polygon(points)
 
-        if self.debug:
+        if self.debug:  # pragma: no cover
             self._debug_display_catch(catch, polygon)
             self._debug_results.append((point, polygon))
 
         return polygon
 
-    def _debug_display_catch(self, catch, polygon):
+    def _debug_display_catch(self, catch, polygon):  # pragma: no cover
         fig, ax = plt.subplots(figsize=(8, 6))
         fig.patch.set_alpha(0)
         plt.grid("on", zorder=0)
@@ -146,7 +146,7 @@ class WatershedFinder:
         plt.fill(*polygon.exterior.xy, alpha=0.5, ec="none")
         plt.show()
 
-    def _debug_display_sensors(self):
+    def _debug_display_sensors(self):  # pragma: no cover
         fig, ax = plt.subplots(figsize=(8, 6))
         fig.patch.set_alpha(0)
         plt.grid("on", zorder=0)
@@ -180,7 +180,6 @@ class WatershedFinder:
 
 
 def add_watershed_to_sensor(conn: Connection, sensor_id: str, polygon: shapely.Polygon):
-    print(shapely.to_geojson(polygon))
     r.table("sensors").get(sensor_id).update(
         {
             "watershed": r.geojson(json.loads(shapely.to_geojson(polygon))),

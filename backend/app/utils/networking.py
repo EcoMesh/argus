@@ -10,4 +10,4 @@ def get_lan_ip():
                 ip = addrs[ni.AF_INET][0]["addr"]
                 if not ip.startswith("127.") and not ip.startswith("169.254."):
                     return ip
-    raise Exception("No LAN IP found")
+    raise Exception("No LAN IP found")  # pragma: no cover

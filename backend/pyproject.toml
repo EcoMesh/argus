@@ -31,12 +31,15 @@ netifaces = "^0.11.0"
 timezonefinder = "^6.4.1"
 aiostream = "^0.5.2"
 aiohttp = "^3.9.3"
+freezegun = "^1.4.0"
 
 
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.4"
 pytest-asyncio = "^0.23.4"
 ipykernel = "^6.29.0"
+coverage = "^7.4.4"
+aioresponses = "^0.7.6"
 
 [tool.ruff.flake8-bugbear]
 extend-immutable-calls = [

@@ -1,7 +1,12 @@
 from unittest.mock import patch
 from uuid import uuid4
 
-from app.worker.watershed_delineation import process_sensors_polygon_by_region
+from app.worker.watershed_delineation import (
+    BoundingBox,
+    Point,
+    WatershedFinder,
+    process_sensors_polygon_by_region,
+)
 
 
 def geojson_point(lon, lat):
@@ -72,3 +77,15 @@ def test_watershed_delineation(
 ):
     process_sensors_polygon_by_region([REGION])
     assert add_watershed_to_sensor.call_count == len(REGION["sensors"])
+
+
+@patch("app.worker.watershed_delineation.elevation.clip")
+@patch("os.path.exists")
+def test_elevation_clip_called_when_cache_not_exists(mock_exists, mock_clip):
+    mock_exists.return_value = False
+    bounding_box = BoundingBox(
+        bottom_left=Point(x=-103.31498383879455, y=30.275977600526915),
+        top_right=Point(x=-103.1300, y=30.487701),
+    )
+    WatershedFinder(bounding_box)
+    mock_clip.assert_called_once()

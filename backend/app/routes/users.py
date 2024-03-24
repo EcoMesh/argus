@@ -21,15 +21,15 @@ router = APIRouter(prefix="/users", tags=["users"])
 async def login(payload: UserLoginIn, conn: Connection = Depends(get_database)):
     user = await security.get_user_by_email(payload.email, conn)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Wrong email or password")
 
     if not verify_password(payload.password, user.password):
-        raise HTTPException(status_code=400, detail="Invalid password")
+        raise HTTPException(status_code=404, detail="Wrong email or password")
 
-    token = security.create_access_token(user.model_dump(exclude={"password"}))
+    token = security.create_access_token(user)
 
     return UserLoginOut(
-        access_token=token, user=UserOut(**user.model_dump(exclude={"password"}))
+        access_token=token, user=UserOut(**security.sanitize_user(user))
     )
 
 
@@ -40,9 +40,9 @@ async def signup(payload: UserSignupIn, conn: Connection = Depends(get_database)
         raise HTTPException(status_code=400, detail="User email already exists")
 
     user = await security.create_user(payload, conn)
-    token = security.create_access_token(user.model_dump(exclude={"password"}))
+    token = security.create_access_token(user)
     return UserSignupOut(
-        access_token=token, user=UserOut(**user.model_dump(exclude={"password"}))
+        access_token=token, user=UserOut(**security.sanitize_user(user))
     )
 
 

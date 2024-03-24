@@ -57,14 +57,17 @@ SENSORS = [
 ]
 
 
-@patch("app.tasks.alarm_identification.send_notification")
-@patch("app.tasks.alarm_identification.create_alarm_event")
-@patch("app.tasks.alarm_identification.create_alarm_event_record")
-@patch("app.tasks.alarm_identification.set_alarm_event_record_end")
-@patch("app.tasks.alarm_identification.set_alarm_event_end")
-@patch("app.tasks.alarm_identification.get_sensors_with_readings", return_value=SENSORS)
-@patch("app.tasks.alarm_identification.get_alarms", return_value=ALARMS)
-@patch("app.tasks.alarm_identification._get_database_async")
+# TODO: update this unit test
+@patch("app.worker.alarm_identification.send_notification")
+@patch("app.worker.alarm_identification.create_alarm_event")
+@patch("app.worker.alarm_identification.create_alarm_event_record")
+@patch("app.worker.alarm_identification.set_alarm_event_record_end")
+@patch("app.worker.alarm_identification.set_alarm_event_end")
+@patch(
+    "app.worker.alarm_identification.get_sensors_with_readings", return_value=SENSORS
+)
+@patch("app.worker.alarm_identification.get_alarms", return_value=ALARMS)
+@patch("app.worker.alarm_identification._get_database_async")
 @pytest.mark.asyncio
 async def test_cronjob(
     get_database_async,

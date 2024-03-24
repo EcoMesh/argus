@@ -28,11 +28,15 @@ def set_stubbed_time(now: datetime, speed: int = 1, real_time: datetime = None):
     global real_time_at_epoch, stubbed_time_speed, epoch
     stubbed_time_speed = speed
     if not real_time:
-        real_time = datetime.now()
+        real_time = datetime.now(tz=TZ)
+    elif real_time.tzinfo is None:
+        real_time = real_time.astimezone(TZ)
+
     real_time_at_epoch = real_time
     epoch = now
     if epoch.tzinfo is None:
         epoch = epoch.astimezone(TZ)
+        real_time_at_epoch = real_time_at_epoch.astimezone(TZ)
 
 
 class stubbed_datetime(datetime):
@@ -44,7 +48,7 @@ class stubbed_datetime(datetime):
         return now
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     import time
 
     set_stubbed_time(datetime.now(), 60 * 60)

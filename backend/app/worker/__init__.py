@@ -84,9 +84,6 @@ def delineate_watershed_task(region: dict):
     return process_sensors_polygon_by_region(region)
 
 
-scheduler = RedisScheduler(app=app)
-
-
 ALARM_IDENTIFICATION_CRONJOB_TASK_SCHEDULE = timedelta(hours=1)
 
 
@@ -107,6 +104,8 @@ def upsert_alarm_identification_cronjob_task(
 
 
 if __name__ == "__main__":
+    scheduler = RedisScheduler(app=app)
+
     upsert_alarm_identification_cronjob_task(
         epoch=datetime.now(tz=TZ) - timedelta(days=2),
     )
