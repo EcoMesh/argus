@@ -85,15 +85,15 @@ const NewRegionModal = ({ open, handleClose }) => {
       />
       <DialogContent>
         <Stack spacing={2} sx={{ height: '100%' }}>
+          <DialogContentText>
+            Use the map below to draw the region. Click on square icon in the top right of the map
+            to create a bounding box for the region.
+          </DialogContentText>
           <TextField
             label="Region Name"
             value={regionName}
             onChange={(e) => setRegionName(e.target.value)}
           />
-          <DialogContentText>
-            Use the map below to draw the region. Once you&apos;ve closed the polygon, click the
-            &quot;Create&quot;.
-          </DialogContentText>
           <OpenTopoMapContainer
             center={[30.3781, -103.17292662393481]}
             zoom={5}
