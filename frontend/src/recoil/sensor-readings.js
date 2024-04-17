@@ -7,25 +7,29 @@ import { currentRegionSensorsSelector } from 'src/recoil/sensors';
 
 import { requestHeadersSelector } from './current-user';
 
-export const sensorReadingsDefault = selector({
-  key: 'sensorReadings/default',
+export const rawSensorReadingsDefault = selector({
+  key: 'sensorReadingsRaw/default',
   get: ({ get }) => {
     const headers = get(requestHeadersSelector);
-    console.log('headers', headers);
 
     return api.getSensorReadings(headers);
   },
 });
 
-export const sensorReadingsAtom = atom({
-  key: 'sensorReadings',
-  default: sensorReadingsDefault,
+export const rawSensorReadingsAtom = atom({
+  key: 'sensorReadingsRaw',
+  default: rawSensorReadingsDefault,
+});
+
+export const sensorReadingsSelector = selector({
+  key: 'sensorReadings/default',
+  get: ({ get }) => get(rawSensorReadingsAtom).readings,
 });
 
 export const currentRegionSensorReadingsSelector = selector({
   key: 'selectedRegionSensorReadings',
   get: ({ get }) => {
-    const sensorReadings = get(sensorReadingsAtom);
+    const sensorReadings = get(sensorReadingsSelector);
     const currentRegionSensors = get(currentRegionSensorsSelector);
 
     if (currentRegionSensors.length === 0) return [];

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -9,7 +9,11 @@ import { MenuItem, TextField } from '@mui/material';
 
 import {
   currentRegionSensorReadingsChartSelector,
+  rawSensorReadingsAtom,
 } from 'src/recoil/sensor-readings';
+
+import { requestHeadersSelector } from 'src/recoil/current-user';
+import * as sensorReadingsApi from 'src/api/sensor-readings';
 
 import Chart, { useChart } from 'src/components/chart';
 // ----------------------------------------------------------------------
@@ -33,15 +37,45 @@ const COLUMNS = [
   },
 ];
 
+const COLUMN_TO_TOOLTIP_DATATYPE = {
+  temperature: 'F',
+  humidity: '%',
+  moisture: '%',
+  groundDistance: 'm',
+};
+
 export default function AppRecentSensorReadings({ title, subheader, chart, ...other }) {
-  const [column, setColumn] = useState(COLUMNS[0]);
+  const [column, setColumn] = useState(COLUMNS[3]);
+  const [rawSensorReadings, setRawSensorReadings] = useRecoilState(rawSensorReadingsAtom);
+
+  const authHeaders = useRecoilValue(requestHeadersSelector);
   const { labels, colors, series, options } = useRecoilValue(
     currentRegionSensorReadingsChartSelector({
       column: column.value,
-      startTime: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
+      startTime: rawSensorReadings.latest
+        ? new Date(new Date(rawSensorReadings.latest).getTime() - 1000 * 60 * 60 * 24)
+        : new Date(Date.now() - 1000 * 60 * 60 * 24),
       resolution: 1000 * 60 * 15,
     })
   );
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      console.log(rawSensorReadings);
+      const newReadings = await sensorReadingsApi.getSensorReadings(authHeaders, {
+        since: rawSensorReadings.latest,
+      });
+
+      if (newReadings.readings.length > 0) {
+        setRawSensorReadings((old) => ({
+          readings: [...old.readings, ...newReadings.readings],
+          latest: newReadings.latest,
+        }));
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [rawSensorReadings, setRawSensorReadings, authHeaders]);
 
   const chartOptions = useChart({
     colors,
@@ -63,7 +97,7 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
       y: {
         formatter: (value) => {
           if (typeof value !== 'undefined') {
-            return `${value.toFixed(0)} F`;
+            return `${value.toFixed(0)} ${COLUMN_TO_TOOLTIP_DATATYPE[column.value]}`;
           }
           return value;
         },

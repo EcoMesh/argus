@@ -82,3 +82,8 @@ class SensorReadingOut(BaseSchema):
     humidity: float
     moisture: float
     ground_distance: float
+
+
+class SensorReadingsOut(BaseSchema):
+    readings: list[SensorReadingOut]
+    latest: Optional[datetime]

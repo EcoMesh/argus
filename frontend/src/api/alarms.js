@@ -19,3 +19,11 @@ export async function deleteAlarm(id, headers = {}) {
 export async function updateAlarm(data, headers = {}) {
   return put(`/alarms/${data.id}`, data, { headers });
 }
+
+export async function sendNotification(notificationId, headers = {}) {
+  return post(`/alarms/notifications/${notificationId}/send`, {}, { headers });
+}
+
+export async function dismissNotification(notificationId, headers = {}) {
+  return post(`/alarms/notifications/${notificationId}/dismiss`, {}, { headers });
+}
