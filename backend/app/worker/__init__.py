@@ -93,6 +93,8 @@ def upsert_alarm_identification_cronjob_task(
     schedule: timedelta = ALARM_IDENTIFICATION_CRONJOB_TASK_SCHEDULE,
 ):
     """Upsert the alarm identification cronjob task."""
+    scheduler = RedisScheduler(app=app)
+
     args = (epoch, stubbed_time_speed, datetime.now(tz=TZ)) if epoch else tuple()
     scheduler.remove("alarm_identification_cronjob")
     scheduler.add(
@@ -104,8 +106,6 @@ def upsert_alarm_identification_cronjob_task(
 
 
 if __name__ == "__main__":
-    scheduler = RedisScheduler(app=app)
-
     upsert_alarm_identification_cronjob_task(
         epoch=datetime.now(tz=TZ) - timedelta(days=2),
     )
