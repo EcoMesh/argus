@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import { AppView } from 'src/sections/overview/view';
+import { SignupView } from 'src/sections/signup';
 
 // ----------------------------------------------------------------------
 
-export default function AppPage() {
+export default function SignupPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard | EcoMesh </title>
+        <title> Sign Up | EcoMesh </title>
       </Helmet>
 
-      <AppView />
+      <SignupView />
     </>
   );
 }

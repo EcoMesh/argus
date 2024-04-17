@@ -1,7 +1,6 @@
 import * as Yup from "yup";
 import { useState } from 'react';
 import { useFormik } from "formik";
-import { useRecoilState } from 'recoil';
 import { Link, useNavigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
@@ -20,7 +19,6 @@ import { getFieldPropsWithHelpText } from 'src/utils/formik';
 
 import * as userApi from 'src/api/users';
 import { bgGradient } from 'src/theme/css';
-import { currentUserAtom } from 'src/recoil/current-user';
 
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
@@ -28,6 +26,8 @@ import Iconify from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 const validationSchema = Yup.object().shape({
+  name:Yup.string()
+    .required("Name is a required field"),
   email: Yup.string()
     .required("Email is a required field")
     .email("Invalid email format"),
@@ -39,7 +39,6 @@ const validationSchema = Yup.object().shape({
 export default function LoginView() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useRecoilState(currentUserAtom);
 
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -47,6 +46,7 @@ export default function LoginView() {
   const formik = useFormik({
     validationSchema,
     initialValues: {
+      name: '',
       email: '',
       password: '',
     },
@@ -54,10 +54,8 @@ export default function LoginView() {
 
   const handleClick = async () => {
     try {
-      const user = await userApi.login(formik.values);
-      setCurrentUser(user);
-      console.log("success");
-      navigate("/");
+      await userApi.signup(formik.values);
+      navigate("/login");
     }
     catch (err) {
       setErrorMessage(err.data.detail);
@@ -67,10 +65,12 @@ export default function LoginView() {
   const renderForm = (
     <>
       <Stack spacing={3}>
+      <TextField label="Name" {...getFieldPropsWithHelpText(formik, 'name')} />
+
         <TextField label="Email address" {...getFieldPropsWithHelpText(formik, 'email')} />
 
         <TextField
-          label="Password"
+          label="Password (8 or more characters)"
           type={showPassword ? 'text' : 'password'}
           {...getFieldPropsWithHelpText(formik, 'password')}
           InputProps={{
@@ -94,7 +94,7 @@ export default function LoginView() {
         disabled={!formik.dirty || !formik.isValid}
         onClick={handleClick}
       >
-        Login
+        Create Account
       </LoadingButton>
     </>
   );
@@ -125,20 +125,20 @@ export default function LoginView() {
             maxWidth: 420,
           }}
         >
-          <Typography variant="h4">Sign In to EcoMesh</Typography>
+          <Typography variant="h4">Sign Up for EcoMesh</Typography>
 
-        {errorMessage && (
-          <Typography variant="subtitle2" sx={{ mt: 2, color: 'error.main' }}>
-            {errorMessage}
-          </Typography>
-        )}
+          {errorMessage && (
+            <Typography variant="subtitle2" sx={{ mt: 2, color: 'error.main' }}>
+              {errorMessage}
+            </Typography>
+          )}
           
           <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 2, mb: 3 }}>
             <Typography variant="body2">
-              Don’t have an account? 
+              Have an account? 
             </Typography>
-            <Link to="/signup">
-              <Button type="link">Get started</Button>
+            <Link to="/login">
+              <Button type="link">Login</Button>
             </Link>
           </Stack>
 
