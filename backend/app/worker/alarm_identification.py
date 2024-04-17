@@ -243,7 +243,6 @@ async def send_notification_on_sensor_state_start(
                     "reason": "sensor_state_change",
                     "state": "started",
                     "alarm_id": alarm["id"],
-                    "region_id": region["id"],
                     "sensors": [
                         {
                             "node_id": sensor["node_id"],
@@ -312,7 +311,6 @@ async def send_notification_on_sensor_state_end(
                         "reason": "sensor_state_change",
                         "state": "ended",
                         "alarm_id": alarm["id"],
-                        "region_id": region["id"],
                         "sensors": [
                             {
                                 "node_id": sensor["node_id"],
