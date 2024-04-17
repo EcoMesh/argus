@@ -17,7 +17,9 @@ import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 
-import { fToNow , fDateTime } from 'src/utils/format-time';
+import { Link as RouterLink } from 'react-router-dom';
+
+import { fToNow, fDateTime } from 'src/utils/format-time';
 
 import { currentRegionRecentAlarmEventsSelector } from 'src/recoil/alarms';
 
@@ -25,24 +27,12 @@ import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 // ----------------------------------------------------------------------
 
-export default function AppRecentAlarmEvents() {
+export default function AppRecentAlarmEvents({ showViewAll = true, sx }) {
   const recentAlarms = useRecoilValue(currentRegionRecentAlarmEventsSelector);
   console.log(recentAlarms);
   return (
-    <Card>
-      <CardHeader
-        title="Recent Alarm Events"
-        subheader="Last 24 Hours"
-        action={
-          <Button
-            size="small"
-            color="inherit"
-            endIcon={<Iconify icon="eva:arrow-ios-forward-fill" />}
-          >
-            Test
-          </Button>
-        }
-      />
+    <Card sx={sx}>
+      <CardHeader title="Recent Alarm Events" subheader="Last 24 Hours" />
       <Scrollbar>
         <Stack spacing={3} sx={{ p: 3 }}>
           {recentAlarms.map((event) => (
@@ -51,22 +41,32 @@ export default function AppRecentAlarmEvents() {
         </Stack>
       </Scrollbar>
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+      {showViewAll && (
+        <>
+          <Divider sx={{ borderStyle: 'dashed' }} />
 
-      <Box sx={{ p: 2, textAlign: 'right' }}>
-        <Button
-          size="small"
-          color="inherit"
-          endIcon={<Iconify icon="eva:arrow-ios-forward-fill" />}
-        >
-          View all
-        </Button>
-      </Box>
+          <Box sx={{ p: 2, textAlign: 'right' }}>
+            <Button
+              component={RouterLink}
+              to="/alarms"
+              type="text"
+              size="small"
+              color="inherit"
+              endIcon={<Iconify icon="eva:arrow-ios-forward-fill" />}
+            >
+              View all
+            </Button>
+          </Box>
+        </>
+      )}
     </Card>
   );
 }
 
-AppRecentAlarmEvents.propTypes = {};
+AppRecentAlarmEvents.propTypes = {
+  showViewAll: PropTypes.bool,
+  sx: PropTypes.object,
+};
 
 // ----------------------------------------------------------------------
 
@@ -75,14 +75,14 @@ function NewsItem({ event }) {
     const events = [];
     event.records.forEach((record) => {
       events.push({
-        id: `${record.id  }-start`,
+        id: `${record.id}-start`,
         color: 'error',
         nodeId: record.nodeId,
         timestamp: new Date(record.start),
       });
       if (record.end) {
         events.push({
-          id: `${record.id  }-end`,
+          id: `${record.id}-end`,
           color: 'success',
           nodeId: record.nodeId,
           timestamp: new Date(record.end),
@@ -109,6 +109,8 @@ function NewsItem({ event }) {
           size="small"
           color="inherit"
           endIcon={<Iconify icon="eva:arrow-ios-forward-fill" />}
+          component={RouterLink}
+          to={`/alarms/${event.alarmId}/event/${event.id}`}
         >
           View
         </Button>

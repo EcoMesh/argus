@@ -8,13 +8,17 @@ import { Button, Typography, ButtonGroup } from '@mui/material';
 
 import { fDateTime } from 'src/utils/format-time';
 
-import { currentRegionNotificationHistorySelector } from 'src/recoil/alarms';
+import {
+  currentRegionNotificationHistorySelector,
+  useSendNotification,
+  useDismissNotification,
+} from 'src/recoil/alarms';
 
-export default function RecentNotifications() {
+export default function RecentNotifications({ sx }) {
   const currentRegionNotifications = useRecoilValue(currentRegionNotificationHistorySelector);
 
   return (
-    <Card>
+    <Card sx={sx}>
       <CardHeader title="Recent Notifications" subheader="Last 24 Hours" />
 
       {currentRegionNotifications.map((notification) => (
@@ -24,11 +28,53 @@ export default function RecentNotifications() {
   );
 }
 
-RecentNotifications.propTypes = {};
+RecentNotifications.propTypes = {
+  sx: PropTypes.object,
+};
 
 // ----------------------------------------------------------------------
 
 function NotificationItem({ notification }) {
+  const sendNotification = useSendNotification();
+  const dismissNotification = useDismissNotification();
+
+  const handleSendNotification = async () => {
+    console.log('--', await sendNotification(notification.id));
+  };
+
+  const handleDismissNotification = async () => {
+    console.log('--', await dismissNotification(notification.id));
+  };
+
+  const renderRightAside = () => {
+    if (notification.awaitingInteraction === undefined) {
+      return (
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+          Sent
+        </Typography>
+      );
+    }
+
+    if (notification.awaitingInteraction) {
+      return (
+        <ButtonGroup size="small">
+          <Button color="success" onClick={handleSendNotification}>
+            Send
+          </Button>
+          <Button color="error" onClick={handleDismissNotification}>
+            Dismiss
+          </Button>
+        </ButtonGroup>
+      );
+    }
+
+    return (
+      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+        {notification.sent ? 'Sent' : 'Dismissed'}
+      </Typography>
+    );
+  };
+
   return (
     <Stack
       direction="row"
@@ -48,18 +94,7 @@ function NotificationItem({ notification }) {
           {fDateTime(new Date(notification.timestamp))} {'\u2022'} {notification.reason}
         </Typography>
       </Stack>
-      {notification.awaitingInteraction ? (
-        <ButtonGroup size="small">
-          <Button color="success">Send</Button>
-          <Button color="error">Dismiss</Button>
-        </ButtonGroup>
-      ) : (
-        notification.sent ?? (
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            Sent
-          </Typography>
-        )
-      )}
+      {renderRightAside()}
     </Stack>
   );
 }

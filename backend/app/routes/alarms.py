@@ -87,3 +87,49 @@ async def get_all_notifications(conn: Connection = Depends(get_database)):
         .order_by(r.desc("timestamp"))
         .run(conn)
     )
+
+
+@router.post(
+    "/notifications/{notification_id}/send",
+    response_model=schema.alarm.AlarmNotificationRecord,
+)
+async def send_notification(
+    notification_id: str, conn: Connection = Depends(get_database)
+):
+    notification = (
+        await r.table("alarm_notification_history").get(notification_id).run(conn)
+    )
+    if notification is None:
+        raise HTTPException(status_code=404, detail="Notification not found")
+
+    res = (
+        await r.table("alarm_notification_history")
+        .get(notification_id)
+        .update({"sent": True, "awaiting_interaction": False})
+        .run(conn, return_changes=True)
+    )
+    print("res", res)
+    return res["changes"][0]["new_val"]
+
+
+@router.post(
+    "/notifications/{notification_id}/dismiss",
+    response_model=schema.alarm.AlarmNotificationRecord,
+)
+async def dismiss_notification(
+    notification_id: str, conn: Connection = Depends(get_database)
+):
+    notification = (
+        await r.table("alarm_notification_history").get(notification_id).run(conn)
+    )
+    if notification is None:
+        raise HTTPException(status_code=404, detail="Notification not found")
+
+    res = (
+        await r.table("alarm_notification_history")
+        .get(notification_id)
+        .update({"awaiting_interaction": False})
+        .run(conn, return_changes=True)
+    )
+
+    return res["changes"][0]["new_val"]

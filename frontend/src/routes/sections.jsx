@@ -14,6 +14,7 @@ export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const SensorsPage = lazy(() => import('src/pages/sensors'));
 export const SensorInitPage = lazy(() => import('src/pages/sensor-init'));
 export const AlarmsPage = lazy(() => import('src/pages/alarms'));
+export const AlarmHistoryPage = lazy(() => import('src/pages/alarm-history'));
 
 // ----------------------------------------------------------------------
 
@@ -31,6 +32,7 @@ export default function Router() {
         { element: <IndexPage />, index: true },
         { path: 'users', element: <UserPage /> },
         { path: 'alarms', element: <AlarmsPage /> },
+        { path: 'alarms/:id/history', element: <AlarmHistoryPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'sensors', element: <SensorsPage /> },
       ],

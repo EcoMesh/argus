@@ -8,10 +8,10 @@ import { currentRegionAlarmsAtom } from 'src/recoil/alarms';
 import { currentRegionSensorsSelector } from 'src/recoil/sensors';
 import { currentRegionSensorReadingsSelector } from 'src/recoil/sensor-readings';
 
-import AppTasks from '../app-tasks';
+import RecentNotifications from '../app-recent-notifications';
 import AppCurrentVisits from '../app-current-visits';
 import AppWidgetSummary from '../app-widget-summary';
-import AppRecentAlarmEvents from '../app-news-update';
+import AppRecentAlarmEvents from '../app-recent-alarm-events';
 import AppRecentSensorReadings from '../app-website-visits';
 
 // ----------------------------------------------------------------------
@@ -73,7 +73,7 @@ export default function AppView() {
         </Grid>
 
         <Grid xs={12} md={6} lg={8}>
-          <AppTasks />
+          <RecentNotifications />
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>

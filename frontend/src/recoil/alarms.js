@@ -1,8 +1,9 @@
-import { atom, selector, useRecoilCallback } from 'recoil';
+import { atom, selector, selectorFamily, useRecoilCallback } from 'recoil';
 
 import * as api from 'src/api/alarms';
 import { currentRegionIdAtom } from 'src/recoil/regions';
 import { requestHeadersSelector } from 'src/recoil/current-user';
+import { produce } from 'immer';
 
 export const alarmsDefault = selector({
   key: 'alarms/default',
@@ -63,6 +64,46 @@ export const currentRegionRecentAlarmEventsSelector = selector({
     );
   },
 });
+
+export const useSendNotification = () =>
+  useRecoilCallback(({ set, snapshot }) => async (notificationId) => {
+    const headers = await snapshot.getPromise(requestHeadersSelector);
+
+    try {
+      const data = await api.sendNotification(notificationId, headers);
+      console.log('11', data);
+      set(
+        alarmNotificationHistoryAtom,
+        produce((oldNotifications) => {
+          const index = oldNotifications.findIndex(({ id }) => id === notificationId);
+          oldNotifications[index] = data;
+        })
+      );
+      return data;
+    } catch (error) {
+      alert(error);
+      return error;
+    }
+  });
+
+export const useDismissNotification = () =>
+  useRecoilCallback(({ set, snapshot }) => async (notificationId) => {
+    const headers = await snapshot.getPromise(requestHeadersSelector);
+    try {
+      const data = await api.dismissNotification(notificationId, headers);
+      set(
+        alarmNotificationHistoryAtom,
+        produce((oldNotifications) => {
+          const index = oldNotifications.findIndex(({ id }) => id === notificationId);
+          oldNotifications[index] = data;
+        })
+      );
+      return data;
+    } catch (error) {
+      alert(error);
+      return error;
+    }
+  });
 
 export const useCreateAlarm = () =>
   useRecoilCallback(({ set, snapshot }) => async (alarm) => {
