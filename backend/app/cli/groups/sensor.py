@@ -3,6 +3,7 @@ import csv
 import logging
 import math
 import random
+import string
 import sys
 import time
 from datetime import datetime, timedelta
@@ -43,25 +44,36 @@ class RainfallDataGenerator:
         self.include_evaporation = include_evaporation
         self.delta = delta
         self.ground_distance_max = 40
-        self.ground_distance = 40
+        self.ground_distance = self.ground_distance_max
         self.start_time = start_time
         self.node_id = node_id
 
     def generate_steady_data(self):
         rand = random.random()
+        sign = 1 if random.random() > 0.5 else -1
         if rand < 0.05:
-            distance = random.randint(30, 40)
+            self.ground_distance += sign * (
+                random.randint(self.ground_distance_max // 4, self.ground_distance_max)
+                / 100
+            )
         elif rand < 0.15:
-            distance = random.randint(35, 40)
+            self.ground_distance += sign * (
+                random.randint(self.ground_distance_max // 8, self.ground_distance_max)
+                / 100
+            )
         else:
-            distance = random.randint(38, 40)
+            self.ground_distance += sign * (
+                random.randint(self.ground_distance_max // 16, self.ground_distance_max)
+                / 100
+            )
+
         yield SensorReading(
             self.node_id,
             self.start_time,
             0,
             0,
             0,
-            distance,
+            self.ground_distance,
         )
         self.start_time += self.delta
 
@@ -90,7 +102,9 @@ class RainfallDataGenerator:
         for _ in range(TimeDelta.TWELVE_HOURS // self.delta.seconds):
             self.ground_distance += random.randint(0, 20) / 100
             self.ground_distance = min(self.ground_distance, self.ground_distance_max)
-            SensorReading(self.node_id, self.start_time, 0, 0, 0, self.ground_distance)
+            yield SensorReading(
+                self.node_id, self.start_time, 0, 0, 0, self.ground_distance
+            )
             self.start_time += self.delta
 
         for _ in range(2 * TimeDelta.ONE_DAY // self.delta.seconds):
@@ -122,6 +136,40 @@ class GeneratorTea:
         for val in self.iterator:
             self.output.append(val)
             yield val
+
+
+class GeneratorGroup:
+    def __init__(self, generators):
+        self.generators = generators
+        self.iterators = [iter(generator) for generator in generators]
+
+    def __len__(self):
+        return len(self.iterators)
+
+    def __iter__(self):
+        i = 0
+        while True:
+            try:
+                yield next(self.iterators[i])
+            except StopIteration:
+                return
+            i += 1
+            if i == len(self):
+                i = 0
+
+
+def generate_random_id():
+    prefix = "!"
+    suffix = "".join(random.choices(string.hexdigits, k=8))
+    return prefix + suffix.lower()
+
+
+@app.command()
+def rand_ids(
+    n: Annotated[int, Option(help="The number of random IDs to generate.")] = 5
+):
+    for _ in range(n):
+        print(generate_random_id())
 
 
 @app.command()
@@ -159,14 +207,21 @@ def generate_rainfall_data(
 ):
     """Generate rainfall data and optionally write it to a file or the database."""
     start_time = datetime.now(tz=TZ)  # - timedelta(days=2, hours=12)
+    delta = timedelta(minutes=5)
     # simulation_run_time = (
     #     timedelta(days=5) if evaporation else timedelta(days=2, hours=12)
     # )
-
-    generator = RainfallDataGenerator(
-        include_evaporation=evaporation,
-        node_id=node_id,
-        start_time=start_time,
+    node_ids = node_id.split(",")
+    generator = GeneratorGroup(
+        [
+            RainfallDataGenerator(
+                include_evaporation=evaporation,
+                node_id=node_id,
+                start_time=start_time,
+                delta=delta,
+            )
+            for node_id in node_ids
+        ]
     )
     tea = GeneratorTea(generator)
 
@@ -177,7 +232,7 @@ def generate_rainfall_data(
                 r.table("alarms_events").delete().run(conn)
                 r.table("alarms_event_records").delete().run(conn)
 
-                sleep_time = generator.delta.seconds / speed
+                sleep_time = delta.seconds / speed
                 readings_per_sleep = 1
                 if sleep_time < 1:
                     readings_per_sleep = math.ceil(1 / sleep_time)
@@ -187,15 +242,18 @@ def generate_rainfall_data(
                     for reading, _ in zip(
                         tea,
                         range(
-                            (TimeDelta.ONE_DAY + TimeDelta.TWELVE_HOURS)
-                            // generator.delta.seconds
+                            (
+                                (TimeDelta.ONE_DAY + TimeDelta.TWELVE_HOURS)
+                                // delta.seconds
+                            )
+                            * len(node_ids)
                         ),
                     )
                 ]
                 r.table("sensor_readings").insert(initial_readings).run(conn)
                 res = requests.post(
                     "http://localhost:8000/demo/set_time",
-                    json={"epoch": generator.start_time.isoformat(), "speed": speed},
+                    json={"epoch": start_time.isoformat(), "speed": speed},
                     timeout=5,
                 )
                 if not res.ok:
@@ -209,7 +267,9 @@ def generate_rainfall_data(
                 while True:
                     readings = [
                         reading._asdict()
-                        for reading, _ in zip(iterator, range(readings_per_sleep))
+                        for reading, _ in zip(
+                            iterator, range(readings_per_sleep * len(node_ids))
+                        )
                     ]
                     if not readings:
                         break
@@ -218,7 +278,7 @@ def generate_rainfall_data(
                     time.sleep(sleep_time)
             else:
                 r.table("sensor_readings").insert(
-                    reading._asdict() for reading in generator
+                    reading._asdict() for reading in tea
                 ).run(conn)
             if file:
                 with open(file, "w") as f:
