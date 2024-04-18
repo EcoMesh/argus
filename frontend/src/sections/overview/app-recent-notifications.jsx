@@ -9,9 +9,9 @@ import { Button, Typography, ButtonGroup } from '@mui/material';
 import { fDateTime } from 'src/utils/format-time';
 
 import {
-  currentRegionNotificationHistorySelector,
   useSendNotification,
   useDismissNotification,
+  currentRegionNotificationHistorySelector,
 } from 'src/recoil/alarms';
 
 export default function RecentNotifications({ sx }) {

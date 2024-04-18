@@ -1,9 +1,9 @@
-import { atom, selector, selectorFamily, useRecoilCallback } from 'recoil';
+import { produce } from 'immer';
+import { atom, selector, useRecoilCallback } from 'recoil';
 
 import * as api from 'src/api/alarms';
 import { currentRegionIdAtom } from 'src/recoil/regions';
 import { requestHeadersSelector } from 'src/recoil/current-user';
-import { produce } from 'immer';
 
 export const alarmsDefault = selector({
   key: 'alarms/default',

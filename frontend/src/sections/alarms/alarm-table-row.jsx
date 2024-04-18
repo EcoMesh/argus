@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { omit as _omit } from 'lodash';
 import { useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
 import TableRow from '@mui/material/TableRow';
@@ -8,8 +9,6 @@ import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
-
-import { Link as RouterLink } from 'react-router-dom';
 
 import { useDeleteAlarm, useUpdateAlarm } from 'src/recoil/alarms';
 

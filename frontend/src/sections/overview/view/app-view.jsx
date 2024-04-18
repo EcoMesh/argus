@@ -8,11 +8,11 @@ import { currentRegionAlarmsAtom } from 'src/recoil/alarms';
 import { currentRegionSensorsSelector } from 'src/recoil/sensors';
 import { currentRegionSensorReadingsSelector } from 'src/recoil/sensor-readings';
 
-import RecentNotifications from '../app-recent-notifications';
 import AppCurrentVisits from '../app-current-visits';
 import AppWidgetSummary from '../app-widget-summary';
-import AppRecentAlarmEvents from '../app-recent-alarm-events';
 import AppRecentSensorReadings from '../app-website-visits';
+import RecentNotifications from '../app-recent-notifications';
+import AppRecentAlarmEvents from '../app-recent-alarm-events';
 
 // ----------------------------------------------------------------------
 

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 
 import Box from '@mui/material/Box';
@@ -7,13 +7,12 @@ import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import { MenuItem, TextField } from '@mui/material';
 
-import {
-  currentRegionSensorReadingsChartSelector,
-  rawSensorReadingsAtom,
-} from 'src/recoil/sensor-readings';
-
-import { requestHeadersSelector } from 'src/recoil/current-user';
 import * as sensorReadingsApi from 'src/api/sensor-readings';
+import { requestHeadersSelector } from 'src/recoil/current-user';
+import {
+  rawSensorReadingsAtom,
+  currentRegionSensorReadingsChartSelector,
+} from 'src/recoil/sensor-readings';
 
 import Chart, { useChart } from 'src/components/chart';
 // ----------------------------------------------------------------------

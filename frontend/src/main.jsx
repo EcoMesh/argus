@@ -6,9 +6,8 @@ import 'leaflet-draw/dist/leaflet.draw.css';
 import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async'; // https://github.com/Leaflet/Leaflet.draw/issues/1026
 import { RecoilRoot } from 'recoil';
-
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 import App from './app';
 

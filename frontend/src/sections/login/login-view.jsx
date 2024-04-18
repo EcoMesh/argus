@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { useState } from 'react';
 import { useFormik } from 'formik';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import Box from '@mui/material/Box';

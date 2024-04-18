@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useRecoilValue } from 'recoil';
+import { Link as RouterLink } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -16,8 +17,6 @@ import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
-
-import { Link as RouterLink } from 'react-router-dom';
 
 import { fToNow, fDateTime } from 'src/utils/format-time';
 
@@ -149,6 +148,8 @@ function NewsItem({ event }) {
 
 NewsItem.propTypes = {
   event: PropTypes.shape({
+    id: PropTypes.string,
+    alarmId: PropTypes.string,
     alarmName: PropTypes.string,
     records: PropTypes.array,
     start: PropTypes.string,
