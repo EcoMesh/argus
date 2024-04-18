@@ -52,7 +52,6 @@ services:
       - BREVO_API_KEY=your_api_key
   frontend:
     build: ./frontend
-
   caddy:
     image: caddy:2.7.6-alpine
     ports:

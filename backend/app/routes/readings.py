@@ -5,14 +5,20 @@ import aiostream
 import rethinkdb.query as r
 from app import schema
 from app.database import Connection, get_database
+from app.security import get_current_user
 from fastapi import APIRouter, Depends
 
-router = APIRouter(prefix="/readings", tags=["sensor readings"])
+router = APIRouter(
+    prefix="/readings",
+    tags=["sensor readings"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("/", response_model=schema.sensor.SensorReadingsOut)
 async def get_all_readings(
-    since: Optional[str] = None, conn: Connection = Depends(get_database)
+    since: Optional[str] = None,
+    conn: Connection = Depends(get_database),
 ):
     if since:
         readings = await aiostream.stream.list(

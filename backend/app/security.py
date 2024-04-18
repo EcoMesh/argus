@@ -8,7 +8,7 @@ from app.settings import settings
 from app.utils.security import decode_jwt, encode_jwt, hash_password, verify_password
 from fastapi import Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
+from jose import ExpiredSignatureError, JWTError
 from pydantic import ValidationError
 
 from rethinkdb import query as r
@@ -28,8 +28,13 @@ def create_access_token(user: schema.user.User):
 
 
 async def get_current_user(
-    authorization: str = Header(...),
+    authorization: str = Header(None),
 ) -> schema.user.User:
+    if authorization is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authorization header",
+        )
     try:
         header_parts = authorization.split(maxsplit=1)
         if len(header_parts) != 2:
@@ -47,12 +52,17 @@ async def get_current_user(
         payload = decode_jwt(access_token)
         del payload["exp"]
         return schema.user.UserOut(**payload)
+    except ExpiredSignatureError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token expired",
+        ) from e
     except JWTError as e:
         print_exc(e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
-        )
+        ) from e
     except ValidationError as e:
         print_exc(e)
         raise HTTPException(

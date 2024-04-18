@@ -24,7 +24,6 @@ const getApiBaseUrl = (url) => {
 const API_BASE_URL = getApiBaseUrl(import.meta.env.API_BASE_URL);
 
 async function http(path, config) {
-  console.log('config', config);
   const prefixedPath = path.startsWith('http')
     ? path
     : `${API_BASE_URL}/api${path}`.replace(/\/+/g, '/');
@@ -39,14 +38,11 @@ async function http(path, config) {
 
   const data = response.status !== 204 ? await response.json() : null;
   if (!response.ok) {
-    // if (response.status === 403) {
-    //   // TODO: Show a login dialog
-    //   enqueueSnackbar(`You don't have permission to do that.`, { variant: 'error' });
-    // } else if (data.message) {
-    //   enqueueSnackbar(`${data.message}`, { variant: data.variant || 'error' });
-    // } else {
-    //   enqueueSnackbar(`Error ${response.status}: ${response.statusText}`, { variant: 'error' });
-    // }
+    if (response.status === 401) {
+      localStorage.removeItem('currentUser');
+
+      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+    }
     const error = new APIError({
       name: String(response.status),
       message: response.statusText,
@@ -61,7 +57,6 @@ async function http(path, config) {
 }
 
 export function get(path, config) {
-  console.log('get path', path, config);
   return http(path, { method: 'get', ...config });
 }
 

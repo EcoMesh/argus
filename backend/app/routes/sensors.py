@@ -3,20 +3,25 @@ from typing import List
 import rethinkdb.query as r
 from app import schema
 from app.database import Connection, get_database
+from app.security import get_current_user
 from app.settings import settings
 from app.utils.security import decode_jwt
 from app.worker import delineate_watershed_task
 from fastapi import APIRouter, Depends, HTTPException, Response
+from jose import JWTError
 
 router = APIRouter(prefix="/sensors", tags=["sensors"])
 
+protected = APIRouter(dependencies=[Depends(get_current_user)])
+public = APIRouter()
 
-@router.get("/", response_model=List[schema.sensor.SensorOut])
+
+@protected.get("/", response_model=List[schema.sensor.SensorOut])
 async def get_all_sensors(conn: Connection = Depends(get_database)):
     return (await r.table("sensors").run(conn)).items
 
 
-@router.post("/", response_model=schema.sensor.SensorOut)
+@protected.post("/", response_model=schema.sensor.SensorOut)
 async def create_sensor(
     sensor: schema.sensor.NewSensorIn, conn: Connection = Depends(get_database)
 ):
@@ -29,13 +34,16 @@ async def create_sensor(
     return res["changes"][0]["new_val"]
 
 
-@router.post("/{jwt_sensor_identifier}/init", response_model=schema.sensor.SensorOut)
+@public.post("/{jwt_sensor_identifier}/init", response_model=schema.sensor.SensorOut)
 async def init_sensor(
     jwt_sensor_identifier: str,
     coordinates: schema.sensor.SensorCoordinates,
     conn: Connection = Depends(get_database),
 ):
-    sensor_id = decode_jwt(jwt_sensor_identifier)["id"]
+    try:
+        sensor_id = decode_jwt(jwt_sensor_identifier)["id"]
+    except JWTError:
+        raise HTTPException(status_code=400, detail="Invalid JWT sensor identifier")
     r_sensor = r.table("sensors").get(sensor_id)
     sensor = await r_sensor.run(conn)
 
@@ -64,7 +72,7 @@ async def init_sensor(
     return sensor
 
 
-@router.delete("/{sensor_id}")
+@protected.delete("/{sensor_id}")
 async def delete_sensor(sensor_id: str, conn: Connection = Depends(get_database)):
     res = await r.table("sensors").get(sensor_id).delete().run(conn)
     if res["deleted"] == 0:
@@ -72,7 +80,7 @@ async def delete_sensor(sensor_id: str, conn: Connection = Depends(get_database)
     return Response(status_code=204)
 
 
-@router.get("/config/mqtt", response_model=schema.sensor.MqttConfig)
+@protected.get("/config/mqtt", response_model=schema.sensor.MqttConfig)
 async def get_mqtt_config():
     return schema.sensor.MqttConfig(
         host=settings.mqtt_host,
@@ -81,3 +89,7 @@ async def get_mqtt_config():
         use_tls=False,
         use_encryption=False,
     )
+
+
+router.include_router(protected)
+router.include_router(public)

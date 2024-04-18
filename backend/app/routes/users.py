@@ -9,15 +9,18 @@ from app.schema.user import (
     UserSignupIn,
     UserSignupOut,
 )
+from app.security import get_current_user
 from app.utils.security import verify_password
 from fastapi import APIRouter, Depends, HTTPException, Path
 
 from rethinkdb import query as r
 
 router = APIRouter(prefix="/users", tags=["users"])
+protected = APIRouter(dependencies=[Depends(get_current_user)])
+public = APIRouter()
 
 
-@router.post("/login", response_model=UserLoginOut)
+@public.post("/login", response_model=UserLoginOut)
 async def login(payload: UserLoginIn, conn: Connection = Depends(get_database)):
     user = await security.get_user_by_email(payload.email, conn)
     if not user:
@@ -33,7 +36,7 @@ async def login(payload: UserLoginIn, conn: Connection = Depends(get_database)):
     )
 
 
-@router.post("/signup", response_model=UserSignupOut)
+@public.post("/signup", response_model=UserSignupOut)
 async def signup(payload: UserSignupIn, conn: Connection = Depends(get_database)):
     user = await security.get_user_by_email(payload.email, conn)
     if user:
@@ -46,7 +49,7 @@ async def signup(payload: UserSignupIn, conn: Connection = Depends(get_database)
     )
 
 
-@router.get("/{user_id}", response_model=UserOut)
+@protected.get("/{user_id}", response_model=UserOut)
 async def get_user(
     user_id: str = Path(
         ...,
@@ -64,6 +67,10 @@ async def get_user(
     )
 
 
-@router.get("/", response_model=List[UserOut])
+@protected.get("/", response_model=List[UserOut])
 async def get_users(conn: Connection = Depends(get_database)):
     return (await r.table("users").without("password").run(conn)).items
+
+
+router.include_router(public)
+router.include_router(protected)

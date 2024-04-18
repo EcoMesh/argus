@@ -11,8 +11,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
-import { account } from 'src/_mock/account';
 import { currentUserAtom } from 'src/recoil/current-user';
+
+const mockPhotoURL = '/assets/images/avatars/avatar_25.jpg';
 
 // ----------------------------------------------------------------------
 
@@ -46,10 +47,16 @@ export default function AccountPopover() {
     setOpen(null);
   };
 
-  const handleLogout= () => {
+  const handleLogout = () => {
     setCurrentUser(null);
-    navigate("/login");
+    navigate('/login');
   };
+
+  console.log(currentUser);
+
+  if (!currentUser) {
+    return null;
+  }
 
   return (
     <>
@@ -66,15 +73,15 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={account.photoURL}
-          alt={account.displayName}
+          src={mockPhotoURL}
+          alt={currentUser.user.name}
           sx={{
             width: 36,
             height: 36,
             border: (theme) => `solid 2px ${theme.palette.background.default}`,
           }}
         >
-          {account.displayName.charAt(0).toUpperCase()}
+          {currentUser.user.name.charAt(0).toUpperCase()}
         </Avatar>
       </IconButton>
 
@@ -95,10 +102,10 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+            {currentUser.user.name}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
+            {currentUser.user.email}
           </Typography>
         </Box>
 

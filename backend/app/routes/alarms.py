@@ -4,10 +4,13 @@ import aiostream
 import rethinkdb.query as r
 from app import schema
 from app.database import Connection, get_database
+from app.security import get_current_user
 from app.worker import delineate_watershed_task
 from fastapi import APIRouter, Depends, HTTPException, Response
 
-router = APIRouter(prefix="/alarms", tags=["alarms"])
+router = APIRouter(
+    prefix="/alarms", tags=["alarms"], dependencies=[Depends(get_current_user)]
+)
 
 
 @router.get("/", response_model=List[schema.alarm.AlarmOut])

@@ -1,8 +1,8 @@
-import * as Yup from "yup";
+import * as Yup from 'yup';
 import { useState } from 'react';
-import { useFormik } from "formik";
-import { useRecoilState } from 'recoil';
-import { Link, useNavigate } from 'react-router-dom';
+import { useFormik } from 'formik';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -28,18 +28,17 @@ import Iconify from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 const validationSchema = Yup.object().shape({
-  email: Yup.string()
-    .required("Email is a required field")
-    .email("Invalid email format"),
+  email: Yup.string().required('Email is a required field').email('Invalid email format'),
   password: Yup.string()
-    .required("Password is a required field")
-    .min(8, "Password must be at least 8 characters"),
+    .required('Password is a required field')
+    .min(8, 'Password must be at least 8 characters'),
 });
 
 export default function LoginView() {
+  const [params] = useSearchParams();
   const theme = useTheme();
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useRecoilState(currentUserAtom);
+  const setCurrentUser = useSetRecoilState(currentUserAtom);
 
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -47,19 +46,22 @@ export default function LoginView() {
   const formik = useFormik({
     validationSchema,
     initialValues: {
-      email: '',
-      password: '',
+      email: 'noahcardoza@gmail.com',
+      password: '12345678',
     },
-  })
+  });
 
   const handleClick = async () => {
     try {
       const user = await userApi.login(formik.values);
       setCurrentUser(user);
-      console.log("success");
-      navigate("/");
-    }
-    catch (err) {
+      const redirect = params.get('redirect');
+      if (redirect) {
+        navigate(redirect);
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
       setErrorMessage(err.data.detail);
     }
   };
@@ -85,13 +87,14 @@ export default function LoginView() {
         />
       </Stack>
 
-      <LoadingButton sx={{ my: 3 }}
+      <LoadingButton
+        sx={{ my: 3 }}
         fullWidth
         size="large"
         type="submit"
         variant="contained"
         color="inherit"
-        disabled={!formik.dirty || !formik.isValid}
+        // disabled={!formik.dirty || !formik.isValid}
         onClick={handleClick}
       >
         Login
@@ -127,16 +130,19 @@ export default function LoginView() {
         >
           <Typography variant="h4">Sign In to EcoMesh</Typography>
 
-        {errorMessage && (
-          <Typography variant="subtitle2" sx={{ mt: 2, color: 'error.main' }}>
-            {errorMessage}
-          </Typography>
-        )}
-          
-          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 2, mb: 3 }}>
-            <Typography variant="body2">
-              Don’t have an account? 
+          {errorMessage && (
+            <Typography variant="subtitle2" sx={{ mt: 2, color: 'error.main' }}>
+              {errorMessage}
             </Typography>
+          )}
+
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ mt: 2, mb: 3 }}
+          >
+            <Typography variant="body2">Don’t have an account?</Typography>
             <Link to="/signup">
               <Button type="link">Get started</Button>
             </Link>
