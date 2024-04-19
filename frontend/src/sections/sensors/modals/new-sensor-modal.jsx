@@ -179,7 +179,6 @@ export const doMeshtasticWork = async ({
   wifiPsk = '',
   region: { channelPsk, id: regionId },
 } = {}) => {
-  console.log('doMeshtasticWork', isUplink, wifiSsid, wifiPsk);
   if (isUplink && (!wifiSsid || !wifiPsk)) {
     throw new Error('wifiSsid and wifiPsk are required for uplink nodes');
   }
@@ -187,13 +186,6 @@ export const doMeshtasticWork = async ({
   const connection = meshtasticClient.createSerialConnection();
 
   try {
-    // console.log(connection.events);
-    // Object.keys(connection.events).forEach((key) => {
-    //   connection.events[key].subscribe((p) => {
-    //     console.log('event', key, JSON.stringify(p));
-    //   });
-    // });
-
     if (connection.port === undefined) {
       await connection.connect({});
     }
@@ -262,7 +254,7 @@ export default function NewSensorModal({ open, handleClose }) {
         wifiPsk: values.wifiPsk,
         region,
       });
-      console.log(newSensorIn);
+
       innerHandleClose(newSensorIn);
     },
   });

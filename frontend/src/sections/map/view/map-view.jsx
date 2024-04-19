@@ -10,7 +10,6 @@ import { OpenTopoMapCurrentRegionContainer } from 'src/components/map';
 export function MapContainerContent() {
   const selectedRegion = useRecoilValue(currentRegionSelector);
   const selectedRegionSensors = useRecoilValue(currentRegionSensorsSelector);
-  console.log(selectedRegionSensors);
 
   return (
     <>

@@ -20,7 +20,6 @@ export const currentUserAtom = atom({
       }
 
       onSet((newCurrentUser) => {
-        console.log('setting new current user', newCurrentUser);
         localStorage.setItem('currentUser', JSON.stringify(newCurrentUser));
       });
     },

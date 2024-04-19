@@ -40,7 +40,6 @@ async function http(path, config) {
   if (!response.ok) {
     if (response.status === 401) {
       localStorage.removeItem('currentUser');
-
       window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
     }
     const error = new APIError({

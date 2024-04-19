@@ -71,7 +71,6 @@ export const useSendNotification = () =>
 
     try {
       const data = await api.sendNotification(notificationId, headers);
-      console.log('11', data);
       set(
         alarmNotificationHistoryAtom,
         produce((oldNotifications) => {

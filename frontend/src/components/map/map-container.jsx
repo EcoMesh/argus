@@ -67,7 +67,6 @@ function WrappedOpenTopoMapCurrentRegionContainer({ children, style, ...mapConta
   };
 
   const handleRefresh = () => {
-    console.log('refreshing sensors');
     refreshSensors();
   };
 

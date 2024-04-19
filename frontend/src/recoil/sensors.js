@@ -59,7 +59,7 @@ export const useCreateSensor = () =>
 export const useInitSensor = () =>
   useRecoilCallback(({ set, snapshot }) => async (sensorJwtIdentifier, { lat, lon }) => {
     const headers = await snapshot.getPromise(requestHeadersSelector); // TODO: store database in JWT token
-    
+
     const updatedSensor = await api.initSensor(sensorJwtIdentifier, { lat, lon }, headers);
     set(sensorsAtom, (oldSensors) => {
       // the user is not logged in

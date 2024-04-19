@@ -55,12 +55,14 @@ export default function LoginView() {
     try {
       const user = await userApi.login(formik.values);
       setCurrentUser(user);
-      const redirect = params.get('redirect');
-      if (redirect) {
-        navigate(redirect);
-      } else {
-        navigate('/');
-      }
+      setTimeout(() => {
+        const redirect = params.get('redirect');
+        if (redirect) {
+          navigate(redirect);
+        } else {
+          navigate('/');
+        }
+      }, 250);
     } catch (err) {
       setErrorMessage(err.data.detail);
     }

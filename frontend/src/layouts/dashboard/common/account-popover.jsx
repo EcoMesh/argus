@@ -52,8 +52,6 @@ export default function AccountPopover() {
     navigate('/login');
   };
 
-  console.log(currentUser);
-
   if (!currentUser) {
     return null;
   }

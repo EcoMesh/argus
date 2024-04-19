@@ -28,7 +28,6 @@ import Scrollbar from 'src/components/scrollbar';
 
 export default function AppRecentAlarmEvents({ showViewAll = true, sx }) {
   const recentAlarms = useRecoilValue(currentRegionRecentAlarmEventsSelector);
-  console.log(recentAlarms);
   return (
     <Card sx={sx}>
       <CardHeader title="Recent Alarm Events" subheader="Last 24 Hours" />

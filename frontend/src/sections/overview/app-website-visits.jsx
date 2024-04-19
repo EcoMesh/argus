@@ -60,7 +60,6 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      console.log(rawSensorReadings);
       const newReadings = await sensorReadingsApi.getSensorReadings(authHeaders, {
         since: rawSensorReadings.latest,
       });
