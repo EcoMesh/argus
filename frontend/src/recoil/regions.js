@@ -1,11 +1,8 @@
-import { recoilPersist } from 'recoil-persist';
 import { atom, selector, selectorFamily, useRecoilCallback } from 'recoil';
 
 import * as api from 'src/api/regions';
 
 import { requestHeadersSelector } from './current-user';
-
-const { persistAtom } = recoilPersist();
 
 export const regionsDefault = selector({
   key: 'regions/default',
@@ -59,7 +56,7 @@ export const currentRegionIdAtom = atom({
           }
         });
       }
-      console.log('setting onSet');
+
       onSet((newRegionId) => {
         console.log('newRegionId', newRegionId);
         localStorage.setItem('currentRegionId', newRegionId);
