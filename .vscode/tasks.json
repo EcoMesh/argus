@@ -1,0 +1,86 @@
+{
+  "version": "2.0.0",
+  "presentation": {
+    "echo": true,
+    "reveal": "always",
+    "focus": false,
+    "panel": "shared",
+    "showReuseMessage": true,
+    "clear": false
+  },
+  "tasks": [
+    {
+      "label": "Development Terminals",
+      "dependsOn": [
+        "Backend Server",
+        "Frontend Server",
+        "Celery Worker",
+        "Celery Beat",
+        "Docker Compose"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend Server",
+      "type": "shell",
+      "command": "poetry",
+      "args": ["run", "uvicorn", "app.fastapi:app", "--reload"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      }
+    },
+    {
+      "label": "Frontend Server",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["dev"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      }
+    },
+    {
+      "label": "Celery Worker",
+      "type": "shell",
+      "command": "poetry",
+      "args": [
+        "run",
+        "celery",
+        "--app",
+        "app.worker",
+        "worker",
+        "--loglevel=info"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      }
+    },
+    {
+      "label": "Celery Beat",
+      "type": "shell",
+      "command": "poetry",
+      "args": [
+        "run",
+        "celery",
+        "--app",
+        "app.worker",
+        "beat",
+        "-S",
+        "redisbeat.RedisScheduler",
+        "--loglevel=info",
+        "--max-interval=10"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      }
+    },
+    {
+      "label": "Docker Compose",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": ["up"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+  ]
+}
