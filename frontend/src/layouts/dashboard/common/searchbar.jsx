@@ -15,6 +15,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 
 import { bgBlur } from 'src/theme/css';
+import { isMac, isMobileOrTablet } from 'src/constants';
 
 import Iconify from 'src/components/iconify';
 
@@ -22,9 +23,6 @@ import Iconify from 'src/components/iconify';
 
 const HEADER_MOBILE = 64;
 const HEADER_DESKTOP = 92;
-
-// TODO: navigator.platform is deprecated, use navigator.userAgent instead
-const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 
 const keyboardShortcut = isMac ? '⌘ + /' : 'Ctrl + /';
 
@@ -193,7 +191,9 @@ export default function Searchbar() {
             <IconButton onClick={handleOpen}>
               <Iconify icon="eva:search-fill" />
             </IconButton>
-            <StyledKeyboardShortcutBox>{keyboardShortcut}</StyledKeyboardShortcutBox>
+            {!isMobileOrTablet && (
+              <StyledKeyboardShortcutBox>{keyboardShortcut}</StyledKeyboardShortcutBox>
+            )}
           </Stack>
         )}
 
