@@ -21,9 +21,11 @@ async def main():
                 await client.subscribe(MQTT_TOPIC)
                 logging.info('Subscribed "%s"', MQTT_TOPIC)
                 async for message in client.messages:
-                    logging.debug("Received message: %s", message)
+                    logging.debug(
+                        "Received message (%s): %s", message.topic.value, message
+                    )
                     try:
-                        if "/json/" in message.topic:
+                        if "/json/" in message.topic.value:
                             await handle_text_message(
                                 message.topic, message.payload.decode()
                             )
