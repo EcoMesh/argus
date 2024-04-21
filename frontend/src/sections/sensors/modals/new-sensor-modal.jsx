@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { Client, Protobuf } from '@meshtastic/js';
 
 import Switch from '@mui/material/Switch';
@@ -24,6 +24,8 @@ import { getFieldPropsWithHelpText } from 'src/utils/formik';
 
 import { getSensorConfigMqtt } from 'src/api/sensors';
 import { currentRegionSelector } from 'src/recoil/regions';
+import { requestHeadersSelector } from 'src/recoil/current-user';
+import { sensorsAtom } from 'src/recoil/sensors';
 
 const meshtasticClient = new Client();
 
@@ -174,6 +176,7 @@ const createMeshtasticConfig = ({
 });
 
 export const doMeshtasticWork = async ({
+  headers,
   isUplink = false,
   wifiSsid = '',
   wifiPsk = '',
@@ -201,7 +204,7 @@ export const doMeshtasticWork = async ({
     };
 
     if (isUplink) {
-      const mqttConfig = await getSensorConfigMqtt();
+      const mqttConfig = await getSensorConfigMqtt(headers);
       configurationSettings.mqttAddress = mqttConfig.host;
       configurationSettings.mqttUsername = mqttConfig.username;
       configurationSettings.mqttPassword = mqttConfig.password;
@@ -240,6 +243,9 @@ export const doMeshtasticWork = async ({
 };
 
 export default function NewSensorModal({ open, handleClose }) {
+  const headers = useRecoilValue(requestHeadersSelector);
+  const setSensors = useSetRecoilState(sensorsAtom);
+
   const formik = useFormik({
     initialValues: {
       isUplink: false,
@@ -249,6 +255,7 @@ export default function NewSensorModal({ open, handleClose }) {
     validationSchema,
     onSubmit: async (values) => {
       const newSensorIn = await doMeshtasticWork({
+        headers,
         isUplink: values.isUplink,
         wifiSsid: values.wifiSsid,
         wifiPsk: values.wifiPsk,
@@ -263,6 +270,8 @@ export default function NewSensorModal({ open, handleClose }) {
   const innerHandleClose = (values) => {
     formik.resetForm();
     handleClose(values);
+    console.log(values);
+    setSensors((oldSensors) => [...oldSensors, values]);
   };
 
   if (!region) {
