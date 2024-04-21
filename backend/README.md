@@ -104,3 +104,23 @@ of available tools, run the following command:
 ```sh
 poetry run python -m app --help
 ```
+
+## Database
+
+### Backup and Restore
+
+Before following the guide in this section, make sure you've installed RethinkDB on your machine.
+
+To create a backup of the database, run the following command:
+
+```sh
+rethinkdb dump
+```
+
+**Note**: the `-e` flag will allow you to select a specific database to dump.
+
+To restore a backup of the database, run the following command:
+
+```sh
+rethinkdb import "<backup-file>"
+```

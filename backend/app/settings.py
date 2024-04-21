@@ -10,9 +10,9 @@ class Settings(BaseSettings):
     rethinkdb_port: int = 28015
     rethinkdb_database: str = "test"
 
-    mqtt_host: str = lan_ip
-    mqtt_user: str = ""
-    mqtt_pass: str = ""
+    mqtt_host_external: str = lan_ip
+    mqtt_username: str
+    mqtt_password: str
 
     brevo_api_key: str
 

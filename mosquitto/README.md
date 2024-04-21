@@ -18,9 +18,20 @@ frontend.
   easier to use the virtual environments in this multi-root monorepo with
   VS Code.
 
-  ```sh
-  poetry config virtualenvs.in-project true
-  ```
+#### Create MQTT User/Password
+
+Create a user for the sensors to use when communicating with the Mosquitto
+server to use to connect to the MQTT server.
+
+```sh
+docker compose run mqtt -it mosquitto_passwd -c /mosquitto/config/passwd ecomesh
+```
+
+Make sure to use a strong password. When you are finished, update all
+MQTT_PASSWORD environment variables in .env files.
+
+If you change this password, any sensors already initiated will need to be
+reconfigured with the new password.
 
 ### Install dependencies
 
@@ -33,3 +44,8 @@ poetry install
 ```sh
 poetry run python -m app
 ```
+
+## TODO
+
+1. Explore reading Protobuf messages from MQTT and avoid using JSON to save
+   bandwidth. See [here](https://meshtastic.org/docs/software/integrations/mqtt/#protobufs-topic).
