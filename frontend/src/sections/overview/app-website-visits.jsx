@@ -36,6 +36,41 @@ const COLUMNS = [
   },
 ];
 
+const RESOLUTIONS = [
+  {
+    title: 'Raw',
+    value: 'raw',
+  },
+  {
+    title: '5 seconds',
+    value: 1000 * 5,
+  },
+  {
+    title: '1 minute',
+    value: 1000 * 60 * 1,
+  },
+  {
+    title: '5 minutes',
+    value: 1000 * 60 * 5,
+  },
+  {
+    title: '15 minutes',
+    value: 1000 * 60 * 15,
+  },
+  {
+    title: '30 minutes',
+    value: 1000 * 60 * 30,
+  },
+  {
+    title: '1 hour',
+    value: 1000 * 60 * 60,
+  },
+  {
+    title: '1 day',
+    value: 1000 * 60 * 60 * 24,
+  },
+];
+
 const COLUMN_TO_TOOLTIP_DATATYPE = {
   temperature: 'F',
   humidity: '%',
@@ -45,6 +80,7 @@ const COLUMN_TO_TOOLTIP_DATATYPE = {
 
 export default function AppRecentSensorReadings({ title, subheader, chart, ...other }) {
   const [column, setColumn] = useState(COLUMNS[3]);
+  const [resolution, setResolution] = useState('raw');
   const [rawSensorReadings, setRawSensorReadings] = useRecoilState(rawSensorReadingsAtom);
 
   const authHeaders = useRecoilValue(requestHeadersSelector);
@@ -54,7 +90,7 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
       startTime: rawSensorReadings.latest
         ? new Date(new Date(rawSensorReadings.latest).getTime() - 1000 * 60 * 60 * 24)
         : new Date(Date.now() - 1000 * 60 * 60 * 24),
-      resolution: 1000 * 60 * 15,
+      resolution: resolution === 'raw' ? undefined : resolution,
     })
   );
 
@@ -70,12 +106,15 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
           latest: newReadings.latest,
         }));
       }
-    }, 2000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [rawSensorReadings, setRawSensorReadings, authHeaders]);
 
   const chartOptions = useChart({
+    chart: {
+      id: `basic-bar${Math.random()}`, // ensures re-render for y formatting to stay reactive
+    },
     colors,
     plotOptions: {
       bar: {
@@ -110,19 +149,35 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
         title={`${column.title} Readings`}
         subheader="Last 24 Hours"
         action={
-          <TextField
-            label="Column"
-            select
-            size="small"
-            value={column.value}
-            onChange={(e) => setColumn(COLUMNS.find((c) => c.value === e.target.value))}
-          >
-            {COLUMNS.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.title}
-              </MenuItem>
-            ))}
-          </TextField>
+          <>
+            <TextField
+              label="Resolution"
+              select
+              size="small"
+              value={resolution}
+              onChange={(e) => setResolution(e.target.value)}
+              sx={{ mr: 1 }}
+            >
+              {RESOLUTIONS.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.title}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Column"
+              select
+              size="small"
+              value={column.value}
+              onChange={(e) => setColumn(COLUMNS.find((c) => c.value === e.target.value))}
+            >
+              {COLUMNS.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.title}
+                </MenuItem>
+              ))}
+            </TextField>
+          </>
         }
       />
 

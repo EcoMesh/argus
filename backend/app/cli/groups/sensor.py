@@ -123,7 +123,7 @@ app = typer.Typer(
 )
 
 
-class GeneratorTea:
+class GeneratorTee:
     def __init__(self, generator):
         self.generator = generator
         self.iterator = iter(generator)
@@ -223,7 +223,7 @@ def generate_rainfall_data(
             for node_id in node_ids
         ]
     )
-    tea = GeneratorTea(generator)
+    tee = GeneratorTee(generator)
 
     if to_db:
         with _get_database_sync() as conn:
@@ -240,7 +240,7 @@ def generate_rainfall_data(
                 initial_readings = [
                     reading._asdict()
                     for reading, _ in zip(
-                        tea,
+                        tee,
                         range(
                             (
                                 (TimeDelta.ONE_DAY + TimeDelta.TWELVE_HOURS)
@@ -263,7 +263,7 @@ def generate_rainfall_data(
                 logger.info("Speed set: %s", speed)
                 logger.info("Sleep time: %s", sleep_time)
                 logger.info("Readings per sleep: %s", readings_per_sleep)
-                iterator = iter(tea)
+                iterator = iter(tee)
                 while True:
                     readings = [
                         reading._asdict()
@@ -278,11 +278,11 @@ def generate_rainfall_data(
                     time.sleep(sleep_time)
             else:
                 r.table("sensor_readings").insert(
-                    reading._asdict() for reading in tea
+                    reading._asdict() for reading in tee
                 ).run(conn)
             if file:
                 with open(file, "w") as f:
-                    generator_to_csv(f, tea.repeat())
+                    generator_to_csv(f, tee.repeat())
     else:
         if file is None:
             file = sys.stdout
