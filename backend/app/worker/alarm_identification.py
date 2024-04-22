@@ -257,7 +257,7 @@ async def send_notification_on_sensor_state_start(
             )
 
             if not subscriber["interaction_required"]:
-                send_webhook_notification(notification_record)
+                await send_webhook_notification(notification_record)
 
 
 async def send_notification_on_sensor_state_end(
@@ -325,7 +325,7 @@ async def send_notification_on_sensor_state_end(
                 ).run(conn)
 
                 if not subscriber["interaction_required"]:
-                    send_webhook_notification(notification_record)
+                    await send_webhook_notification(notification_record)
 
 
 async def send_notification_on_alarm_state_start(conn, region, alarm, alarm_event_id):
@@ -374,7 +374,7 @@ async def send_notification_on_alarm_state_start(conn, region, alarm, alarm_even
                 ).run(conn)
 
                 if not subscriber["interaction_required"]:
-                    send_webhook_notification(notification_record)
+                    await send_webhook_notification(notification_record)
 
 
 async def send_notification_on_alarm_state_end(conn, region, alarm, alarm_event_id):
@@ -423,7 +423,7 @@ async def send_notification_on_alarm_state_end(conn, region, alarm, alarm_event_
                 ).run(conn)
 
                 if not subscriber["interaction_required"]:
-                    send_webhook_notification(notification_record)
+                    await send_webhook_notification(notification_record)
 
 
 async def cronjob():
