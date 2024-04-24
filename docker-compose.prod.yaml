@@ -1,24 +1,26 @@
 services:
   redis:
     image: redis:7
-    ports:
+    expose:
       - 6379:6379
   db:
     image: rethinkdb:2.4.3
     ports:
-      - 8080:8080
-      - 28015:28015
-      - 29015:29015
+      - 127.0.0.1:8080:8080
+      - 127.0.0.1:28015:28015
+      - 127.0.0.1:29015:29015
     volumes:
       - ./rethinkdb/data:/data
   mqtt:
     image: eclipse-mosquitto:2.0.18
-    ports:
+    expose:
       - 1883:1883
-      - 9001:9001
+        # - 9001:9001
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./mosquitto/data:/mosquitto/data
+    depends_on:
+      - redis
   mqtt_listener:
     build: ./mosquitto
     environment:
@@ -27,6 +29,8 @@ services:
       - MQTT_USERNAME=mosquitto
       - MQTT_PASSWORD=mosquitto
       - RETHINKDB_HOST=db
+    depends_on:
+      - mqtt 
   backend:
     build: ./backend
     environment:
@@ -34,6 +38,8 @@ services:
       - REDIS_DSN=redis://redis:6379/0
       - MQTT_HOST=mqtt
       - BREVO_API_KEY=your_api_key
+    expose:
+      - 80:80
   celery_worker:
     build: ./backend
     command: celery --app=app.worker worker -l INFO
@@ -52,14 +58,21 @@ services:
       - BREVO_API_KEY=your_api_key
   frontend:
     build: ./frontend
+    expose:
+      - 80:80
   caddy:
     image: caddy:2.7.6-alpine
     ports:
       - 0.0.0.0:80:80
+      - 0.0.0.0:443:443
+      - 0.0.0.0:443:443/udp
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./caddy_data:/data
-      - ./caddy_config:/config
+      - ./Caddyfile.prod:/etc/caddy/Caddyfile
+      - ./caddy_data_prod:/data
+      - ./caddy_config_prod:/config
     environment:
       - FRONTEND_HOST=frontend:80
       - BACKEND_HOST=backend:80
+    depends_on:
+      - frontend
+      - backend
