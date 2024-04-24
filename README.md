@@ -39,13 +39,11 @@ If you want an MyPHPAdmin-like interface to RethinkDB, install
 If you run into an EACCES error, refer to the
 [npm documentation](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally).
 
-````bash
-
 Then run the following command to start the chateau server:
 
 ```bash
 chateau
-````
+```
 
 Navigate to [`localhost:3000`](http://localhost:3000) in your web browser
 to access the chateau interface.
@@ -61,7 +59,7 @@ information.
 
 Alternatively, you can use the Python REPL:
 
-```bash
+```py
 from rethinkdb import r
 
 conn = r.connect()
