@@ -44,7 +44,7 @@ class SensorOut(NewSensorIn):
                 "regionId": self.region_id,
             }
         )
-        return f"{settings.base_url}/init?sensor={param}"
+        return f"/init?sensor={param}"
 
 
 # remember to keep in sync with /backend/app/schema/sensor.py
