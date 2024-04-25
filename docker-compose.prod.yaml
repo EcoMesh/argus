@@ -32,7 +32,7 @@ services:
       - MQTT_PASSWORD=${MQTT_PASSWORD}
       - RETHINKDB_HOST=db
     depends_on:
-      - mqtt 
+      - mqtt
   backend:
     build: ./backend
     environment:
@@ -40,6 +40,8 @@ services:
       - REDIS_DSN=redis://redis:6379/0
       - MQTT_HOST=mqtt
       - BREVO_API_KEY=${BREVO_API_KEY}
+      - WEBSERVER_PROTOCOL=${WEBSERVER_PROTOCOL}
+      - WEBSERVER_HOST=${WEBSERVER_HOST}
     expose:
       - 80:80
   celery_worker:
