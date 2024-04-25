@@ -34,7 +34,7 @@ services:
     depends_on:
       - mqtt
   backend:
-    build: ./backend
+    image: ghcr.io/noahcardoza/argus-backend:latest
     environment:
       - RETHINKDB_HOST=db
       - REDIS_DSN=redis://redis:6379/0
@@ -47,21 +47,32 @@ services:
     expose:
       - 80:80
   celery_worker:
-    build: ./backend
+    image: ghcr.io/noahcardoza/argus-backend:latest
     command: celery --app=app.worker worker -l INFO
+    volumes:
+      - ./raw-elevation-cache:/root/.cache/elevation
+      - ./elevation-cache:/app/.cache/elevation
     environment:
       - RETHINKDB_HOST=db
       - REDIS_DSN=redis://redis:6379/0
       - MQTT_HOST=mqtt
       - BREVO_API_KEY=${BREVO_API_KEY}
+      - WEBSERVER_PROTOCOL=${WEBSERVER_PROTOCOL}
+      - WEBSERVER_HOST=${WEBSERVER_HOST}
+      - MQTT_USERNAME=${MQTT_USERNAME}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
   celery_beat:
-    build: ./backend
+    image: ghcr.io/noahcardoza/argus-backend:latest
     command: celery --app=app.worker beat -S redisbeat.RedisScheduler -l INFO
     environment:
       - RETHINKDB_HOST=db
       - REDIS_DSN=redis://redis:6379/0
       - MQTT_HOST=mqtt
       - BREVO_API_KEY=${BREVO_API_KEY}
+      - WEBSERVER_PROTOCOL=${WEBSERVER_PROTOCOL}
+      - WEBSERVER_HOST=${WEBSERVER_HOST}
+      - MQTT_USERNAME=${MQTT_USERNAME}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
   frontend:
     build: ./frontend
     expose:

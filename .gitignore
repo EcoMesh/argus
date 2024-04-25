@@ -4,6 +4,7 @@
 
 frontend/.trunk
 backend/.trunk
+backend/elevation-cache
 
 .pytest_cache
 .venv
