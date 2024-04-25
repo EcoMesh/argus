@@ -7,22 +7,9 @@ import Box from '@mui/material/Box';
 import { IconButton } from '@mui/material';
 
 import { useRefreshSensors } from 'src/recoil/sensors';
-import { currentRegionSelector } from 'src/recoil/regions';
+import { regionByIdSelector, currentRegionSelector } from 'src/recoil/regions';
 
 import Iconify from 'src/components/iconify';
-
-// const selectedRegion = useRecoilValue(currentRegionSelector);
-//     const sensorsRefresher = useRecoilRefresher_UNSTABLE(sensorsAtom);
-
-//     const centerMapOnRegion = () => {
-//         if (!selectedRegion) return;
-//         mapRef.current?.fitBounds([
-//         [selectedRegion.bottomLeft.coordinates[1], selectedRegion.bottomLeft.coordinates[0]],
-//         [selectedRegion.topRight.coordinates[1], selectedRegion.topRight.coordinates[0]],
-//         ]);
-//     };
-
-//     useEffect(centerMapOnRegion, [selectedRegion]);
 
 function WrappedOpenTopoMapContainer({ children, ...mapContainerProps }, ref) {
   return (
@@ -45,16 +32,15 @@ WrappedOpenTopoMapContainer.propTypes = {
   style: PropTypes.object,
 };
 
-function WrappedOpenTopoMapCurrentRegionContainer({ children, style, ...mapContainerProps }, ref) {
-  const selectedRegion = useRecoilValue(currentRegionSelector);
+function WrappedOpenTopoMapRegionContainer({ children, region, style, ...mapContainerProps }, ref) {
   const refreshSensors = useRefreshSensors();
   const innerMapRef = useRef(null);
 
   const centerMapOnRegion = () => {
-    if (!selectedRegion) return;
+    if (!region) return;
     innerMapRef.current?.fitBounds([
-      [selectedRegion.bottomLeft.coordinates[1], selectedRegion.bottomLeft.coordinates[0]],
-      [selectedRegion.topRight.coordinates[1], selectedRegion.topRight.coordinates[0]],
+      [region.bottomLeft.coordinates[1], region.bottomLeft.coordinates[0]],
+      [region.topRight.coordinates[1], region.topRight.coordinates[0]],
     ]);
   };
 
@@ -70,7 +56,7 @@ function WrappedOpenTopoMapCurrentRegionContainer({ children, style, ...mapConta
     refreshSensors();
   };
 
-  useEffect(centerMapOnRegion, [selectedRegion]);
+  useEffect(centerMapOnRegion, [region]);
 
   return (
     <Box sx={{ position: 'relative' }} style={style}>
@@ -99,11 +85,27 @@ function WrappedOpenTopoMapCurrentRegionContainer({ children, style, ...mapConta
   );
 }
 
+export const OpenTopoMapRegionContainer = forwardRef(WrappedOpenTopoMapRegionContainer);
+
+function WrappedOpenTopoMapCurrentRegionContainer({ ...mapContainerProps }, ref) {
+  const region = useRecoilValue(currentRegionSelector);
+
+  return <OpenTopoMapRegionContainer ref={ref} region={region} {...mapContainerProps} />;
+}
+
 export const OpenTopoMapCurrentRegionContainer = forwardRef(
   WrappedOpenTopoMapCurrentRegionContainer
 );
 
 WrappedOpenTopoMapCurrentRegionContainer.propTypes = {
+  children: PropTypes.node,
+  zoom: PropTypes.number,
+  center: PropTypes.array,
+  style: PropTypes.object,
+};
+
+WrappedOpenTopoMapRegionContainer.propTypes = {
+  region: PropTypes.object,
   children: PropTypes.node,
   zoom: PropTypes.number,
   center: PropTypes.array,

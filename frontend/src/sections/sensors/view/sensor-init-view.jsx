@@ -17,12 +17,13 @@ import {
   Typography,
   FormControl,
   FormControlLabel,
+  TextField,
 } from '@mui/material';
 
 import { useInitSensor, sensorByIdSelector } from 'src/recoil/sensors';
 import { regionByIdSelector, currentRegionIdAtom } from 'src/recoil/regions';
 
-import { OpenTopoMapCurrentRegionContainer } from 'src/components/map';
+import { OpenTopoMapRegionContainer } from 'src/components/map';
 
 import { MapContainerContent } from 'src/sections/map/view/map-view';
 
@@ -67,6 +68,12 @@ export default function SensorInitPage() {
     } else {
       console.error('Geolocation is not supported by this browser.');
     }
+  };
+
+  const handleLocationPaste = (e) => {
+    const clipboardData = e.clipboardData.getData('Text');
+    const [lat, lon] = clipboardData.split(',').map((v) => parseFloat(v));
+    setUserLocation({ lat, lon });
   };
 
   const renderCardContents = () => {
@@ -129,32 +136,75 @@ export default function SensorInitPage() {
             <CircularProgress />
           </Box>
         ) : (
-          <Stack direction="row" justifyContent="space-between">
-            <Stack direction="column" spacing={2}>
-              <Typography variant="body1">
-                Latitude: <strong>{userLocation?.lat || 'N/A'}</strong>
-              </Typography>
-              <Typography variant="body1">
-                Longitude: <strong>{userLocation?.lon || 'N/A'}</strong>
-              </Typography>
+          <>
+            <Stack direction="row" justifyContent="space-between">
+              <Stack direction="column" spacing={2}>
+                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
+                  Latitude:{' '}
+                  {showMap ? (
+                    <TextField
+                      onPaste={handleLocationPaste}
+                      sx={{
+                        ml: 1,
+                      }}
+                      size="small"
+                      value={userLocation?.lat}
+                      onChange={(e) => {
+                        setUserLocation((prev) => ({
+                          ...prev,
+                          lat: parseFloat(e.target.value),
+                        }));
+                      }}
+                    />
+                  ) : (
+                    <strong>{userLocation?.lat || 'N/A'}</strong>
+                  )}
+                </Typography>
+                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
+                  Longitude:{' '}
+                  {showMap ? (
+                    <TextField
+                      sx={{
+                        ml: 1,
+                      }}
+                      size="small"
+                      value={userLocation?.lon}
+                      onChange={(e) => {
+                        setUserLocation((prev) => ({
+                          ...prev,
+                          lon: parseFloat(e.target.value),
+                        }));
+                      }}
+                    />
+                  ) : (
+                    <strong>{userLocation?.lon || 'N/A'}</strong>
+                  )}
+                </Typography>
+              </Stack>
+              <Box>
+                <Button
+                  variant="contained"
+                  size="small"
+                  disabled={showMap}
+                  onClick={() => {
+                    setUserLocation(null);
+                    // keeps animation form flashing
+                    setTimeout(() => {
+                      getUserLocation();
+                    }, 500);
+                  }}
+                >
+                  Refresh
+                </Button>
+              </Box>
             </Stack>
-            <Box>
-              <Button
-                variant="contained"
-                size="small"
-                disabled={showMap}
-                onClick={() => {
-                  setUserLocation(null);
-                  // keeps animation form flashing
-                  setTimeout(() => {
-                    getUserLocation();
-                  }, 500);
-                }}
-              >
-                Refresh
-              </Button>
-            </Box>
-          </Stack>
+            {showMap && (
+              <Typography variant="body1">
+                Pasting &quot;latitude, longitude&quot; into the latitude field will automatically
+                update the longitude field.
+              </Typography>
+            )}
+          </>
         )}
         <Stack direction="row" justifyContent="space-between">
           <FormControl>
@@ -164,7 +214,7 @@ export default function SensorInitPage() {
               checked={!showMap}
               onChange={(e) => {
                 setShowMap((v) => !v);
-                setCurrentRegionId(sensorRegion?.id);
+                // setCurrentRegionId(sensorRegion?.id);
               }}
             />
           </FormControl>
@@ -188,7 +238,8 @@ export default function SensorInitPage() {
           )}
         </Stack>
         {showMap && (
-          <OpenTopoMapCurrentRegionContainer
+          <OpenTopoMapRegionContainer
+            region={sensorRegion}
             zoom={13}
             center={[userLocation?.lat || 0, userLocation?.lon || 0]}
             style={{ height: '300px', width: '100%' }}
@@ -225,7 +276,7 @@ export default function SensorInitPage() {
               />
               <Marker ref={markerRef} position={[userLocation?.lat || 0, userLocation?.lon || 0]} />
             </FeatureGroup>
-          </OpenTopoMapCurrentRegionContainer>
+          </OpenTopoMapRegionContainer>
         )}
         <Button
           variant="contained"
