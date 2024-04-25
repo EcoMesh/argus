@@ -35,5 +35,6 @@ export default defineConfig({
   },
   preview: {
     port: 3030,
+    host: true // Ensures docker can reach the local dev server
   },
 });
