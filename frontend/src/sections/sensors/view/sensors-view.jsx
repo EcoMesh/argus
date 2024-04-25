@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -26,7 +26,7 @@ import NewSensorModal from '../modals/new-sensor-modal';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
 export default function SensorsPage() {
-  const sensors = useRecoilValue(currentRegionSensorsSelector);
+  const [sensors, setSensors] = useRecoilState(currentRegionSensorsSelector);
   const createSensor = useCreateSensor();
   const [page, setPage] = useState(0);
 
@@ -104,10 +104,11 @@ export default function SensorsPage() {
   const handleNewSensorModalClose = async (newSensorIn) => {
     setNewSensorModalOpen(false);
 
-    if (!newSensorIn) return;
+    if (newSensorIn === null) return;
 
     const newSensorOut = await createSensor(newSensorIn);
     setRecentlyCreatedSensor(newSensorOut);
+    setSensors((oldSensors) => [...oldSensors, newSensorOut]);
   };
   return (
     <Container>

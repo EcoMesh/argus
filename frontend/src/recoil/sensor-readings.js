@@ -1,6 +1,6 @@
 import { produce } from 'immer';
 import { atom, selector, selectorFamily } from 'recoil';
-import { groupBy as _groupBy, mapValues as _mapValues } from 'lodash';
+import { groupBy as _groupBy, mapValues as _mapValues, round as _round } from 'lodash';
 
 import * as api from 'src/api/sensor-readings';
 import { currentRegionSensorsSelector } from 'src/recoil/sensors';
@@ -130,7 +130,7 @@ export const currentRegionSensorReadingsChartSelector = selectorFamily({
           type: 'area',
           data: reading.values.map((r) => ({
             x: r.timestamp,
-            y: r[column],
+            y: _round(r[column], 2),
           })),
         })),
         xaxis: {

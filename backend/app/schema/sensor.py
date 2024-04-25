@@ -30,7 +30,6 @@ class InitSensorIn(BaseSchema):
 
 class SensorOut(NewSensorIn):
     id: str
-    # initialization_url: str
     location: Optional[GeoJsonPoint] = None
     watershed: Optional[GeoJsonPolygon] = None
 
@@ -44,7 +43,7 @@ class SensorOut(NewSensorIn):
                 "regionId": self.region_id,
             }
         )
-        return f"{settings.base_url}/init?sensor={param}"
+        return f"{settings.webserver_protocol}://{settings.webserver_host}/init?sensor={param}"
 
 
 # remember to keep in sync with /backend/app/schema/sensor.py

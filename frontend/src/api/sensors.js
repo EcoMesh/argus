@@ -26,6 +26,6 @@ const sensorConfigMqttSchema = Yup.object().shape({
   useEncryption: Yup.boolean().required('Use Encryption is required'),
 });
 
-export async function getSensorConfigMqtt() {
-  return sensorConfigMqttSchema.validate(await get('/sensors/config/mqtt'));
+export async function getSensorConfigMqtt(headers = {}) {
+  return sensorConfigMqttSchema.validate(await get('/sensors/config/mqtt', { headers }));
 }

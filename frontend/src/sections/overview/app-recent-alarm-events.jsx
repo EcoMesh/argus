@@ -20,14 +20,14 @@ import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 
 import { fToNow, fDateTime } from 'src/utils/format-time';
 
-import { currentRegionRecentAlarmEventsSelector } from 'src/recoil/alarms';
+import { currentRegionAlarmEventsSelector } from 'src/recoil/alarms';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 // ----------------------------------------------------------------------
 
 export default function AppRecentAlarmEvents({ showViewAll = true, sx }) {
-  const recentAlarms = useRecoilValue(currentRegionRecentAlarmEventsSelector);
+  const recentAlarms = useRecoilValue(currentRegionAlarmEventsSelector);
   return (
     <Card sx={sx}>
       <CardHeader title="Recent Alarm Events" subheader="Last 24 Hours" />

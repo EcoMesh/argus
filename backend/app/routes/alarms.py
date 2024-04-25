@@ -1,5 +1,7 @@
+import logging
 from typing import List
 
+import aiohttp
 import aiostream
 import rethinkdb.query as r
 from app import schema
@@ -8,6 +10,7 @@ from app.security import get_current_user
 from app.worker import delineate_watershed_task
 from fastapi import APIRouter, Depends, HTTPException, Response
 
+logger = logging.getLogger(__name__)
 router = APIRouter(
     prefix="/alarms", tags=["alarms"], dependencies=[Depends(get_current_user)]
 )
@@ -102,8 +105,25 @@ async def send_notification(
     notification = (
         await r.table("alarm_notification_history").get(notification_id).run(conn)
     )
+
     if notification is None:
         raise HTTPException(status_code=404, detail="Notification not found")
+
+    if notification["sent"]:
+        raise HTTPException(status_code=400, detail="Notification already sent")
+
+    if notification["type"] == "webhook":
+        try:
+            async with aiohttp.ClientSession() as session:
+                await session.post(
+                    notification["value"],
+                    json=notification["payload"],
+                )
+        except Exception as e:
+            logger.exception("Failed to send webhook notification")
+            raise HTTPException(status_code=500, detail=str(e))
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported notification type")
 
     res = (
         await r.table("alarm_notification_history")
@@ -111,7 +131,7 @@ async def send_notification(
         .update({"sent": True, "awaiting_interaction": False})
         .run(conn, return_changes=True)
     )
-    print("res", res)
+
     return res["changes"][0]["new_val"]
 
 

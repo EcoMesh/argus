@@ -6,17 +6,18 @@ lan_ip = get_lan_ip()
 
 
 class Settings(BaseSettings):
+    webserver_protocol: str = "http"
+    webserver_host: str = lan_ip
+
     rethinkdb_host: str = "localhost"
     rethinkdb_port: int = 28015
     rethinkdb_database: str = "test"
 
-    mqtt_host: str = lan_ip
-    mqtt_user: str = ""
-    mqtt_pass: str = ""
+    mqtt_host_external: str = lan_ip
+    mqtt_username: str
+    mqtt_password: str
 
     brevo_api_key: str
-
-    base_url: str = f"http://{lan_ip}"
 
     redis_dsn: RedisDsn = RedisDsn("redis://localhost:6379/0")
 

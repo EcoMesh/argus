@@ -55,7 +55,7 @@ export const currentRegionNotificationHistorySelector = selector({
   },
 });
 
-export const currentRegionRecentAlarmEventsSelector = selector({
+export const currentRegionAlarmEventsSelector = selector({
   key: 'selectedRegionRecentAlarmEvents',
   get: ({ get }) => {
     const alarms = get(currentRegionAlarmsAtom);

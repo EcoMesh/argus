@@ -6,6 +6,6 @@ RETHINKDB_DB = environ.get("RETHINKDB_DB", "test")
 
 MQTT_HOST = environ.get("MQTT_HOST", "localhost")
 MQTT_PORT = int(environ.get("MQTT_PORT", 1883))
-MQTT_USER = environ.get("MQTT_USER", None)
-MQTT_PASS = environ.get("MQTT_PASS", None)
+MQTT_USERNAME = environ.get("MQTT_USERNAME", None)
+MQTT_PASSWORD = environ.get("MQTT_PASSWORD", None)
 MQTT_TOPIC = environ.get("MQTT_TOPIC", "msh/2/json/#")

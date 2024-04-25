@@ -83,9 +83,9 @@ async def delete_sensor(sensor_id: str, conn: Connection = Depends(get_database)
 @protected.get("/config/mqtt", response_model=schema.sensor.MqttConfig)
 async def get_mqtt_config():
     return schema.sensor.MqttConfig(
-        host=settings.mqtt_host,
-        username=settings.mqtt_user,
-        password=settings.mqtt_pass,
+        host=settings.mqtt_host_external,
+        username=settings.mqtt_username,
+        password=settings.mqtt_password,
         use_tls=False,
         use_encryption=False,
     )
