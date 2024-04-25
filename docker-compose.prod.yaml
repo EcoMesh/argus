@@ -42,6 +42,8 @@ services:
       - BREVO_API_KEY=${BREVO_API_KEY}
       - WEBSERVER_PROTOCOL=${WEBSERVER_PROTOCOL}
       - WEBSERVER_HOST=${WEBSERVER_HOST}
+      - MQTT_USERNAME=${MQTT_USERNAME}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
     expose:
       - 80:80
   celery_worker:
