@@ -6,6 +6,9 @@ lan_ip = get_lan_ip()
 
 
 class Settings(BaseSettings):
+    webserver_protocol: str = "http"
+    webserver_host: str = lan_ip
+
     rethinkdb_host: str = "localhost"
     rethinkdb_port: int = 28015
     rethinkdb_database: str = "test"
