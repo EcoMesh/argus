@@ -1,2 +1,11 @@
 /* scrollbar */
 @import 'simplebar-react/dist/simplebar.min.css';
+
+.leaflet-div-icon {
+    background: transparent;
+    border: none;
+}
+
+path.leaflet-interactive {
+    cursor: unset;
+}

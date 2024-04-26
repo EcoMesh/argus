@@ -19,6 +19,18 @@ import SensorQrModal from './modals/sensor-qr-modal';
 
 // ----------------------------------------------------------------------
 
+export function SensorStatusLabel({ sensor, ...props }) {
+  return sensor.location ? (
+    <Label {...props} color="success">Online</Label>
+  ) : (
+    <Label {...props}  color="error">Offline</Label>
+  )
+}
+
+SensorStatusLabel.propTypes = {
+  sensor: PropTypes.object,
+};
+
 export default function SensorTableRow({ sensor, selected, handleClick }) {
   const [open, setOpen] = useState(null);
   const deleteSensor = useDeleteSensor();
@@ -54,11 +66,7 @@ export default function SensorTableRow({ sensor, selected, handleClick }) {
         <TableCell align="center">{sensor.uplink ? 'Yes' : 'No'}</TableCell>
 
         <TableCell>
-          {sensor.location ? (
-            <Label color="success">Online</Label>
-          ) : (
-            <Label color="error">Offline</Label>
-          )}
+          <SensorStatusLabel sensor={sensor} />
         </TableCell>
 
         <TableCell align="right">
