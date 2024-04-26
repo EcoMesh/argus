@@ -1,5 +1,6 @@
 import { useRecoilValue } from 'recoil';
 
+import { colors } from '@mui/material';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
@@ -7,6 +8,8 @@ import Typography from '@mui/material/Typography';
 import { currentRegionSensorsSelector } from 'src/recoil/sensors';
 import { currentRegionSensorReadingsSelector } from 'src/recoil/sensor-readings';
 import { currentRegionAlarmsAtom, currentRegionAlarmEventsSelector } from 'src/recoil/alarms';
+
+import Iconify from 'src/components/iconify/iconify';
 
 import AppCurrentVisits from '../app-current-visits';
 import AppWidgetSummary from '../app-widget-summary';
@@ -34,7 +37,8 @@ export default function AppView() {
             title="Sensors"
             total={currentRegionSensors.length || 0}
             color="success"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
+            path='/sensors'
+            icon={<Iconify color={colors.teal.A700} icon="ic:round-sensors" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
         </Grid>
 
@@ -43,7 +47,8 @@ export default function AppView() {
             title="Alarms"
             total={currentRegionAlarms.length || 0}
             color="info"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
+            path='/alarms'
+            icon={<Iconify color={colors.indigo.A200} icon="ic:round-notifications" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
           />
         </Grid>
 
@@ -52,7 +57,7 @@ export default function AppView() {
             title="Readings"
             total={sensorReadings.length}
             color="warning"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
+            icon={<Iconify color={colors.amber[500]} icon="gis:measure-line" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
         </Grid>
 
@@ -61,6 +66,7 @@ export default function AppView() {
             title="Alarm Events"
             total={currentRegionAlarmEvents.length}
             color="error"
+            path='/alarms'
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
           />
         </Grid>
@@ -74,7 +80,7 @@ export default function AppView() {
         </Grid>
 
         <Grid xs={12} md={6} lg={8}>
-          <RecentNotifications />
+          <RecentNotifications sx={{ pb: 3 }} />
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>

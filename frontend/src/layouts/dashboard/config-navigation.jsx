@@ -1,3 +1,4 @@
+import Iconify from 'src/components/iconify';
 import SvgColor from 'src/components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -20,7 +21,7 @@ const navConfig = [
   {
     title: 'alarms',
     path: '/alarms',
-    icon: icon('ic_user'),
+    icon: <Iconify icon="ic:round-notifications" width={24}/>,
   },
   // {
   //   title: 'product',
@@ -30,12 +31,12 @@ const navConfig = [
   {
     title: 'sensors',
     path: '/sensors',
-    icon: icon('ic_cart'),
+    icon: <Iconify icon="ic:round-sensors" width={24}/>,
   },
   {
     title: 'map',
     path: '/map',
-    icon: icon('ic_blog'),
+    icon: <Iconify icon="mdi:map" width={24}/>,
   },
   // {
   //   title: 'login',
