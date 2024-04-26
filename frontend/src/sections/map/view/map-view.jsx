@@ -190,7 +190,7 @@ function MapUI() {
     <MapContainerContent mapMode={mode} />
     <div style={{position: 'absolute', minWidth: 200, height: '100%', pointerEvents: 'none', zIndex: 1000}}>
       <div style={{pointerEvents: 'auto', position: 'relative', top: 85, marginLeft: 10}}>
-      <Accordion sx={{ overflow: 'hidden' }} defaultExpanded>
+      <Accordion sx={{ overflow: 'hidden', boxShadow: 5 }} defaultExpanded>
         <AccordionSummaryEx>
           <Typography variant='h5'><Layers sx={{ marginRight: 2, verticalAlign: 'text-top' }} /> Layers</Typography>
         </AccordionSummaryEx>

@@ -72,6 +72,10 @@ function WrappedOpenTopoMapRegionContainer({ children, region, style, ...mapCont
           right: 10,
           zIndex: 1000,
           backgroundColor: 'white',
+          '&:hover': {
+            backgroundColor: '#f0f0f0',
+          },
+          boxShadow: 5,
         }}
       >
         <Iconify icon="mdi:refresh" />
