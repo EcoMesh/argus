@@ -49,6 +49,8 @@ function WrappedOpenTopoMapRegionContainer({ children, region, style, ...mapCont
     if (ref) {
       ref.current = instance;
     }
+    if (instance) // disable ukraine
+      instance.attributionControl.setPrefix('')
     centerMapOnRegion();
   };
 
@@ -56,7 +58,7 @@ function WrappedOpenTopoMapRegionContainer({ children, region, style, ...mapCont
     refreshSensors();
   };
 
-  useEffect(centerMapOnRegion, [region]);
+  // useEffect(centerMapOnRegion, [region]);
 
   return (
     <Box sx={{ position: 'relative' }} style={style}>
