@@ -69,22 +69,22 @@ const StyledKeyboardShortcutBox = styled('div')(({ theme }) => ({
 const SEARCH_ITEMS = [
   {
     title: 'Dashboard',
-    icon: 'eva:home-outline',
+    icon: 'ic:outline-home',
     to: '/',
   },
   {
     title: 'Alarms',
-    icon: 'eva:alert-circle-outline',
+    icon: 'ic:outline-notifications',
     to: '/alarms',
   },
   {
     title: 'Sensors',
-    icon: 'eva:activity-outline',
+    icon: 'ic:baseline-sensors',
     to: '/sensors',
   },
   {
     title: 'Map',
-    icon: 'eva:map-outline',
+    icon: 'solar:point-on-map-linear',
     to: '/map',
   },
 ];

@@ -57,7 +57,7 @@ export default function AppView() {
             title="Readings"
             total={sensorReadings.length}
             color="warning"
-            icon={<Iconify color={colors.amber[500]} icon="gis:measure-line" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
+            icon={<Iconify color={colors.amber[500]} icon="eva:activity-outline" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
         </Grid>
 
