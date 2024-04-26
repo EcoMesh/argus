@@ -48,7 +48,7 @@ export default function SensorQrModal({ open, handleClose, sensor }) {
     // Ensure we always use the same host so that the user
     // doesn't have to re-login (e.g. on localhost vs. the docker IP).
     // This isn't done for the QR-code because it may be used cross-network.
-    let url = new URL(sensor.initializationUrl);
+    const url = new URL(sensor.initializationUrl);
     url.host = window.location.host;
     url.protocol = window.location.protocol;
     window.open(url, '_blank');
