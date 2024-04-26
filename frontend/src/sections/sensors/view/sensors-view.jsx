@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import { useRecoilState } from 'recoil';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -41,6 +42,18 @@ export default function SensorsPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const [recentlyCreatedSensor, setRecentlyCreatedSensor] = useState(null);
+
+  const location = useLocation();
+
+  // select the sensor if its ID is in the url hash
+  useEffect(() => {
+    if (!location.hash) return;
+    const nodeId = location.hash.slice(1);
+    const sensor = sensors.find((s) => s.nodeId === nodeId);
+    if (sensor && !selected.includes(sensor.id))
+      setSelected([...selected, sensor.id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.hash])
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
