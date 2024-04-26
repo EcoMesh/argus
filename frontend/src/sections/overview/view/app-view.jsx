@@ -73,17 +73,13 @@ export default function AppView() {
 
         <Grid xs={12} md={6} lg={8}>
           <AppRecentSensorReadings />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppRecentAlarmEvents />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
+          <div style={{ height: 24 }} />
           <RecentNotifications sx={{ pb: 3 }} />
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
+          <AppRecentAlarmEvents />
+          <div style={{ height: 24 }} />
           <AppCurrentVisits
             title="Sensor Status"
             chart={{
@@ -94,6 +90,7 @@ export default function AppView() {
               ],
             }}
           />
+
         </Grid>
       </Grid>
     </Container>

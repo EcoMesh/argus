@@ -59,7 +59,6 @@ const Chart = styled(ApexChart)(({ theme }) => ({
     },
     '& .apexcharts-legend-text': {
       lineHeight: '18px',
-      textTransform: 'capitalize',
     },
   },
 }));

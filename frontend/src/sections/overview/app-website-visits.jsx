@@ -156,7 +156,7 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
               size="small"
               value={resolution}
               onChange={(e) => setResolution(e.target.value)}
-              sx={{ mr: 1 }}
+              sx={{ mr: 2, minWidth: 150 }}
             >
               {RESOLUTIONS.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -169,6 +169,7 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
               select
               size="small"
               value={column.value}
+              sx={{ minWidth: 180 }}
               onChange={(e) => setColumn(COLUMNS.find((c) => c.value === e.target.value))}
             >
               {COLUMNS.map((option) => (
