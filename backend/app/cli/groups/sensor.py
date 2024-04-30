@@ -15,6 +15,8 @@ import typer
 from app.constants import TZ, TimeDelta
 from app.database import _get_database_sync
 from app.schema.sensor import SensorReading
+from app.schema.user import User
+from app.security import create_access_token
 from typer import Option
 
 from rethinkdb import query as r
@@ -290,3 +292,66 @@ def generate_rainfall_data(
             file = open(file, "w")
         generator_to_csv(file, generator)
         file.close()
+
+
+def generate_random_id(length=8):
+    characters = string.ascii_letters + string.digits
+    return "".join(random.choice(characters) for _ in range(length))
+
+
+import requests
+
+
+@app.command()
+def load_sensors_from_csv(
+    file: Annotated[str, Option(help="The file to load sensor data from.")],
+    region_id: Annotated[str, Option(help="The region ID to assign to the sensors.")],
+):
+    """Load sensor locations from a CSV file and write it to the database."""
+    with open(file, "r") as f:
+        reader = csv.DictReader(f)
+
+        rows = list(reader)
+
+        sensors = [
+            {
+                "node_id": row["node_id"],
+                "uplink": bool(int(row["is_uplink"])),
+                "nickname": row["name"],
+                "mac_address": generate_random_id(),
+                "region_id": region_id,
+            }
+            for row in rows
+        ]
+
+        sensor_inits = [
+            {
+                "lat": float(row["lat"]),
+                "lon": float(row["lon"]),
+            }
+            for row in rows
+        ]
+
+        access_token = create_access_token(User(
+            id="1",
+            name="Admin",
+            email="admin@ecomesh.bio",
+            password="password"
+        ))
+
+        s = requests.Session()
+        s.headers.update({"Authorization": f"Bearer {access_token}"})
+
+        sensors = [
+            s.post("http://localhost/api/sensors/", json=sensor).json()
+            for sensor in sensors
+        ]
+
+        print(sensors)
+
+        for sensor_init, sensor in zip(sensor_inits, sensors):
+            r = s.post(
+                f'http://localhost/api/sensors/{sensor["initializationUrl"].rsplit('=', 1)[1]}/init', json=sensor_init
+            )
+
+            print(r.json())

@@ -21,6 +21,7 @@ class NewSensorIn(BaseSchema):
     uplink: bool
     mac_address: Optional[str] = None  # TODO: make required
     region_id: str
+    nickname: Optional[str] = None
 
 
 class InitSensorIn(BaseSchema):
