@@ -79,3 +79,18 @@ export const useDeleteSensor = () =>
     await api.deleteSensor(sensorId, headers);
     set(sensorsAtom, (oldSensors) => oldSensors.filter((sensor) => sensor.id !== sensorId));
   });
+
+export const usePutSensor = () =>
+  useRecoilCallback(({ set, snapshot }) => async (sensorId, data) => {
+    const headers = await snapshot.getPromise(requestHeadersSelector);
+    const updatedSensor = await api.putSensor(sensorId, data, headers);
+
+    set(sensorsAtom, (oldSensors) => {
+      const index = oldSensors.findIndex((s) => s.id === updatedSensor.id);
+      return produce(oldSensors, (draft) => {
+        draft[index] = updatedSensor;
+      });
+    });
+
+    return updatedSensor;
+  });

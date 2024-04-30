@@ -91,5 +91,17 @@ async def get_mqtt_config():
     )
 
 
+@protected.put("/{sensor_id}", response_model=schema.sensor.SensorOut)
+async def update_sensor(
+    sensor_id: str,
+    sensor: schema.sensor.UpdateSensorIn,
+    conn: Connection = Depends(get_database),
+):
+    res = await r.table("sensors").get(sensor_id).update(sensor.model_dump()).run(conn)
+    if res["replaced"] == 0:
+        raise HTTPException(status_code=404, detail="Sensor not found")
+    return await r.table("sensors").get(sensor_id).run(conn)
+
+
 router.include_router(protected)
 router.include_router(public)

@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-import { get, post, remove } from './fetch';
+import { get, post, put, remove } from './fetch';
 
 export async function createSensor(data, headers = {}) {
   return post('/sensors/', data, { headers });
@@ -16,6 +16,10 @@ export function getSensors(headers = {}) {
 
 export function deleteSensor(id, headers = {}) {
   return remove(`/sensors/${id}`, { headers });
+}
+
+export function putSensor(sensorId, data, headers = {}) {
+  return put(`/sensors/${sensorId}`, data, { headers });
 }
 
 const sensorConfigMqttSchema = Yup.object().shape({

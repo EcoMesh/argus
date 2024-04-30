@@ -50,10 +50,9 @@ export default function SensorsPage() {
     if (!location.hash) return;
     const nodeId = location.hash.slice(1);
     const sensor = sensors.find((s) => s.nodeId === nodeId);
-    if (sensor && !selected.includes(sensor.id))
-      setSelected([...selected, sensor.id]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.hash])
+    if (sensor && !selected.includes(sensor.id)) setSelected([...selected, sensor.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.hash]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -164,6 +163,7 @@ export default function SensorsPage() {
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'nodeId', label: 'Node ID' },
+                  { id: 'nickname', label: 'Nickname' },
                   { id: 'lat', label: 'Latitude' },
                   { id: 'lon', label: 'Longitude' },
                   { id: 'uplink', label: 'Uplink', align: 'center' },

@@ -16,15 +16,20 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 import SensorQrModal from './modals/sensor-qr-modal';
+import SensorEditNicknameModal from './modals/edit-nickname-modal';
 
 // ----------------------------------------------------------------------
 
 export function SensorStatusLabel({ sensor, ...props }) {
   return sensor.location ? (
-    <Label {...props} color="success">Online</Label>
+    <Label {...props} color="success">
+      Online
+    </Label>
   ) : (
-    <Label {...props}  color="error">Offline</Label>
-  )
+    <Label {...props} color="error">
+      Offline
+    </Label>
+  );
 }
 
 SensorStatusLabel.propTypes = {
@@ -36,6 +41,7 @@ export default function SensorTableRow({ sensor, selected, handleClick }) {
   const deleteSensor = useDeleteSensor();
 
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showEditNicknameModal, setShowEditNicknameModal] = useState(false);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -53,12 +59,11 @@ export default function SensorTableRow({ sensor, selected, handleClick }) {
         </TableCell>
 
         <TableCell component="th" scope="row" padding="none">
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Typography variant="subtitle2" noWrap>
-              {sensor.nodeId}
-            </Typography>
-          </Stack>
+          <Typography variant="subtitle2" noWrap>
+            {sensor.nodeId}
+          </Typography>
         </TableCell>
+        <TableCell>{sensor.nickname || 'N/A'}</TableCell>
         <TableCell>{sensor.location?.coordinates?.[0] || 'N/A'}</TableCell>
 
         <TableCell>{sensor.location?.coordinates?.[1] || 'N/A'}</TableCell>
@@ -88,6 +93,16 @@ export default function SensorTableRow({ sensor, selected, handleClick }) {
       >
         <MenuItem
           onClick={() => {
+            setShowEditNicknameModal(true);
+            handleCloseMenu();
+          }}
+        >
+          <Iconify icon="eva:edit-outline" sx={{ mr: 2 }} />
+          Nickname
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
             setShowQrModal(true);
             handleCloseMenu();
           }}
@@ -109,6 +124,11 @@ export default function SensorTableRow({ sensor, selected, handleClick }) {
       </Popover>
 
       <SensorQrModal open={showQrModal} handleClose={() => setShowQrModal(false)} sensor={sensor} />
+      <SensorEditNicknameModal
+        open={showEditNicknameModal}
+        handleClose={() => setShowEditNicknameModal(false)}
+        sensor={sensor}
+      />
     </>
   );
 }

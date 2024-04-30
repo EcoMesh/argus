@@ -87,3 +87,7 @@ class SensorReadingOut(BaseSchema):
 class SensorReadingsOut(BaseSchema):
     readings: list[SensorReadingOut]
     latest: Optional[datetime]
+
+
+class UpdateSensorIn(BaseSchema):
+    nickname: Optional[str] = None
