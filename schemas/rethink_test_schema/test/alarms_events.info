@@ -1,0 +1,29 @@
+{
+  "db": {
+    "id": "ec6bb94f-46b6-4460-93d4-accffba69c2a",
+    "name": "test",
+    "type": "DB"
+  },
+  "doc_count_estimates": [
+    12
+  ],
+  "id": "a069f81f-61fe-4b83-ac5e-fd456b0545a3",
+  "indexes": [
+    {
+      "function": {
+        "$reql_type$": "BINARY",
+        "data": "JHJlcWxfaW5kZXhfZnVuY3Rpb24kCQcHBwAAAAAAAAHt/////////y0AAABbMzEsW1sxMCxbWzEs\r\nLTE5LDBdXSwwXSxbMSwiYWxhcm1faWQiLDBdXSwwXQAAAAAAAAA="
+      },
+      "geo": false,
+      "index": "alarm_id",
+      "multi": false,
+      "outdated": false,
+      "query": "indexCreate('alarm_id', function(_var19) { return _var19.getField(\"alarm_id\"); })",
+      "ready": true
+    }
+  ],
+  "name": "alarms_events",
+  "primary_key": "id",
+  "type": "TABLE",
+  "write_hook": null
+}

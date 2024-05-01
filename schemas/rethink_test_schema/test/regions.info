@@ -1,0 +1,16 @@
+{
+  "db": {
+    "id": "ec6bb94f-46b6-4460-93d4-accffba69c2a",
+    "name": "test",
+    "type": "DB"
+  },
+  "doc_count_estimates": [
+    4
+  ],
+  "id": "b78f3936-1ad5-4e65-8a3e-10378afe3991",
+  "indexes": [],
+  "name": "regions",
+  "primary_key": "id",
+  "type": "TABLE",
+  "write_hook": null
+}

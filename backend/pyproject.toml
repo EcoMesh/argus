@@ -9,7 +9,6 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.11"
 fastapi = { extras = ["all"], version = "^0.109.0" }
-rethinkdb = "^2.4.10.post1"
 typer = { extras = ["all"], version = "^0.9.0" }
 passlib = "^1.7.4"
 python-jose = "^3.3.0"
@@ -31,6 +30,7 @@ timezonefinder = "^6.4.1"
 aiostream = "^0.5.2"
 aiohttp = "^3.9.3"
 freezegun = "^1.4.0"
+rethinkdb = "^2.4.10.post1"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -50,10 +50,43 @@ versions of Python easily.
 poetry install
 ```
 
+### Setup the environment
+
+Review the .env.example files in the `backend` directory and copy them to a new
+file named `.env`. Update the values in the `.env` file as needed.
+
+Make sure these environment variables are set before running the application
+or CLI tools.
+
 ### Setup the database
 
+Before you can run the `rethinkdb` commands, you'll need to install the
+`rethinkdb` package. Unfortunately, the package does work with Python 3.12
+which the rest of our project uses. You'll need to use a utility like `pyenv`
+and switch to Python 3.7 before installing/using the package.
+
+Once you've installed `rethinkdb`, you can import the database schema with the
+following command:
+
 ```sh
-poetry run python -m app db create-tables
+pip install rethinkdb
+```
+
+```sh
+rethinkdb import -d schemas/rethink_test_schema
+```
+
+Once you've imported the database, you can start the RethinkDB server with the
+following command:
+
+```sh
+docker compose up db -d
+```
+
+Now, you'll need to create the first user so you can log in to the application.
+
+```sh
+poetry run python -m app db create-user NAME EMAIL PASSWORD
 ```
 
 ### Run development server
@@ -107,7 +140,7 @@ poetry run python -m app --help
 
 ## Database
 
-### Backup and Restore
+### Backup and Restore Data
 
 Before following the guide in this section, make sure you've installed RethinkDB on your machine.
 
@@ -124,3 +157,31 @@ To restore a backup of the database, run the following command:
 ```sh
 rethinkdb import "<backup-file>"
 ```
+
+### Backup Schema ONLY
+
+To backup the schema only, run the following command:
+
+```sh
+./bin/export-rethink-schema.sh <schema> [renamed-schema]
+```
+
+This command will first export the database and then remove all the data from the
+exported file. This is useful for sharing the schema with others without sharing
+the data.
+
+## Deployment
+
+Deployment is done using Docker and Docker Compose.
+
+First ensure you copy the `.env.example` file to `.env` and update the values.
+
+Then, simply run the following command:
+
+```sh
+docker compose up -d
+```
+
+If you want to build the images locally, you'll need to update the
+`docker-compose.prod.yml` file and replace the `image` key with `build`
+and the `context` key with the path to the Dockerfile.

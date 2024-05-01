@@ -1,0 +1,16 @@
+{
+  "db": {
+    "id": "ec6bb94f-46b6-4460-93d4-accffba69c2a",
+    "name": "test",
+    "type": "DB"
+  },
+  "doc_count_estimates": [
+    2
+  ],
+  "id": "5cca64a2-a516-4460-a327-6c690d9cc814",
+  "indexes": [],
+  "name": "alarms",
+  "primary_key": "id",
+  "type": "TABLE",
+  "write_hook": null
+}

@@ -1,50 +1,12 @@
 import rethinkdb.query as r
 import typer
 from app.database import _get_database_async, _get_database_sync
-from rethinkdb.errors import ReqlOpFailedError
+from app.schema.user import UserSignupIn
+from app.security import hash_password
 
 from ..utils import coro
 
 app = typer.Typer(name="db", help="A collation of commands to manage the database.")
-tables = [
-    "users",
-    "sensors",
-    "alarms",
-    "regions",
-    "alarms_events",
-    "alarms_event_records",
-    "sensor_readings",
-    "sensor_telemetry",
-    "alarm_notification_history",
-]
-
-
-@app.command()
-@coro
-async def create_tables():
-    """Create all tables in the database"""
-
-    conn = await _get_database_async()
-    conn.repl()
-    for table in tables:
-        try:
-            await r.table_create(table).run(conn)
-            print(f"Created table {table}")
-        except ReqlOpFailedError as e:
-            if "already exists" not in e.message:
-                raise e
-            print(f"Table {table} already exists")
-
-    await r.table("sensors").index_create("region_id").run(conn)
-    await r.table("sensors").index_create("node_id").run(conn)
-    await r.table("sensor_readings").index_create("timestamp").run(conn)
-    await r.table("sensor_readings").index_create("node_id").run(conn)
-    await r.table("sensor_telemetry").index_create("node_id").run(conn)
-    await r.table("alarms_events").index_create("alarm_id").run(conn)
-    await r.table("alarms_event_records").index_create("alarm_event_id").run(conn)
-    await r.table("alarms_event_records").index_create("node_id").run(conn)
-
-    await conn.close()
 
 
 @app.command()
@@ -140,6 +102,17 @@ async def populate_tables():
 
 
 @app.command()
-def dump_sensor_readings():
+def drop_sensor_readings():
     with _get_database_sync() as conn:
         r.table("sensor_readings").delete().run(conn)
+
+
+@app.command()
+def create_user(name: str, email: str, password: str):
+    with _get_database_sync() as conn:
+        r.table("users").insert(
+            UserSignupIn(
+                name=name, email=email, password=hash_password(password)
+            ).model_dump()
+        ).run(conn)
+    print(f'User "{name}" created')

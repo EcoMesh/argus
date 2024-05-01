@@ -1,0 +1,41 @@
+{
+  "db": {
+    "id": "ec6bb94f-46b6-4460-93d4-accffba69c2a",
+    "name": "test",
+    "type": "DB"
+  },
+  "doc_count_estimates": [
+    8316
+  ],
+  "id": "0c03eb84-084a-4cea-8d2b-eaf656c08c60",
+  "indexes": [
+    {
+      "function": {
+        "$reql_type$": "BINARY",
+        "data": "JHJlcWxfaW5kZXhfZnVuY3Rpb24kCQcHBwAAAAAAAAHt/////////ywAAABbMzEsW1sxMCxbWzEs\r\nLTE5LDBdXSwwXSxbMSwibm9kZV9pZCIsMF1dLDBdAAAAAAAAAA=="
+      },
+      "geo": false,
+      "index": "node_id",
+      "multi": false,
+      "outdated": false,
+      "query": "indexCreate('node_id', function(_var19) { return _var19.getField(\"node_id\"); })",
+      "ready": true
+    },
+    {
+      "function": {
+        "$reql_type$": "BINARY",
+        "data": "JHJlcWxfaW5kZXhfZnVuY3Rpb24kCQcHBwAAAAAAAAHt/////////y4AAABbMzEsW1sxMCxbWzEs\r\nLTE5LDBdXSwwXSxbMSwidGltZXN0YW1wIiwwXV0sMF0AAAAAAAAA"
+      },
+      "geo": false,
+      "index": "timestamp",
+      "multi": false,
+      "outdated": false,
+      "query": "indexCreate('timestamp', function(_var19) { return _var19.getField(\"timestamp\"); })",
+      "ready": true
+    }
+  ],
+  "name": "sensor_readings",
+  "primary_key": "id",
+  "type": "TABLE",
+  "write_hook": null
+}

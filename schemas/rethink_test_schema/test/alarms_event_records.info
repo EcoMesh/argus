@@ -1,0 +1,41 @@
+{
+  "db": {
+    "id": "ec6bb94f-46b6-4460-93d4-accffba69c2a",
+    "name": "test",
+    "type": "DB"
+  },
+  "doc_count_estimates": [
+    20
+  ],
+  "id": "23dbd2ff-8f93-4bb0-b800-ea7dde7165db",
+  "indexes": [
+    {
+      "function": {
+        "$reql_type$": "BINARY",
+        "data": "JHJlcWxfaW5kZXhfZnVuY3Rpb24kCQcHBwAAAAAAAAHt/////////zMAAABbMzEsW1sxMCxbWzEs\r\nLTE5LDBdXSwwXSxbMSwiYWxhcm1fZXZlbnRfaWQiLDBdXSwwXQAAAAAAAAA="
+      },
+      "geo": false,
+      "index": "alarm_event_id",
+      "multi": false,
+      "outdated": false,
+      "query": "indexCreate('alarm_event_id', function(_var19) { return _var19.getField(\"alarm_event_id\"); })",
+      "ready": true
+    },
+    {
+      "function": {
+        "$reql_type$": "BINARY",
+        "data": "JHJlcWxfaW5kZXhfZnVuY3Rpb24kCQcHBwAAAAAAAAHt/////////ywAAABbMzEsW1sxMCxbWzEs\r\nLTE5LDBdXSwwXSxbMSwibm9kZV9pZCIsMF1dLDBdAAAAAAAAAA=="
+      },
+      "geo": false,
+      "index": "node_id",
+      "multi": false,
+      "outdated": false,
+      "query": "indexCreate('node_id', function(_var19) { return _var19.getField(\"node_id\"); })",
+      "ready": true
+    }
+  ],
+  "name": "alarms_event_records",
+  "primary_key": "id",
+  "type": "TABLE",
+  "write_hook": null
+}
