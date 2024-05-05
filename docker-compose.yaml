@@ -37,10 +37,11 @@ services:
     environment:
       - FRONTEND_HOST=host.docker.internal:3030
       - BACKEND_HOST=host.docker.internal:8000
-  tunnel:
-    build: ./tunnel
-    restart: unless-stopped
-    environment:
-      - SSH_OPTS=-4 -R 1883:mqtt:1883 -p 55933 toor@62.171.172.110
-    depends_on:
-      - mqtt
+  # uncomment to tunnel MQTT server to a public IP
+  # tunnel:
+  #   build: ./tunnel
+  #   restart: unless-stopped
+  #   environment:
+  #     - SSH_OPTS=-4 -R 1883:mqtt:1883 -p 55933 toor@62.171.172.110
+  #   depends_on:
+  #     - mqtt
