@@ -13,13 +13,13 @@ services:
       - ./rethinkdb/data:/data
   mqtt:
     image: eclipse-mosquitto:2.0.18
-    expose:
+    ports:
       # use `ports` when actually deploying
       # this is only for the expo demo where we need to port
       # forward from our local demo machine via SSH tunneling
       - 1883:1883
     volumes:
-      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
     depends_on:
       - redis
@@ -42,6 +42,7 @@ services:
       - BREVO_API_KEY=${BREVO_API_KEY}
       - WEBSERVER_PROTOCOL=${WEBSERVER_PROTOCOL}
       - WEBSERVER_HOST=${WEBSERVER_HOST}
+      - MQTT_HOST_EXTERNAL=${MQTT_HOST_EXTERNAL}
       - MQTT_USERNAME=${MQTT_USERNAME}
       - MQTT_PASSWORD=${MQTT_PASSWORD}
     expose:
