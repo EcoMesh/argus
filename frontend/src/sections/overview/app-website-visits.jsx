@@ -111,7 +111,8 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
     return () => clearInterval(interval);
   }, [rawSensorReadings, setRawSensorReadings, authHeaders]);
 
-  const chartOptions = useChart({
+  /** @type {import('apexcharts').ApexOptions} */
+  const chartOpts = {
     chart: {
       id: `basic-bar${Math.random()}`, // ensures re-render for y formatting to stay reactive
     },
@@ -127,6 +128,9 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
     labels,
     xaxis: {
       type: 'datetime',
+      labels: {
+        datetimeUTC: false,
+      }
     },
     tooltip: {
       shared: true,
@@ -139,15 +143,20 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
           return value;
         },
       },
+      x: {
+        format: 'dd MMM HH:mm'
+      }
     },
     ...options,
-  });
+  };
+
+  const chartOptions = useChart(chartOpts);
 
   return (
     <Card>
       <CardHeader
         title={`${column.title} Readings`}
-        subheader="Last 24 Hours"
+        subheader="Last Recorded 24 Hours"
         action={
           <>
             <TextField
