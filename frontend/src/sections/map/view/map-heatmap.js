@@ -54,6 +54,7 @@ export async function buildHeatmap(mode, sensorReadings, selectedRegionSensors) 
   }
 
 
+  // Watershed mode
   if (mode === MapMode.Watershed) {
     if (!selectedRegionSensors || !selectedRegionSensors.length)
       return null;

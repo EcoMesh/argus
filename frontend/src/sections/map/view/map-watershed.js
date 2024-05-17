@@ -18,6 +18,8 @@ function distance([x1, y1], [x2, y2]) {
   return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 }
 
+// Scanline algorithm: checks if scanline at y between xmin and xmax intersects
+// with any edges of the polygon defined by an array of points
 function scanLineIntersectEdges(y, xmin, xmax, points) {
   const intersections = [];
   for (let i = 0; i < points.length - 1; i += 1) {
@@ -62,7 +64,7 @@ export function buildWatershedHeatmap(coords, sensorPos, value = 1) {
 
   const points = [];
 
-  // Scanline algorithm for polygon fill
+  // Compute bounding box
   let ymin = Number.MAX_VALUE;
   let ymax = -Number.MAX_VALUE;
   let xmin = Number.MAX_VALUE;
@@ -75,8 +77,10 @@ export function buildWatershedHeatmap(coords, sensorPos, value = 1) {
     xmax = Math.max(xmax, lat);
   }
 
+  // Falloff distance for watershed
   const radius = Math.max(ymax - ymin, xmax - xmin);
 
+  // Scanline algorithm: used to fill the inside of the polygon
   const delta = 0.001;
   const stepsY = Math.ceil((ymax - ymin) / delta);
   for (let y = 0; y < stepsY; y += 1) {
@@ -85,9 +89,12 @@ export function buildWatershedHeatmap(coords, sensorPos, value = 1) {
       const p0 = pts[i];
       const p1 = pts[i + 1];
       if (i % 2 === 0) {
+        // Shade in each filled horizontal segment
         const stepsX = Math.ceil((p1[0] - p0[0]) / delta);
         for (let x = 0; x < stepsX; x += 1) {
           const pt = [p0[0] + x * delta, p0[1]];
+
+          // Scale value based on distance from sensor
           const scale = 1 - (distance(pt, sensorPos) / radius);
           points.push([...pt, scale * value]);
         }
@@ -97,5 +104,6 @@ export function buildWatershedHeatmap(coords, sensorPos, value = 1) {
 
   console.log(points)
 
+  // swap lat, lon -> lon, lat
   return points.map(c => [c[1], c[0], c[2]]);
 }
