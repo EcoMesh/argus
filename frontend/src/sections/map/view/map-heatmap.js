@@ -84,6 +84,7 @@ export async function buildHeatmap(mode, sensorReadings, selectedRegionSensors) 
     points.push([lat, lon, value * 1.2]);
 
     // For every neighbor sensor
+    // TODO: Ideally should only use sensors that are adjacent by edges in the mesh
     for (let j = i + 1; j < selectedRegionSensors.length; j += 1) {
       const s1 = selectedRegionSensors[j];
       if (sensor === s1 || !s1?.location?.coordinates) continue;
@@ -93,10 +94,13 @@ export async function buildHeatmap(mode, sensorReadings, selectedRegionSensors) 
 
       const [lat1, lon1] = s1.location.coordinates;
 
+      // FIXME: This still causes overlapping data to double up, but avoids discontinuities
+      const numSteps = Math.ceil(Math.max(Math.abs(lat - lat1), Math.abs(lon - lon1)) / 0.001);
+      const stepSize = 1 / numSteps;
+
       // Fill in rectangle between sensors
-      for (let y = 0; y < 1; y += 0.1) {
-        for (let x = 0; x < 1; x += 0.1) {
-          const [avgLat, avgLon] = [lerp(lat, lat1, x), lerp(lon, lon1, y)]
+      for (let y = 0; y < 1; y += stepSize) {
+        for (let x = 0; x < 1; x += stepSize) {          const [avgLat, avgLon] = [lerp(lat, lat1, x), lerp(lon, lon1, y)]
           const avgValue = lerp(value, value1, (x + y) / 2);
           points.push([avgLat, avgLon, avgValue]);
         }
