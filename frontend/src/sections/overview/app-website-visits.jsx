@@ -7,6 +7,8 @@ import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import { MenuItem, TextField } from '@mui/material';
 
+import { COLUMN_TO_TOOLTIP_DATATYPE } from 'src/utils/units';
+
 import * as sensorReadingsApi from 'src/api/sensor-readings';
 import { requestHeadersSelector } from 'src/recoil/current-user';
 import {
@@ -71,12 +73,6 @@ const RESOLUTIONS = [
   },
 ];
 
-const COLUMN_TO_TOOLTIP_DATATYPE = {
-  temperature: 'F',
-  humidity: '%',
-  moisture: '%',
-  groundDistance: 'm',
-};
 
 export default function AppRecentSensorReadings({ title, subheader, chart, ...other }) {
   const [column, setColumn] = useState(COLUMNS[3]);
@@ -138,7 +134,7 @@ export default function AppRecentSensorReadings({ title, subheader, chart, ...ot
       y: {
         formatter: (value) => {
           if (typeof value !== 'undefined') {
-            return `${value.toFixed(0)} ${COLUMN_TO_TOOLTIP_DATATYPE[column.value]}`;
+            return `${value.toFixed(0)}${COLUMN_TO_TOOLTIP_DATATYPE[column.value]}`;
           }
           return value;
         },

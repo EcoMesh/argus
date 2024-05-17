@@ -2,9 +2,9 @@ import { divIcon } from 'leaflet';
 import PropTypes from 'prop-types';
 import { useRecoilValue } from 'recoil';
 import { Link } from 'react-router-dom';
-import { Fragment, useState, useEffect } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { HeatmapLayer } from 'react-leaflet-heatmap-layer-v3';
+import { Fragment, useState, useEffect, useMemo } from 'react';
 import { Popup, Polygon, Tooltip, Rectangle, Marker as MapMarker } from 'react-leaflet';
 
 import { styled, useTheme } from '@mui/material/styles';
@@ -28,7 +28,17 @@ import {
   ListItemButton,
   AccordionDetails,
   AccordionSummary,
+  Card,
+  CardContent,
+  Avatar,
+  ListItemAvatar,
+  colors,
+  Box,
+  Stack,
 } from '@mui/material';
+
+import { fNumber } from 'src/utils/format-number';
+import { COLUMN_TO_TOOLTIP_DATATYPE } from 'src/utils/units';
 
 import { currentRegionSelector } from 'src/recoil/regions';
 import { currentRegionSensorsSelector } from 'src/recoil/sensors';
@@ -40,7 +50,7 @@ import { OpenTopoMapCurrentRegionContainer } from 'src/components/map';
 
 import { SensorStatusLabel } from 'src/sections/sensors/sensor-table-row';
 
-import { MapMode, buildHeatmap } from './map-heatmap';
+import { DataKeys, MapMode, buildHeatmap } from './map-heatmap';
 
 const DefaultGradient = {
   0.4: 'blue',
@@ -131,7 +141,7 @@ Marker.propTypes = {
 
 //-----------------------------------------------------------------------------
 
-export function MapContainerContent({ mapMode }) {
+export function MapContainerContent({ mapMode, gradient, setExtrema = () => {} }) {
   const selectedRegion = useRecoilValue(currentRegionSelector);
   const selectedRegionSensors = useRecoilValue(currentRegionSensorsSelector);
   const [activeMapSensor, setActiveMapSensor] = useState(null);
@@ -140,10 +150,12 @@ export function MapContainerContent({ mapMode }) {
   const [heatPoints, setHeatPoints] = useState([]);
 
   useEffect(() => {
-    buildHeatmap(mapMode, sensorReadings, selectedRegionSensors).then((pts) => {
-      setHeatPoints(pts ?? []);
+    buildHeatmap(mapMode, sensorReadings, selectedRegionSensors).then((data) => {
+      if (data)
+        setExtrema(data)
+      setHeatPoints(data?.points ?? []);
     });
-  }, [mapMode, selectedRegionSensors, sensorReadings]);
+  }, [setExtrema, mapMode, selectedRegionSensors, sensorReadings]);
 
   return (
     <>
@@ -155,7 +167,8 @@ export function MapContainerContent({ mapMode }) {
         latitudeExtractor={(m) => m[0]}
         intensityExtractor={(m) => m[2]}
         blur={20}
-        gradient={mapMode === MapMode.Temperature ? DefaultGradient : WaterGradient}
+        useLocalExtrema
+        gradient={gradient}
       />
       {selectedRegion && (
         <Rectangle
@@ -192,6 +205,8 @@ export function MapContainerContent({ mapMode }) {
 
 MapContainerContent.propTypes = {
   mapMode: PropTypes.number,
+  gradient: PropTypes.object,
+  setExtrema: PropTypes.func,
 };
 
 const MapLayerItem = ({ children, icon, layer, mode, setMode }) => {
@@ -232,73 +247,94 @@ const AccordionSummaryEx = styled((props) => (
 
 function MapUI() {
   const [mode, setMode] = useState(MapMode.None);
+  const gradient = mode === MapMode.Temperature ? DefaultGradient : WaterGradient;
+  const [extrema, setExtrema] = useState({ min: 0, max: 100 });
   const theme = useTheme();
+
+  useEffect(() => setExtrema({ min: 0, max: 100 }), [mode]);
 
   return (
     <>
-      <MapContainerContent mapMode={mode} />
+      <MapContainerContent mapMode={mode} gradient={gradient} setExtrema={setExtrema}/>
       <div
         style={{
           position: 'absolute',
           minWidth: 200,
           height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
           pointerEvents: 'none',
           zIndex: 1000,
+          paddingLeft: 10,
+          paddingTop: 85,
+          paddingBottom: 10
         }}
       >
-        <div style={{ pointerEvents: 'auto', position: 'relative', top: 85, marginLeft: 10 }}>
-          <Accordion sx={{ overflow: 'hidden', boxShadow: 5 }} defaultExpanded>
-            <AccordionSummaryEx>
-              <Typography variant="h5">
-                <Layers sx={{ marginRight: 2, verticalAlign: 'text-top' }} /> Layers
-              </Typography>
-            </AccordionSummaryEx>
-            <AccordionDetails sx={{ p: 0 }}>
-              <List sx={{ p: 0, borderTop: '1px solid rgba(0, 0, 0, .2)' }}>
-                <MapLayerItem
-                    icon={<Iconify size={32} sx={{m: 0.5}} icon="mdi:water-flow" color={theme.palette.primary.main} />}
-                    layer={MapMode.Watershed}
-                    mode={mode}
-                    setMode={setMode}
-                  >
-                  Watershed
-                </MapLayerItem>
-                <MapLayerItem
-                  icon={<Water color="primary" />}
-                  layer={MapMode.WaterLevel}
+        <Accordion sx={{ pointerEvents: 'auto', overflow: 'hidden', boxShadow: 5, borderRadius: '8px', marginBottom: '16px' }} defaultExpanded>
+          <AccordionSummaryEx>
+            <Typography variant="h5">
+              <Layers sx={{ marginRight: 2, verticalAlign: 'text-top' }} /> Layers
+            </Typography>
+          </AccordionSummaryEx>
+          <AccordionDetails sx={{ p: 0 }}>
+            <List sx={{ p: 0, borderTop: '1px solid rgba(0, 0, 0, .2)' }}>
+              <MapLayerItem
+                  icon={<Iconify size={32} sx={{m: 0.5}} icon="mdi:water-flow" color={theme.palette.primary.main} />}
+                  layer={MapMode.Watershed}
                   mode={mode}
                   setMode={setMode}
                 >
-                  Water Level
-                </MapLayerItem>
-                <MapLayerItem
-                  icon={<WaterDrop color="info" />}
-                  layer={MapMode.Humidity}
-                  mode={mode}
-                  setMode={setMode}
-                >
-                  Humidity
-                </MapLayerItem>
-                <MapLayerItem
-                  icon={<Opacity color="primary" />}
-                  layer={MapMode.Moisture}
-                  mode={mode}
-                  setMode={setMode}
-                >
-                  Moisture
-                </MapLayerItem>
-                <MapLayerItem
-                  icon={<Thermostat color="error" />}
-                  layer={MapMode.Temperature}
-                  mode={mode}
-                  setMode={setMode}
-                >
-                  Temperature
-                </MapLayerItem>
-              </List>
-            </AccordionDetails>
-          </Accordion>
-        </div>
+                Watershed
+              </MapLayerItem>
+              <MapLayerItem
+                icon={<Water color="primary" />}
+                layer={MapMode.WaterLevel}
+                mode={mode}
+                setMode={setMode}
+              >
+                Water Level
+              </MapLayerItem>
+              <MapLayerItem
+                icon={<WaterDrop color="info" />}
+                layer={MapMode.Humidity}
+                mode={mode}
+                setMode={setMode}
+              >
+                Humidity
+              </MapLayerItem>
+              <MapLayerItem
+                icon={<Opacity color="primary" />}
+                layer={MapMode.Moisture}
+                mode={mode}
+                setMode={setMode}
+              >
+                Moisture
+              </MapLayerItem>
+              <MapLayerItem
+                icon={<Thermostat color="error" />}
+                layer={MapMode.Temperature}
+                mode={mode}
+                setMode={setMode}
+              >
+                Temperature
+              </MapLayerItem>
+            </List>
+          </AccordionDetails>
+        </Accordion>
+        {mode !== MapMode.None && <Card sx={{ overflow: 'hidden', boxShadow: 5, marginTop: 'auto' }}>
+          <CardContent sx={{pb: '0 !important'}}>
+            <Stack direction="row" justifyContent='space-between'  sx={{mb: 0.5}}>
+              <Typography variant='caption'>{fNumber(extrema.min)}{COLUMN_TO_TOOLTIP_DATATYPE[DataKeys[mode]]}</Typography>
+              <Typography variant='caption'>{fNumber(extrema.max)}{COLUMN_TO_TOOLTIP_DATATYPE[DataKeys[mode]]}</Typography>
+            </Stack>
+            <Box sx={{
+              width: '100%', height: '32px', mb: 2, borderRadius: 1,
+              background: `linear-gradient(90deg,
+                ${Object.entries(gradient).sort().map(([key, value]) => `${value}`).join(', ')}
+              );`
+            }}/>
+          </CardContent>
+        </Card>}
       </div>
     </>
   );

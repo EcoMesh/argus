@@ -10,7 +10,7 @@ export const MapMode = {
   Watershed: 5,
 };
 
-const DataKeys = [
+export const DataKeys = [
   null,
   'groundDistance',
   'humidity',
@@ -42,7 +42,6 @@ export async function buildHeatmap(mode, sensorReadings, selectedRegionSensors) 
     return null;
   let points = []
 
-  console.log("Building heatmap")
   const sorted = sensorReadings.toSorted((a, b) => b.timestamp - a.timestamp);
 
   // This is far from ideal. We should also look at the historic data too, not just one data point
@@ -59,6 +58,8 @@ export async function buildHeatmap(mode, sensorReadings, selectedRegionSensors) 
     if (!selectedRegionSensors || !selectedRegionSensors.length)
       return null;
 
+    console.log("Building watershed heatmap")
+
     selectedRegionSensors.forEach(sensor => {
       if (!sensor?.watershed?.coordinates?.length)
         return;
@@ -69,8 +70,12 @@ export async function buildHeatmap(mode, sensorReadings, selectedRegionSensors) 
       ));
     });
 
-    return points;
+    const max = maxValue(points, 2);
+    const min = minValue(points, 2);
+    return {points, min, max};
   }
+
+  console.log("Building heatmap")
 
   // O(n^2) :|
   for (let i = 0; i < selectedRegionSensors.length; i += 1) {
@@ -117,10 +122,10 @@ export async function buildHeatmap(mode, sensorReadings, selectedRegionSensors) 
     return null;
 
   // Swap lat, lon -> lon, lat; scale values from [min, max] to [0, 1]
-  const scaled = points.map(p => [p[1], p[0], (p[2] - min) / (max - min)]);
+  let scaled = points.map(p => [p[1], p[0], (p[2] - min) / (max - min)]);
 
   if (mode === MapMode.WaterLevel) // Invert water level
-    return scaled.map(p => [p[0], p[1], 1 - p[2]])
+    scaled = scaled.map(p => [p[0], p[1], 1 - p[2]])
 
-  return scaled;
+  return {points: scaled, min, max};
 }
