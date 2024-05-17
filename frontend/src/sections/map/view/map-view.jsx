@@ -42,6 +42,14 @@ import { SensorStatusLabel } from 'src/sections/sensors/sensor-table-row';
 
 import { MapMode, buildHeatmap } from './map-heatmap';
 
+const DefaultGradient = {
+  0.4: 'blue',
+  0.6: 'cyan',
+  0.7: 'lime',
+  0.8: 'yellow',
+  1.0: 'red',
+};
+
 const WaterGradient = {
   0.4: 'rgb(0, 127, 255)',
   0.8: 'rgb(0, 63, 255)',
@@ -147,7 +155,7 @@ export function MapContainerContent({ mapMode }) {
         latitudeExtractor={(m) => m[0]}
         intensityExtractor={(m) => m[2]}
         blur={20}
-        gradient={WaterGradient}
+        gradient={mapMode === MapMode.Temperature ? DefaultGradient : WaterGradient}
       />
       {selectedRegion && (
         <Rectangle
