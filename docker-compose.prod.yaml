@@ -75,7 +75,7 @@ services:
       - MQTT_USERNAME=${MQTT_USERNAME}
       - MQTT_PASSWORD=${MQTT_PASSWORD}
   frontend:
-    build: ./frontend
+    image: ghcr.io/noahcardoza/argus-frontend:latest
     expose:
       - 80:80
   caddy:
