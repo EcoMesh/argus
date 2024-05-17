@@ -16,7 +16,7 @@ const DataKeys = [
   'humidity',
   'moisture',
   'temperature',
-  'watershed' // placeholder
+  'groundDistance'
 ]
 
 //-----------------------------------------------------------------------------
