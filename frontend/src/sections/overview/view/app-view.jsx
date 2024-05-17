@@ -57,6 +57,7 @@ export default function AppView() {
             title="Readings"
             total={sensorReadings.length}
             color="warning"
+            path='/map'
             icon={<Iconify color={colors.amber[500]} icon="eva:activity-outline" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
         </Grid>
@@ -67,7 +68,8 @@ export default function AppView() {
             total={currentRegionAlarmEvents.length}
             color="error"
             path='/alarms'
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
+            // icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
+            icon={<Iconify color={colors.deepOrange[300]} icon="ic:round-notifications-active" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
           />
         </Grid>
 
