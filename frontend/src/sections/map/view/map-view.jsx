@@ -256,6 +256,14 @@ function MapUI() {
             <AccordionDetails sx={{ p: 0 }}>
               <List sx={{ p: 0, borderTop: '1px solid rgba(0, 0, 0, .2)' }}>
                 <MapLayerItem
+                    icon={<Iconify size={32} sx={{m: 0.5}} icon="mdi:water-flow" color={theme.palette.primary.main} />}
+                    layer={MapMode.Watershed}
+                    mode={mode}
+                    setMode={setMode}
+                  >
+                  Watershed
+                </MapLayerItem>
+                <MapLayerItem
                   icon={<Water color="primary" />}
                   layer={MapMode.WaterLevel}
                   mode={mode}
@@ -286,14 +294,6 @@ function MapUI() {
                   setMode={setMode}
                 >
                   Temperature
-                </MapLayerItem>
-                <MapLayerItem
-                  icon={<Iconify size={32} sx={{m: 0.5}} icon="mdi:water-flow" color={theme.palette.primary.main} />}
-                  layer={MapMode.Watershed}
-                  mode={mode}
-                  setMode={setMode}
-                >
-                  Watershed
                 </MapLayerItem>
               </List>
             </AccordionDetails>
