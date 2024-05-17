@@ -1,3 +1,4 @@
+import { buildWatershedHeatmap } from "./map-watershed";
 
 
 export const MapMode = {
@@ -6,6 +7,7 @@ export const MapMode = {
   Humidity: 2,
   Moisture: 3,
   Temperature: 4,
+  Watershed: 5,
 };
 
 const DataKeys = [
@@ -33,6 +35,21 @@ function minValue(array, key) {
 //-----------------------------------------------------------------------------
 
 export async function buildHeatmap(mode, sensorReadings, selectedRegionSensors) {
+
+  if (mode === MapMode.Watershed) {
+    if (!selectedRegionSensors || !selectedRegionSensors.length)
+      return null;
+
+    let points = [];
+    selectedRegionSensors.forEach(sensor => {
+      if (!sensor?.watershed?.coordinates?.length)
+        return;  
+      points = points.concat(buildWatershedHeatmap(sensor.watershed.coordinates[0]));
+    });
+
+    return points;
+  }
+
   const key = DataKeys[mode];
   if (!key)
     return null;

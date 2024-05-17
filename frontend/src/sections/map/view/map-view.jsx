@@ -7,7 +7,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { HeatmapLayer } from 'react-leaflet-heatmap-layer-v3';
 import { Popup, Polygon, Tooltip, Rectangle, Marker as MapMarker } from 'react-leaflet';
 
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import {
   Room,
   Check,
@@ -34,6 +34,7 @@ import { currentRegionSelector } from 'src/recoil/regions';
 import { currentRegionSensorsSelector } from 'src/recoil/sensors';
 import { currentRegionSensorReadingsSelector } from 'src/recoil/sensor-readings';
 
+import Iconify from 'src/components/iconify';
 import { useChart } from 'src/components/chart';
 import { OpenTopoMapCurrentRegionContainer } from 'src/components/map';
 
@@ -223,6 +224,7 @@ const AccordionSummaryEx = styled((props) => (
 
 function MapUI() {
   const [mode, setMode] = useState(MapMode.None);
+  const theme = useTheme();
 
   return (
     <>
@@ -276,6 +278,14 @@ function MapUI() {
                   setMode={setMode}
                 >
                   Temperature
+                </MapLayerItem>
+                <MapLayerItem
+                  icon={<Iconify size={32} sx={{m: 0.5}} icon="mdi:water-flow" color={theme.palette.primary.main} />}
+                  layer={MapMode.Watershed}
+                  mode={mode}
+                  setMode={setMode}
+                >
+                  Watershed
                 </MapLayerItem>
               </List>
             </AccordionDetails>
