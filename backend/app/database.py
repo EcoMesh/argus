@@ -33,6 +33,13 @@ async def _get_database_async():
         port=settings.rethinkdb_port,
     )
 
+async def _get_db_connection_async():
+    """Internal function to get RethinkDB connection. Use get_database() instead."""
+    return await rethinkdb_async.connect(
+        host=settings.rethinkdb_host,
+        port=settings.rethinkdb_port,
+    )
+
 
 async def get_database() -> AsyncIterator[Connection]:
     """Get a database session to be used with FastAPI's Depends()"""

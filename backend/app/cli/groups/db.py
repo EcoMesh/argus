@@ -1,13 +1,74 @@
 import rethinkdb.query as r
+from rethinkdb.errors import ReqlOpFailedError
 import typer
-from app.database import _get_database_async, _get_database_sync
+from app.database import _get_database_async, _get_database_sync, _get_db_connection_async
 from app.schema.user import UserSignupIn
 from app.security import hash_password
+from app.settings import settings
 
 from ..utils import coro
 
 app = typer.Typer(name="db", help="A collation of commands to manage the database.")
 
+tables = {
+    "users": {},
+    "sensors": {
+        "indexes": ["region_id", "node_id"]
+    },
+    "alarms": {},
+    "regions": {},
+    "alarms_events": {
+        "indexes": ["alarm_id"]
+    },
+    "alarms_event_records": {
+        "indexes": ["alarm_event_id", "node_id"]
+    },
+    "sensor_readings": {
+        "indexes": ["timestamp", "node_id"]
+    },
+    "sensor_telemetry": {
+        "indexes": ["node_id"]
+    },
+    "alarm_notification_history": {},
+}
+
+@app.command()
+@coro
+async def create_tables():
+    """Create all tables in the database"""
+
+    conn = await _get_db_connection_async()
+    conn.repl()
+
+    # Create db if it does not exist
+    db_list = await r.db_list().run(conn)
+    if settings.rethinkdb_database not in db_list:
+        await r.db_create(settings.rethinkdb_database).run()
+        print(f"Created database {settings.rethinkdb_database}")
+    else:
+        print(f"Database {settings.rethinkdb_database} already exists")
+
+    conn.use(settings.rethinkdb_database)
+
+    for table in tables:
+        options = tables[table]
+        try:
+            await r.table_create(table).run()
+            print(f"Created table {table}")
+        except ReqlOpFailedError as e:
+            if "already exists" not in e.message:
+                raise e
+            print(f"Table {table} already exists")
+        if "indexes" in options:
+            existing = await r.table(table).index_list().run()
+            for index in options["indexes"]:
+                if index not in existing:
+                    await r.table(table).index_create(index).run()
+                    print(f"    Created index {index}")
+                else:
+                    print(f"    Index {index} already exists")
+
+    await conn.close()
 
 @app.command()
 @coro
