@@ -13,11 +13,11 @@ import IconButton from '@mui/material/IconButton';
 
 import { currentUserAtom } from 'src/recoil/current-user';
 
-const mockPhotoURL = '/assets/images/avatars/avatar_25.jpg';
+// const mockPhotoURL = '/assets/images/avatars/avatar_25.jpg';
 
 // ----------------------------------------------------------------------
 
-const MENU_OPTIONS = [
+const MENU_OPTIONS = []; /* [
   {
     label: 'Home',
     icon: 'eva:home-fill',
@@ -30,7 +30,7 @@ const MENU_OPTIONS = [
     label: 'Settings',
     icon: 'eva:settings-2-fill',
   },
-];
+]; */
 
 // ----------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={mockPhotoURL}
+          // src={mockPhotoURL}
           alt={currentUser.user.name}
           sx={{
             width: 36,
