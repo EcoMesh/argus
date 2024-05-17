@@ -74,7 +74,7 @@ export default function AppView() {
         <Grid xs={12} md={6} lg={8}>
           <AppRecentSensorReadings />
           <div style={{ height: 24 }} />
-          <RecentNotifications sx={{ pb: 3 }} />
+          <RecentNotifications />
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>

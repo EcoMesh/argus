@@ -11,7 +11,7 @@ export default function AlarmHistoryView() {
       <Typography variant="h4" sx={{ mb: 5 }}>
         Alarm History
       </Typography>
-      <Stack direction="row" justifyContent="space-between" spacing={3}>
+      <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={3}>
         <AppRecentAlarmEvents showViewAll={false} sx={{ flex: 1 }} />
         <RecentNotifications showViewAll={false} sx={{ flex: 1 }} />
       </Stack>
