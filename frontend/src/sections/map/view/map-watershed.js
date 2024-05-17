@@ -11,8 +11,11 @@ function lineIntersectionPoint([x1, y1], [x2, y2], [x3, y3], [x4, y4]) {
   return [
     x1 + ua * (x2 - x1),
     y1 + ua * (y2 - y1),
-    1
   ];
+}
+
+function distance([x1, y1], [x2, y2]) {
+  return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 }
 
 function scanLineIntersectEdges(y, xmin, xmax, points) {
@@ -33,7 +36,7 @@ function scanLineIntersectEdges(y, xmin, xmax, points) {
   return intersections;
 }
 
-export function buildWatershedHeatmap(coords) {
+export function buildWatershedHeatmap(coords, sensorPos, value = 1) {
   console.log("Building watershed heatmap")
 
   /*
@@ -72,7 +75,9 @@ export function buildWatershedHeatmap(coords) {
     xmax = Math.max(xmax, lat);
   }
 
-  const delta = 0.0005;
+  const radius = Math.max(ymax - ymin, xmax - xmin);
+
+  const delta = 0.001;
   const stepsY = Math.ceil((ymax - ymin) / delta);
   for (let y = 0; y < stepsY; y += 1) {
     const pts = scanLineIntersectEdges(ymin + y * delta, xmin, xmax, coords).sort((a, b) => a[0] - b[0]);
@@ -82,7 +87,9 @@ export function buildWatershedHeatmap(coords) {
       if (i % 2 === 0) {
         const stepsX = Math.ceil((p1[0] - p0[0]) / delta);
         for (let x = 0; x < stepsX; x += 1) {
-          points.push([p0[0] + x * delta, p0[1], 1]);
+          const pt = [p0[0] + x * delta, p0[1]];
+          const scale = 1 - (distance(pt, sensorPos) / radius);
+          points.push([...pt, scale * value]);
         }
       }
     }
@@ -90,5 +97,5 @@ export function buildWatershedHeatmap(coords) {
 
   console.log(points)
 
-  return points.map(c => [c[1], c[0], 1]);
+  return points.map(c => [c[1], c[0], c[2]]);
 }

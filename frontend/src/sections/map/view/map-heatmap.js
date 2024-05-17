@@ -15,7 +15,8 @@ const DataKeys = [
   'groundDistance',
   'humidity',
   'moisture',
-  'temperature'
+  'temperature',
+  'watershed' // placeholder
 ]
 
 //-----------------------------------------------------------------------------
@@ -36,24 +37,10 @@ function minValue(array, key) {
 
 export async function buildHeatmap(mode, sensorReadings, selectedRegionSensors) {
 
-  if (mode === MapMode.Watershed) {
-    if (!selectedRegionSensors || !selectedRegionSensors.length)
-      return null;
-
-    let points = [];
-    selectedRegionSensors.forEach(sensor => {
-      if (!sensor?.watershed?.coordinates?.length)
-        return;  
-      points = points.concat(buildWatershedHeatmap(sensor.watershed.coordinates[0]));
-    });
-
-    return points;
-  }
-
   const key = DataKeys[mode];
   if (!key)
     return null;
-  const points = []
+  let points = []
 
   console.log("Building heatmap")
   const sorted = sensorReadings.toSorted((a, b) => b.timestamp - a.timestamp);
@@ -64,6 +51,24 @@ export async function buildHeatmap(mode, sensorReadings, selectedRegionSensors) 
     if (!readings.length)
       return null;
     return readings[0][key];
+  }
+
+
+  if (mode === MapMode.Watershed) {
+    if (!selectedRegionSensors || !selectedRegionSensors.length)
+      return null;
+
+    selectedRegionSensors.forEach(sensor => {
+      if (!sensor?.watershed?.coordinates?.length)
+        return;
+      points = points.concat(buildWatershedHeatmap(
+        sensor.watershed.coordinates[0], // watershed polygon
+        sensor.location?.coordinates ?? sensor.watershed.coordinates[0][0], // sensor pos
+        getValue(sensor) ?? 1 // recorded value
+      ));
+    });
+
+    return points;
   }
 
   // O(n^2) :|
