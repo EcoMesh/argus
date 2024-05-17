@@ -8,7 +8,7 @@ export default function AlarmHistoryPage() {
   return (
     <>
       <Helmet>
-        <title> Alarms | EcoMech </title>
+        <title> Alarm History | EcoMech </title>
       </Helmet>
 
       <AlarmHistoryView />

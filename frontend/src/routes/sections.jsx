@@ -33,6 +33,7 @@ export default function Router() {
         { path: 'users', element: <UserPage /> },
         { path: 'alarms', element: <AlarmsPage /> },
         { path: 'alarms/:id/history', element: <AlarmHistoryPage /> },
+        { path: 'alarms/:id/event/:event', element: <AlarmHistoryPage /> }, // just go to history page for now
         { path: 'products', element: <ProductsPage /> },
         { path: 'sensors', element: <SensorsPage /> },
       ],
