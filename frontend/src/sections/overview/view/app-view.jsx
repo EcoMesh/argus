@@ -16,6 +16,7 @@ import AppWidgetSummary from '../app-widget-summary';
 import AppRecentSensorReadings from '../app-website-visits';
 import RecentNotifications from '../app-recent-notifications';
 import AppRecentAlarmEvents from '../app-recent-alarm-events';
+import { useMemo } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +25,15 @@ export default function AppView() {
   const currentRegionAlarms = useRecoilValue(currentRegionAlarmsAtom);
   const currentRegionAlarmEvents = useRecoilValue(currentRegionAlarmEventsSelector);
   const sensorReadings = useRecoilValue(currentRegionSensorReadingsSelector);
+
+  const [sensorsOnline, sensorsOffline, sensorsInAlarm] = useMemo(() => {
+    const online = currentRegionSensors.filter((sensor) => sensor.location?.coordinates).length;
+    const inAlarm = currentRegionAlarmEvents.reduce(
+      (sum, alarm) => sum + alarm.records.reduce((acc, curr) => acc + (curr.end ? 0 : 1), 0),
+      0
+    );
+    return [online - inAlarm, currentRegionSensors.length - online, inAlarm];
+  }, [currentRegionSensors, currentRegionAlarmEvents]);
 
   return (
     <Container maxWidth="xl">
@@ -37,8 +47,12 @@ export default function AppView() {
             title="Sensors"
             total={currentRegionSensors.length || 0}
             color="success"
-            path='/sensors'
-            icon={<Iconify color={colors.teal.A700} icon="ic:round-sensors" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
+            path="/sensors"
+            icon={
+              (
+                <Iconify color={colors.teal.A700} icon="ic:round-sensors" width={64} height={64} />
+              ) || <img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />
+            }
           />
         </Grid>
 
@@ -47,8 +61,17 @@ export default function AppView() {
             title="Alarms"
             total={currentRegionAlarms.length || 0}
             color="info"
-            path='/alarms'
-            icon={<Iconify color={colors.indigo.A200} icon="ic:round-notifications" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
+            path="/alarms"
+            icon={
+              (
+                <Iconify
+                  color={colors.indigo.A200}
+                  icon="ic:round-notifications"
+                  width={64}
+                  height={64}
+                />
+              ) || <img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />
+            }
           />
         </Grid>
 
@@ -57,8 +80,17 @@ export default function AppView() {
             title="Readings"
             total={sensorReadings.length}
             color="warning"
-            path='/map'
-            icon={<Iconify color={colors.amber[500]} icon="eva:activity-outline" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
+            path="/map"
+            icon={
+              (
+                <Iconify
+                  color={colors.amber[500]}
+                  icon="eva:activity-outline"
+                  width={64}
+                  height={64}
+                />
+              ) || <img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />
+            }
           />
         </Grid>
 
@@ -67,9 +99,17 @@ export default function AppView() {
             title="Alarm Events"
             total={currentRegionAlarmEvents.length}
             color="error"
-            path='/alarms'
-            // icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
-            icon={<Iconify color={colors.deepOrange[300]} icon="ic:round-notifications-active" width={64} height={64} /> || <img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
+            path="/alarms"
+            icon={
+              (
+                <Iconify
+                  color={colors.deepOrange[300]}
+                  icon="ic:round-notifications-active"
+                  width={64}
+                  height={64}
+                />
+              ) || <img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />
+            }
           />
         </Grid>
 
@@ -86,13 +126,12 @@ export default function AppView() {
             title="Sensor Status"
             chart={{
               series: [
-                { label: 'Online', value: 5 },
-                { label: 'Offline', value: 1 },
-                { label: 'In Alarm', value: 2 },
+                { label: 'Online', value: sensorsOnline },
+                { label: 'Offline', value: sensorsOffline },
+                { label: 'In Alarm', value: sensorsInAlarm },
               ],
             }}
           />
-
         </Grid>
       </Grid>
     </Container>

@@ -28,7 +28,7 @@ export default function RecentNotifications({ sx }) {
       {currentRegionNotifications.slice(0, 10).map((notification) => (
         <NotificationItem key={notification.id} notification={notification} />
       ))}
-      <CardActionArea sx={{borderRadius: 0}} onClick={() => setShowMore(!showMore)}>
+      <CardActionArea sx={{ borderRadius: 0 }} onClick={() => setShowMore(!showMore)}>
         <Stack
           direction="row"
           alignItems="center"
@@ -36,19 +36,25 @@ export default function RecentNotifications({ sx }) {
           sx={{
             px: 2,
             py: 1,
-            borderTop: (theme) => !showMore ? `dashed 1px ${theme.palette.divider}` : 'none',
-            borderBottom: (theme) => showMore ? `dashed 1px ${theme.palette.divider}` : 'none'
+            borderTop: (theme) => (!showMore ? `dashed 1px ${theme.palette.divider}` : 'none'),
+            borderBottom: (theme) => (showMore ? `dashed 1px ${theme.palette.divider}` : 'none'),
           }}
         >
           <Typography variant="button">
             {showMore ? 'Show Less' : 'Show More'}
-            <Iconify sx={{verticalAlign: 'middle'}} icon={!showMore ? "mdi:chevron-down" : "mdi:chevron-up"}/>
+            <Iconify
+              sx={{ verticalAlign: 'middle' }}
+              icon={!showMore ? 'mdi:chevron-down' : 'mdi:chevron-up'}
+            />
           </Typography>
         </Stack>
       </CardActionArea>
-      {showMore && currentRegionNotifications.slice(10).map((notification) => (
-        <NotificationItem key={notification.id} notification={notification} />
-      ))}
+      {showMore &&
+        currentRegionNotifications
+          .slice(10)
+          .map((notification) => (
+            <NotificationItem key={notification.id} notification={notification} />
+          ))}
     </Card>
   );
 }
@@ -64,11 +70,11 @@ function NotificationItem({ notification }) {
   const dismissNotification = useDismissNotification();
 
   const handleSendNotification = async () => {
-    console.log('--', await sendNotification(notification.id));
+    await sendNotification(notification.id);
   };
 
   const handleDismissNotification = async () => {
-    console.log('--', await dismissNotification(notification.id));
+    await dismissNotification(notification.id);
   };
 
   const renderRightAside = () => {

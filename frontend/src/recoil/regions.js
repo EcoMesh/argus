@@ -58,7 +58,6 @@ export const currentRegionIdAtom = atom({
       }
 
       onSet((newRegionId) => {
-        console.log('newRegionId', newRegionId);
         localStorage.setItem('currentRegionId', newRegionId);
       });
     },
