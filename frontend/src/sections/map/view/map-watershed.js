@@ -39,7 +39,6 @@ function scanLineIntersectEdges(y, xmin, xmax, points) {
 }
 
 export function buildWatershedHeatmap(coords, sensorPos, value = 1) {
-  console.log("Building watershed heatmap")
 
   /*
   // Perimeter points
@@ -101,8 +100,6 @@ export function buildWatershedHeatmap(coords, sensorPos, value = 1) {
       }
     }
   }
-
-  console.log(points)
 
   // swap lat, lon -> lon, lat
   return points.map(c => [c[1], c[0], c[2]]);
